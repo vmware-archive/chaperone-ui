@@ -3,13 +3,13 @@ from settings import *
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
-ANSWER_FILE_DIR = '/var/lib/vmos/answers'
+ANSWER_FILE_DIR = '/var/lib/vmos'
 
 # Template schema:
 # - <container_name>
@@ -25,7 +25,7 @@ ANSWER_FILE_DIR = '/var/lib/vmos/answers'
 # Each section is displayed as a part of the form for its group.
 ANSWER_FILE_BASE = 'base.yml'
 # TODO: Allow user to choose file.
-ANSWER_FILE_DEFAULT = 'default.yml'
+ANSWER_FILE_DEFAULT = 'answerfile.yml'
 
 VMOS_LOG_DIR = '/var/lib/vmos/logs'
 
@@ -34,15 +34,15 @@ NSX_CONFIGURE_LOG = 'nsx-configure.log'
 SDDC_DEPLOY_LOG = 'sddc-deploy.log'
 SDDC_CONFIGURE_LOG = 'sddc-configure.log'
 
-DEBUG_OPTION = '-vvvv'
+DEBUG_OPTION = '-vvv'
 
 # List each command and its arguments.
-NSX_DEPLOY_VALIDATE = []
-NSX_DEPLOY_RUN = []
-NSX_CONFIGURE_VALIDATE = []
-NSX_CONFIGURE_RUN = []
+NSX_DEPLOY_VALIDATE = ''
+NSX_DEPLOY_RUN = ''
+NSX_CONFIGURE_VALIDATE = ''
+NSX_CONFIGURE_RUN = ''
 
-SDDC_DEPLOY_VALIDATE = []
-SDDC_DEPLOY_RUN = []
-SDDC_CONFIGURE_VALIDATE = []
-SDDC_CONFIGURE_RUN = []
+SDDC_DEPLOY_VALIDATE = ''
+SDDC_DEPLOY_RUN = ''
+SDDC_CONFIGURE_VALIDATE = ''
+SDDC_CONFIGURE_RUN = ''

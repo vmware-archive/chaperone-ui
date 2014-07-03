@@ -256,6 +256,8 @@ vmosui.addInitFunction(function() {
     /* Clear old messages. */
     $('#messages div').empty();
 
+    $('#prepare-form button.btn-submit').button('loading');
+
     /* Send the data. */
     $.ajax({
       url: action,
@@ -285,6 +287,9 @@ vmosui.addInitFunction(function() {
         $('#error-message').html(message);
 
         vmosui.utils.loadGroup(containerName, groupName);
+      },
+      complete: function(jqxhr, status, error) {
+        $('#prepare-form button.btn-submit').button('reset');
       }
     });
 

@@ -90,9 +90,9 @@ def _run_command(request, logname, command):
 
     with open(tmp, 'w+') as tp:
         if request.REQUEST.get('debug'):
-            command.append(settings.DEBUG_OPTION)
-        LOG.info('Running "%s"' % ' '.join(command))
-        proc = subprocess.Popen(command, stdout=tp, stderr=tp)
+            command = '%s %s' % (command, settings.DEBUG_OPTION)
+        LOG.info('Running "%s"' % command)
+        proc = subprocess.Popen(command.split(), stdout=tp, stderr=tp)
 
 
 def run_nsx_command(request):
