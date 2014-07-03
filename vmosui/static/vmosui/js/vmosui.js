@@ -70,12 +70,9 @@ vmosui.utils = {
     $.ajax({
       url: '/prepare/group',
       data: { cname: containerName, gname: groupName },
-      beforeSend: function(){
+      beforeSend: function() {
         $('#contents').empty();
         $('#loading').show();
-      },
-      complete: function(){
-        $('#loading').hide();
       },
       success: function(response) {
         $('#contents').html(response);
@@ -83,6 +80,9 @@ vmosui.utils = {
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
         $('#error-message').html(message);
+      },
+      complete: function() {
+        $('#loading').hide();
       }
     });
   },
@@ -146,6 +146,25 @@ vmosui.addInitFunction(function() {
     $('#prepare-menu').hide();
   }
 
+  /* Allow user to expand or collapse each contianer in the nav. */
+  $('#prepare-menu div.expand-collapse-container').click(function() {
+    var cid = this.id;
+    $container = $(this);
+    var $indicator = $container.find('div.collapsible');
+    if (!$indicator.length) {
+      $indicator = $container.find('div.expandable');
+    }
+
+    /* Toggle indicator and hide/show groups. */
+    if ($indicator.hasClass('collapsible')) {
+      $('#' + cid + '-groups').hide();
+    } else {
+      $('#' + cid + '-groups').show();
+    }
+    $indicator.toggleClass('collapsible');
+    $indicator.toggleClass('expandable');
+  });
+
   /* Show preparation forms. */
   $('#prepare-btn').click(function() {
     var $button = $(this);
@@ -158,25 +177,6 @@ vmosui.addInitFunction(function() {
 
     /* Show form for the first item. */
     $('#prepare-menu span.clickable').first().click();
-
-    /* Allow user to expand or collapse each contianer in the nav. */
-    $('div.expand-collapse-container').click(function() {
-      var cid = this.id;
-      $container = $(this);
-      var $indicator = $container.find('div.collapsible');
-      if (!$indicator.length) {
-        $indicator = $container.find('div.expandable');
-      }
-
-      /* Toggle indicator and hide/show groups. */
-      if ($indicator.hasClass('collapsible')) {
-        $('#' + cid + '-groups').hide();
-      } else {
-        $('#' + cid + '-groups').show();
-      }
-      $indicator.toggleClass('collapsible');
-      $indicator.toggleClass('expandable');
-    });
 
     /* Show status of each group, indicating if there are missing values. */
     if (!$('#prepare-menu span.group-status').length) {
@@ -222,9 +222,6 @@ vmosui.addInitFunction(function() {
         $('#contents').empty();
         $('#loading').show();
       },
-      complete: function(){
-        $('#loading').hide();
-      },
       success: function(response) {
         $('#contents').html(response);
       },
@@ -232,6 +229,9 @@ vmosui.addInitFunction(function() {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
         $('#error-message').html(message);
         $('#contents').empty();
+      },
+      complete: function(){
+        $('#loading').hide();
       }
     });
   });
