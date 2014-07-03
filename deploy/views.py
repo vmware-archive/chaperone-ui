@@ -95,8 +95,12 @@ def _run_commands(request, logname, commands):
             if request.REQUEST.get('debug'):
                 cmd = '%s %s' % (cmd, settings.DEBUG_OPTION)
 
+            # Set Python output to be unbuffered so any output is returned
+            # immediately.
+            env = os.environ
+            env['PYTHONUNBUFFERED'] = '1'
             LOG.info('Running "%s"' % cmd)
-            proc = subprocess.Popen(cmd.split(), stdout=tp, stderr=tp)
+            proc = subprocess.Popen(cmd.split(), stdout=tp, stderr=tp, env=env)
             # Wait for each process to finish except for the last one, in case
             # later commands have dependencies on earlier ones.
             if not i == num_cmds -1:
@@ -108,13 +112,12 @@ def run_nsx_commands(request):
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_DEPLOY_LOG)
     if request.REQUEST.get('action') == ACTION_RUN:
         commands = settings.NSX_DEPLOY_RUN
-        message = 'Starting NSX deployment...\n'
     else:
         commands = settings.NSX_DEPLOY_VALIDATE
-        message = 'Starting NSX deploymnet validation...\n'
 
     _run_commands(request, logname, commands)
-    return HttpResponse(message, content_type='text/plain')
+    # AJAX polling will check for output.
+    return HttpResponse('')
 
 
 def run_sddc_commands(request):
@@ -122,10 +125,9 @@ def run_sddc_commands(request):
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_DEPLOY_LOG)
     if request.REQUEST.get('action') == ACTION_RUN:
         commands = settings.SDDC_DEPLOY_RUN
-        message = 'Starting SDDC deployment...\n'
     else:
         commands = settings.SDDC_DEPLOY_VALIDATE
-        message = 'Starting SDDC deployment validation...\n'
 
     _run_commands(request, logname, commands)
-    return HttpResponse(message, content_type='text/plain')
+    # AJAX polling will check for output.
+    return HttpResponse('')

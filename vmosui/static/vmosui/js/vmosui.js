@@ -344,16 +344,16 @@ vmosui.addInitFunction(function() {
     values['action'] = action;
 
     var deployType = $('#deploy-form input[name="dtype"]').val();
+    var message = 'Starting to ' + action + ' ' + deployType + ' deployment...\n';
+    $('#deploy-output').text(message);
+
     $.ajax({
       url: '/deploy/run/' + deployType,
       data: values,
-      success: function(response) {
-        $('#deploy-output').text(response);
-       },
-       error: function(jqxhr, status, error) {
-         var message = vmosui.utils.ajaxError(jqxhr, status, error);
-         $('#error-message').html(message);
-       }      
+      error: function(jqxhr, status, error) {
+        var message = vmosui.utils.ajaxError(jqxhr, status, error);
+        $('#error-message').html(message);
+      }      
     });
 
     /* Prevent normal form submit action. */
@@ -371,16 +371,17 @@ vmosui.addInitFunction(function() {
     values['action'] = action;
 
     var configureType = $('#configure-form input[name="ctype"]').val();
+    var message = 'Starting to ' + action + ' ' + configureType +
+                  ' configuration...\n';
+    $('#configure-output').text(message);
+
     $.ajax({
       url: '/configure/run/' + configureType,
       data: values,
-      success: function(response) {
-        $('#configure-output').text(response);
-       },
-       error: function(jqxhr, status, error) {
-         var message = vmosui.utils.ajaxError(jqxhr, status, error);
-         $('#error-message').html(message);
-       }      
+      error: function(jqxhr, status, error) {
+        var message = vmosui.utils.ajaxError(jqxhr, status, error);
+        $('#error-message').html(message);
+      }      
     });
 
     /* Prevent normal form submit action. */
