@@ -139,8 +139,8 @@ def get_group(request):
                                         else:
                                             value = attr.get('default')
                                         attr['value'] = value or ''
-                    group_sections = sections
-                    break  # out of "for gname, sections"
+                            group_sections = sections
+                            break  # out of "for gname, sections"
 
     return render(request, 'prepare/_group.html', {
         'container_name': container_name,

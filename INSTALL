@@ -14,8 +14,8 @@ $ sudo apt-get install python-lockfile
 
 Install app.
 $ cd /opt
-$ git clone git://<repo>/<path_to_app> vmosui
-$ mkdir .blackhole
+$ git clone http://nsxgitlab.nicira.eng.vmware.com/nsbu-sas/the-ui.git vmosui
+$ mkdir /opt/vmosui/.blackhole
 # Same user and group as in Apache conf's WSGIDaemonProcess
 $ sudo chown -R nicira:nicira /opt/vmosui/
 
