@@ -1,0 +1,76 @@
+Install Django.
+- https://docs.djangoproject.com/en/1.6/intro/install/
+- Download latest release of Django.
+  https://www.djangoproject.com/download/
+- scp to dev VM /var/tmp/.
+$ cd /var/tmp/
+$ tar xzvf Django-1.6.5.tar.gz
+$ cd Django-1.6.5/
+$ sudo python setup.py install
+
+Install Python modules.
+$ sudo apt-get install python-lockfile
+  (python-lockfile)
+
+Install app.
+$ cd /opt
+$ git clone git://<repo>/<path_to_app> vmosui
+$ mkdir .blackhole
+# Same user and group as in Apache conf's WSGIDaemonProcess
+$ sudo chown -R nicira:nicira /opt/vmosui/
+
+Set local_settings.py config.
+- ANSWER_FILE_DIR, VMOS_LOG_DIR, and files underneath need to be owned by same
+  user and group from Apache conf's WSGIDaemonProcess.
+$ vim /opt/vmosui/vmosui/local_settings.py
+  ALLOWED_HOSTS = ['<host_name_or_address>']
+  # And fill in everything after that, e.g.,
+  NSX_CONFIGURE_VALIDATE = [
+      'ansible-playbook',
+      '-i',
+      '/var/lib/vmos/tmp/nsxautoconfig/hosts.ini',
+      '/var/lib/vmos/tmp/nsxautoconfig/nsx.yml',
+      '-C',
+  ]
+$ cp /opt/vmosui/vmosui/base.yml [ANSWER_FILE_DIR]
+
+Install Apache and mod_wsgi.
+- https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/modwsgi/
+$ sudo apt-get install apache2
+  (apache2 apache2-mpm-worker apache2-utils apache2.2-bin apache2.2-common
+  libapr1 libaprutil1 libaprutil1-dbd-sqlite3 libaprutil1-ldap)
+$ sudo apt-get install libapache2-mod-wsgi
+  (libapache2-mod-wsgi)
+$ cd /etc/apache2/sites-available/
+$ sudo vim vmosui 
+  <VirtualHost *:80>
+      #ServerName www.example.com
+      #ServerAlias example.com
+      #ServerAdmin webmaster@example.com
+
+      DocumentRoot /opt/vmosui/.blackhole/
+      Alias /static/ /opt/vmosui/vmosui/static/
+
+      <Directory />
+          Options FollowSymLinks
+          AllowOverride None
+      </Directory>
+
+      <Directory /opt/vmosui/>
+          Options Indexes FollowSymLinks MultiViews
+          AllowOverride None
+          Order allow,deny
+          Allow from all
+      </Directory>
+
+      WSGIDaemonProcess vmosui user=nicira group=nicira processes=2 threads=15 display-name=%{GROUP}
+      WSGIProcessGroup vmosui
+      WSGIScriptAlias / /opt/vmosui/vmosui/wsgi/wsgi.py
+
+      ErrorLog /var/log/apache2/vmosui_error.log
+      LogLevel info
+      CustomLog /var/log/apache2/vmosui_access.log combined
+  </VirtualHost>
+$ sudo a2dissite default
+$ sudo a2ensite vmosui
+$ sudo service apache2 restart

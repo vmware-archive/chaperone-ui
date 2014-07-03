@@ -1,0 +1,6 @@
+# Temporary files from editing and compiling
+*~
+.*.swp
+*.pyc
+*.pyo
+.secret_key_store

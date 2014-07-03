@@ -1,0 +1,21 @@
+<div id="prepare-contents">
+  <div class="form-group-title">{{ container_name }}: {{ group_name }}</div>
+  <div id="{{ container_name|slugify }}_{{ group_name|slugify }}-form">
+    <form id="prepare-form" action="{% url 'prepare:save' %}" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="cname" value="{{ container_name }}"/>
+      <input type="hidden" name="gname" value="{{ group_name }}"/>
+      {% for section in sections %}{% for sname, attributes in section.items %}<div class="form-section">
+        <div class="form-section-title">{{ sname }}</div>
+        {% for attr in attributes %}<div class="form-field">
+          <span class="form-field-title">{{ attr.name }}</span> <input type="text" class="form-control" name="{{ attr.id }}" value="{{ attr.value }}"/>
+        </div>
+        {% endfor %}</div>
+        {% endfor %}{% endfor %}<div class="form-group-buttons">
+          <button type="submit" class="btn btn-primary btn-submit">Save</button>
+          <button class="btn btn-reset">Reset</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

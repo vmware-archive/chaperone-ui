@@ -1,0 +1,17 @@
+<div id="prepare-menu" class="menu">
+  <ul>
+    {% for container in containers %}{% for cname, groups in container.items %}<li>
+      <div id="{{ cname|slugify }}" class="expand-collapse-container">
+        <div class="collapsible"></div>
+        <span class="container-name">{{ cname }}</span>
+      </div>
+      <div id="{{ cname|slugify }}-groups" class="expand-collapse-groups">
+        <ul>
+          {% for group in groups %}{% for gname, _ in group.items %}<li>
+            <span id="{{ cname|slugify }}_{{ gname|slugify }}" class="group-name clickable">{{ gname }}</span>
+          </li>{% endfor %}{% endfor %}
+        </ul>
+      </div>
+    </li>{% endfor %}{% endfor %}
+  </ul>
+</div>
