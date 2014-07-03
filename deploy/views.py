@@ -16,7 +16,7 @@ TMP_FILENAME = '%s.tmp'
 
 
 def index(request, logname, deploy_type):
-    """ Show knobs to start running the deployment command. """
+    """ Show knobs to start running the deployment commands. """
     file_contents = ''
     if os.path.exists(logname):
         with open(logname, 'r') as lp:
@@ -29,13 +29,13 @@ def index(request, logname, deploy_type):
 
 
 def nsx_index(request):
-    """ Display start page for NSX deployment command. """
+    """ Display start page for NSX deployment commands. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_DEPLOY_LOG)
     return index(request, logname, 'nsx')
 
 
 def sddc_index(request):
-    """ Display start page for SDDC deployment command. """
+    """ Display start page for SDDC deployment commands. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_DEPLOY_LOG)
     return index(request, logname, 'sddc')
 
@@ -75,10 +75,10 @@ def tail_sddc_log(request):
     return _tail_log(request, logname)
 
 
-def _run_command(request, logname, command):
-    # Run the given command, using any needed arguments from the request. The
-    # command must be given as a list containing the command plus its
-    # arguments.
+def _run_commands(request, logname, commands):
+    # Run the given commands, using any needed options from the request. The
+    # commands must be given as a list, one string per command plus its
+    # arguments and options.
 
     # Use temporary file to hold the most recent output, since the contents
     # were last consumed.
@@ -89,35 +89,43 @@ def _run_command(request, logname, command):
             lp.truncate(0)
 
     with open(tmp, 'w+') as tp:
-        if request.REQUEST.get('debug'):
-            command = '%s %s' % (command, settings.DEBUG_OPTION)
-        LOG.info('Running "%s"' % command)
-        proc = subprocess.Popen(command.split(), stdout=tp, stderr=tp)
+        num_cmds = len(commands)
+        for i in xrange(0, num_cmds):
+            cmd = commands[i]
+            if request.REQUEST.get('debug'):
+                cmd = '%s %s' % (cmd, settings.DEBUG_OPTION)
+
+            LOG.info('Running "%s"' % cmd)
+            proc = subprocess.Popen(cmd.split(), stdout=tp, stderr=tp)
+            # Wait for each process to finish except for the last one, in case
+            # later commands have dependencies on earlier ones.
+            if not i == num_cmds -1:
+                proc.wait()
 
 
-def run_nsx_command(request):
-    """ Run deployment command for NSX. """
+def run_nsx_commands(request):
+    """ Run deployment commands for NSX. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_DEPLOY_LOG)
     if request.REQUEST.get('action') == ACTION_RUN:
-        command = settings.NSX_DEPLOY_RUN
+        commands = settings.NSX_DEPLOY_RUN
         message = 'Starting NSX deployment...\n'
     else:
-        command = settings.NSX_DEPLOY_VALIDATE
-        message = 'Starting NSX deployment validation...\n'
+        commands = settings.NSX_DEPLOY_VALIDATE
+        message = 'Starting NSX deploymnet validation...\n'
 
-    _run_command(request, logname, command)
+    _run_commands(request, logname, commands)
     return HttpResponse(message, content_type='text/plain')
 
 
-def run_sddc_command(request):
-    """ Run deployment command for SDDC. """
+def run_sddc_commands(request):
+    """ Run deployment commands for SDDC. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_DEPLOY_LOG)
     if request.REQUEST.get('action') == ACTION_RUN:
-        command = settings.SDDC_DEPLOY_RUN
+        commands = settings.SDDC_DEPLOY_RUN
         message = 'Starting SDDC deployment...\n'
     else:
-        command = settings.SDDC_DEPLOY_VALIDATE
+        commands = settings.SDDC_DEPLOY_VALIDATE
         message = 'Starting SDDC deployment validation...\n'
 
-    _run_command(request, logname, command)
+    _run_commands(request, logname, commands)
     return HttpResponse(message, content_type='text/plain')

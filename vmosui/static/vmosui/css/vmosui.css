@@ -137,9 +137,7 @@ span.clickable-hover {
   margin-left: 30px;
 }
 
-#prepare-contents,
-#deploy-contents,
-#configure-contents {
+#contents {
   padding: 0 30px 20px 30px;
 }
 
@@ -191,7 +189,7 @@ span.clickable-hover {
 }
 
 .form-field-title {
-  color: #717074;
+  color: #555555;
 }
 
 .form-control:focus {

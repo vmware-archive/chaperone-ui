@@ -1,4 +1,4 @@
-<div id="configure-contents">
+<div id="configure-{{ configure_type }}-contents">
   <pre id="configure-output">{{ log_contents }}</pre>
   <form id="configure-form" action="/configure/run/{{ configure_type }}" method="get">
     {% csrf_token %}

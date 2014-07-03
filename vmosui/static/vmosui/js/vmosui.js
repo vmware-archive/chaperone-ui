@@ -98,9 +98,12 @@ vmosui.utils = {
             .scrollHeight);
         }
 
-        setTimeout(function() {
-          vmosui.utils.updateConfigureLogView(configureType);
-        }, 2000);
+        /* Schedule another update, if we're still on the page. */
+        if ($('#configure-' + configureType + '-contents').length) {
+          setTimeout(function() {
+            vmosui.utils.updateConfigureLogView(configureType);
+          }, 2000);
+        }
       },
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
@@ -119,9 +122,12 @@ vmosui.utils = {
             .scrollTop($('#deploy-output')[0].scrollHeight);
         }
 
-        setTimeout(function() {
-          vmosui.utils.updateDeployLogView(deployType);
-        }, 2000);
+        /* Schedule another update, if we're still on the page. */
+        if ($('#deploy-' + deployType + '-contents').length) {
+          setTimeout(function() {
+            vmosui.utils.updateDeployLogView(deployType);
+          }, 2000);
+        }
       },
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);

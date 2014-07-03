@@ -1,4 +1,4 @@
-<div id="deploy-contents">
+<div id="deploy-{{ deploy_type }}-contents">
   <pre id="deploy-output">{{ log_contents }}</pre>
   <form id="deploy-form" action="/deploy/run/{{ deploy_type }}" method="get">
     {% csrf_token %}

@@ -3,15 +3,15 @@ from settings import *
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 TEMPLATE_DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['vmos']
 
 ANSWER_FILE_DIR = '/var/lib/vmos'
 
-# Template schema:
+# ANSWER_FILE_BASE template schema:
 # - <container_name>
 #     - <group_name>
 #         - <section_name>
@@ -36,13 +36,16 @@ SDDC_CONFIGURE_LOG = 'sddc-configure.log'
 
 DEBUG_OPTION = '-vvv'
 
-# List each command and its arguments.
-NSX_DEPLOY_VALIDATE = ''
-NSX_DEPLOY_RUN = ''
-NSX_CONFIGURE_VALIDATE = ''
-NSX_CONFIGURE_RUN = ''
+# List of NSX commands, one string per command and its arguments.
+# Example: [ 'echo "Hello World"', 'ls -la', ]
+NSX_DEPLOY_VALIDATE = []
+NSX_DEPLOY_RUN = []
+NSX_CONFIGURE_VALIDATE = []
+NSX_CONFIGURE_RUN = []
 
-SDDC_DEPLOY_VALIDATE = ''
-SDDC_DEPLOY_RUN = ''
-SDDC_CONFIGURE_VALIDATE = ''
-SDDC_CONFIGURE_RUN = ''
+# List of SDDC commands, one string per command and its arguments.
+# Example: [ 'echo "Hello World"', 'ls -la', ]
+SDDC_DEPLOY_VALIDATE = []
+SDDC_DEPLOY_RUN = []
+SDDC_CONFIGURE_VALIDATE = []
+SDDC_CONFIGURE_RUN = []
