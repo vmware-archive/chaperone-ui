@@ -310,28 +310,20 @@ vmosui.addInitFunction(function() {
   });
 
   /* Update log viewers periodically. */
-  $('#deploy-nsx-btn').click(function() {
-    setTimeout(function() {
-      vmosui.utils.updateDeployLogView('nsx');
-    }, 2000);
-  });
+  $('button.btn-command').click(function() {
+    var idArr = this.id.split('-');
+    var commandType = idArr[0];
+    var thingType = idArr[1];
 
-  $('#configure-nsx-btn').click(function() {
-    setTimeout(function() {
-      vmosui.utils.updateConfigureLogView('nsx');
-    }, 2000);
-  });
-
-  $('#deploy-sddc-btn').click(function() {
-    setTimeout(function() {
-      vmosui.utils.updateDeployLogView('sddc');
-    }, 2000);
-  });
-
-  $('#configure-sddc-btn').click(function() {
-    setTimeout(function() {
-      vmosui.utils.updateConfigureLogView('sddc');
-    }, 2000);
+    if (commandType == 'configure') {
+      setTimeout(function() {
+        vmosui.utils.updateConfigureLogView(thingType);
+      }, 2000);
+    } else {
+      setTimeout(function() {
+        vmosui.utils.updateDeployLogView(thingType);
+      }, 2000);
+    }
   });
 
   /* Start deployment. */

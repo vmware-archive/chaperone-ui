@@ -20,13 +20,17 @@ label {
 #leftnav {
   display: inline-block;
   width: 19%;
-  text-align: left;
   vertical-align: top;
   padding-top: 20px;
   padding-bottom: 20px;
-  padding-left: 40px;
+  padding-left: 30px;
   border-right: 1px solid #DDDDDD;
   font-size: 14px;
+  overflow: auto;
+}
+#leftnav button.btn-primary {
+  width: 150px;
+  text-align: left;
 }
 
 .logo {
@@ -143,7 +147,7 @@ span.clickable-hover {
 
 #deploy-output,
 #configure-output {
-  max-height: 700px;
+  max-height: 650px;
 }
 
 /* forms */
