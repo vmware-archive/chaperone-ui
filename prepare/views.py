@@ -11,10 +11,6 @@ LOG = logging.getLogger(__name__)
 
 
 ANSWER_FILE_COOKIE = 'answerfile'
-HEADING_TEMPLATE = """\
-##############################
-# %s
-##############################"""
  
 
 def _get_contents(filename):
@@ -26,28 +22,46 @@ def _get_contents(filename):
     return yaml.load(file_contents)
 
 
-def _get_base_answers(group_name=None):
+def _get_sections(container_name, group_name):
+    # Return sections for the given group in the given container.
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    containers = _get_contents(filename)
+
+    # [{ ... }]
+    for container in containers:
+        # { 'Container': { ... } }
+        for cname, groups in container.iteritems():
+            if cname != container_name:
+                continue
+            # [{ ... }]
+            for group in groups:
+                # { 'Group': [...] }
+                for gname, sections in group.iteritems():
+                    if gname == group_name:
+                        return sections
+    return None
+
+
+def _get_base_answers(container_name=None, group_name=None):
     # Return dictionary of id/value pairs from the base file, optionally, for
-    # only the group given.
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    with open(filename, 'r') as fp:
-        fcntl.flock(fp, fcntl.LOCK_SH)
-        file_contents = fp.read()
-        fcntl.flock(fp, fcntl.LOCK_UN)
-        containers = yaml.load(file_contents)
+    # only the given group in the given container.
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    containers = _get_contents(filename)
 
     answers = {}
     # [{ ... }]
     for container in containers:
         # { 'Container': { ... } }
-        for _, groups in container.iteritems():
+        for cname, groups in container.iteritems():
+            if container_name and cname != container_name:
+                continue
             # [{ ... }]
             for group in groups:
                 # { 'Group': [...] }
                 for gname, sections in group.iteritems():
-                    # [{ ... }]
                     if group_name and gname != group_name:
                         continue
+                    # [{ ... }]
                     for section in sections:
                         # { 'Section': [...] }
                         for _, attributes in section.iteritems():
@@ -60,7 +74,7 @@ def _get_base_answers(group_name=None):
 def _write_answer_file(filename, new_answers={}):
     # Write out answer file, replacing old values with new ones, if given.
     base_answers = _get_base_answers()
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR,
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
 
     saved_answers = {}
@@ -104,11 +118,11 @@ def get_group(request):
     group_name = request.REQUEST.get('gname')
 
     # Get group's sections, using saved values from the given file.
-    base = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
     containers = _get_contents(base)
     filename = request.COOKIES.get(ANSWER_FILE_COOKIE)
     # TODO: Use user chosen file.
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR,
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
 
     saved_answers = {}
@@ -153,7 +167,7 @@ def save_group(request):
     """ Save new answers for the group. """
     filename = request.COOKIES.get(ANSWER_FILE_COOKIE)
     # TODO: Use user chosen file.
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR,
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
     _write_answer_file(filename, request.REQUEST)
     return get_group(request)
@@ -163,25 +177,40 @@ def get_group_status(request):
     """ Check if there are any values missing from the group. """
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
-    base_answers = _get_base_answers(group_name=group_name)
+    base_answers = _get_base_answers(container_name=container_name,
+                                     group_name=group_name)
 
     # Check for values in current file.
     filename = request.COOKIES.get(ANSWER_FILE_COOKIE)
     # TODO: Use user chosen file.
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR,
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
-
     saved_answers = {}
     if os.path.exists(filename):
         saved_answers = _get_contents(filename)
+    input_types = {}
 
     has_missing = False
     is_complete = False
     for key in base_answers.iterkeys():
         if not saved_answers.get(key):
-            has_missing = True
-            LOG.debug('Answer %s missing value' % key)
-            break
+            # Lazy initialization.
+            if not input_types:
+                sections = _get_sections(container_name=container_name,
+                                         group_name=group_name)
+                # [{ ... }]
+                for section in sections:
+                    # { 'Section': [...] }
+                    for _, attributes in section.iteritems():
+                        # [{ ... }]
+                        for attr in attributes:
+                            input_types[attr['id']] = attr.get('input')
+            
+            # Ignore checkboxes, because setting it is not required.
+            if not input_types.get(key) == 'checkbox':
+                has_missing = True
+                LOG.debug('Answer %s missing value' % key)
+                break
 
     if not has_missing:
         LOG.debug('Group "%s" in container "%s" complete' %

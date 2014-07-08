@@ -38,6 +38,11 @@ vmosui.utils = {
     return message;
   },
 
+  clearMessages: function() {
+    /* Clear old messages. */
+    $('#messages div').empty();
+  },
+
   getFormCgid: function() {
     /* Get form's container_group id. */
     var regex = /(.+)-form/;
@@ -50,8 +55,11 @@ vmosui.utils = {
     var values = {};
     $form.find('input').each(function(index) {
       var $input = $(this);
-      /* Include checked checkbox inputs and all other input types. */
-      if (!($input.attr('type') == 'checkbox') || $input.prop('checked')) {
+      if (($input.attr('type') == 'checkbox') && !$input.prop('checked')) {
+        /* Need to know if the checkbox is being unchecked. */
+        values[this.name] = '';
+      } else {
+        /* Include checked checkbox inputs and all other input types. */
         values[this.name] = $input.val();
       }
     });
@@ -211,9 +219,7 @@ vmosui.addInitFunction(function() {
     }
 
     vmosui.utils.activateStep(this);
-
-    /* Clear old messages. */
-    $('#messages div').empty();
+    vmosui.utils.clearMessages();
 
     /* Fill in the page contents based on the action given. */
     $.ajax({
@@ -238,8 +244,7 @@ vmosui.addInitFunction(function() {
 
   /* Show form to set the group's answers. */
   $('#prepare-menu span.clickable').click(function() {
-    /* Clear old messages. */
-    $('#messages div').empty();
+    vmosui.utils.clearMessages();
 
     var containerName = vmosui.utils.getNavCname(this);
     var $span = $(this);
@@ -259,9 +264,7 @@ vmosui.addInitFunction(function() {
     var containerName = $('#prepare-form input[name="cname"]').val();
     var groupName = $('#prepare-form input[name="gname"]').val();
 
-    /* Clear old messages. */
-    $('#messages div').empty();
-
+    vmosui.utils.clearMessages();
     $('#prepare-form button.btn-submit').button('loading');
 
     /* Send the data. */
@@ -311,6 +314,8 @@ vmosui.addInitFunction(function() {
 
   /* Update log viewers periodically. */
   $('button.btn-command').click(function() {
+    vmosui.utils.clearMessages();
+
     var idArr = this.id.split('-');
     var commandType = idArr[0];
     var thingType = idArr[1];

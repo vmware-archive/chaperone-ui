@@ -29,15 +29,14 @@ label {
   overflow: auto;
 }
 #leftnav button.btn-primary {
-  width: 150px;
+  width: 140px;
   text-align: left;
 }
 
 .logo {
   font-size: 20px;
   margin-bottom: 20px;
-  margin-top: -8px;
-  margin-left: -8px;
+  margin-top: -5px;
 }
 .logo img {
   height: 72px;
@@ -200,6 +199,12 @@ span.clickable-hover {
   border-color: #0095D3;
   -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(137, 203, 223, .6);
           box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(137, 203, 223, .6);
+}
+
+.form-control.checkbox {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
 }
 
 .form-group-buttons {

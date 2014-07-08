@@ -55,6 +55,10 @@ def _tail_log(request, logname):
             fcntl.flock(tp, fcntl.LOCK_UN)
 
     if file_contents:
+        # After tmp file gets truncated, subprocess is still writing the output
+        # to the last file position, so the truncated part gets filled with
+        # nul bytes. Remove those.
+        file_contents = file_contents.lstrip('\x00')
         with open(logname, 'a+') as lp:
             # Now write the contents back out to the complete log file.
             fcntl.flock(lp, fcntl.LOCK_EX)

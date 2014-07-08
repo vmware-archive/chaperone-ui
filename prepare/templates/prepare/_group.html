@@ -8,13 +8,13 @@
       {% for section in sections %}{% for sname, attributes in section.items %}<div class="form-section">
         <div class="form-section-title">{{ sname }}</div>
         {% for attr in attributes %}<div class="form-field">
-          <span class="form-field-title">{{ attr.name }}</span> <input type="text" class="form-control" name="{{ attr.id }}" value="{{ attr.value }}"/>
-        </div>
-        {% endfor %}</div>
-        {% endfor %}{% endfor %}<div class="form-group-buttons">
-          <button type="submit" class="btn btn-primary btn-submit" data-loading-text="Saving...">Save</button>
-          <button class="btn btn-reset">Reset</button>
-        </div>
+          {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox" name="{{ attr.id }}" value="1" {% if attr.value %}checked="checked"{% endif %}/> <span class="form-field-title">{{ attr.name }}</span></label>
+          {% else %}<span class="form-field-title">{{ attr.name }}</span> <input id="{{ attr.id }}" type="text" class="form-control" name="{{ attr.id }}" value="{{ attr.value }}"/>{% endif %}
+        </div>{% endfor %}
+      </div>{% endfor %}{% endfor %}
+      <div class="form-group-buttons">
+        <button type="submit" class="btn btn-primary btn-submit" data-loading-text="Saving...">Save</button>
+        <button class="btn btn-reset">Reset</button>
       </div>
     </form>
   </div>

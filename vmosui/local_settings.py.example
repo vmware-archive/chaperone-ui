@@ -9,7 +9,7 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = ['vmos']
 
-ANSWER_FILE_DIR = '/var/lib/vmos'
+ANSWER_FILE_DIR = '/var/lib/vmos/'
 
 # ANSWER_FILE_BASE template schema:
 # - <container_name>
@@ -27,7 +27,7 @@ ANSWER_FILE_BASE = 'base.yml'
 # TODO: Allow user to choose file.
 ANSWER_FILE_DEFAULT = 'answerfile.yml'
 
-VMOS_LOG_DIR = '/var/lib/vmos/logs'
+VMOS_LOG_DIR = '/var/log/vmos/'
 
 NSX_DEPLOY_LOG = 'nsx-deploy.log'
 NSX_CONFIGURE_LOG = 'nsx-configure.log'
