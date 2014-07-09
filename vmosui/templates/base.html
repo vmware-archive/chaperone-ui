@@ -31,12 +31,12 @@
             <a href="/"><img src="{{ STATIC_URL }}vmosui/img/vmw_nsx.png" alt="VMware NSX"></a><br/>
             <a href="/">+&nbsp;OpenStack</a><br/>
           </div>
-          <button id="prepare-btn" class="btn btn-primary">Prepare</button><br/>
+          <button id="prepare-btn" type="button" class="btn btn-primary">Prepare</button><br/>
           {% include "vmosui/_prepare_menu.html" %}
-          <button id="deploy-nsx-btn" class="btn btn-primary btn-command actionable" action="{% url 'deploy:nsx' %}">Deploy NSX</button><br/>
-          <button id="configure-nsx-btn" class="btn btn-primary btn-command actionable" action="{% url 'configure:nsx' %}">Configure NSX</button><br/>
-          <button id="deploy-sddc-btn" class="btn btn-primary btn-command actionable" action="{% url 'deploy:sddc' %}">Deploy SDDC </button><br/>
-          <button id="configure-sddc-btn" class="btn btn-primary btn-command actionable" action="{% url 'configure:sddc' %}">Configure SDDC</button>
+          <button id="deploy-nsx-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'deploy:nsx' %}">Deploy NSX</button><br/>
+          <button id="configure-nsx-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:nsx' %}">Configure NSX</button><br/>
+          <button id="deploy-sddc-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'deploy:sddc' %}">Deploy SDDC </button><br/>
+          <button id="configure-sddc-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:sddc' %}">Configure SDDC</button>
         </div>
         <div id="main">
           <div id="messages">

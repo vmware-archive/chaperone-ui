@@ -257,6 +257,27 @@ vmosui.addInitFunction(function() {
    * elements that will be loaded into the page later.
    */
 
+  /* Indicate when there are changes made in the form before saving. */
+  $(document).on('change', '#prepare-form input', function(event) {
+    var text = $('.form-group-title').text();
+    var suffix = ' *';
+    if (text.indexOf(suffix, text.length - suffix.length) == -1) {
+      $('.form-group-title').append(suffix);
+    }
+  });
+
+  /* Reset form change indicator. */
+  $(document).on('click', '#prepare-form button.btn-reset', function() {
+    vmosui.utils.clearMessages();
+
+    var $title = $('.form-group-title');
+    var text = $title.text();
+    var suffix = ' *';
+    if (text.indexOf(suffix, text.length - suffix.length) != -1) {
+      $('.form-group-title').text(text.slice(0, -2));
+    }
+  });
+
   /* Submit form to set group's answers. */
   $(document).on('submit', '#prepare-form', function(event) {
     var $form = $(this);
@@ -304,12 +325,6 @@ vmosui.addInitFunction(function() {
 
     /* Prevent normal form submit action. */
     return false;
-  });
-
-  /* Reset to currently saved values. */
-  $(document).on('click', '#prepare-form button.btn-reset', function() {
-    var cgid = vmosui.utils.getFormCgid();
-    $('#' + cgid).click();
   });
 
   /* Update log viewers periodically. */
