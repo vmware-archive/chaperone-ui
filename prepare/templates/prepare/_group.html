@@ -8,7 +8,7 @@
       {% for section in sections %}{% for sname, attributes in section.items %}<div class="form-section">
         <div class="form-section-title">{{ sname }}</div>
         {% for attr in attributes %}<div class="form-field">
-          {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox" name="{{ attr.id }}" value="1" {% if attr.value %}checked="checked"{% endif %}/> <span class="form-field-title">{{ attr.name }}</span></label>
+          {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox" name="{{ attr.id }}" value="1" {% if attr.value == "1" %}checked="checked"{% endif %}/> <span class="form-field-title">{{ attr.name }}</span></label>
           {% else %}<span class="form-field-title">{{ attr.name }}</span> <input id="{{ attr.id }}" type="text" class="form-control" name="{{ attr.id }}" value="{{ attr.value }}"/>{% endif %}
         </div>{% endfor %}
       </div>{% endfor %}{% endfor %}

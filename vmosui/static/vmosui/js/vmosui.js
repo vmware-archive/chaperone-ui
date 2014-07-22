@@ -57,7 +57,7 @@ vmosui.utils = {
       var $input = $(this);
       if (($input.attr('type') == 'checkbox') && !$input.prop('checked')) {
         /* Need to know if the checkbox is being unchecked. */
-        values[this.name] = '';
+        values[this.name] = '0';
       } else {
         /* Include checked checkbox inputs and all other input types. */
         values[this.name] = $input.val();
