@@ -16,8 +16,8 @@ ACTION_RUN = 'run'
 TMP_FILENAME = '%s.tmp'
 
 
-def index(request, logname, configure_type):
-    """ Show knobs to start running the configuration commands. """
+def _index(request, logname, configure_type):
+    # Show knobs to start running the configuration commands.
     file_contents = ''
     if os.path.exists(logname):
         with open(logname, 'r') as lp:
@@ -32,13 +32,13 @@ def index(request, logname, configure_type):
 def nsx_index(request):
     """ Display start page for NSX configuration commands. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_CONFIGURE_LOG)
-    return index(request, logname, 'nsx')
+    return _index(request, logname, 'nsx')
 
 
 def sddc_index(request):
     """ Display start page for SDDC configuartion commands. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_CONFIGURE_LOG)
-    return index(request, logname, 'sddc')
+    return _index(request, logname, 'sddc')
 
 
 def _tail_log(request, logname):

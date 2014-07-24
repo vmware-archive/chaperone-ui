@@ -24,12 +24,16 @@
   </head>
 
   <body id="{% block page_id %}{% endblock %}">
+    <div class="header">
+      User: {{ user.username }}
+      <span class="header-link"><a href="{% url 'logout' %}">Logout</a></span>
+    </div>
     {% block content %}
       <div class="main-container">
         <div id="leftnav" class="fifth-width">
           <div class="logo">
-            <a href="/"><img src="{{ STATIC_URL }}vmosui/img/vmw_nsx.png" alt="VMware NSX"></a><br/>
-            <a href="/">+&nbsp;OpenStack</a><br/>
+            <a href="/"><img src="{{ STATIC_URL }}vmosui/img/vmw_gray.png" alt="VMware NSX"></a><br/>
+            <a href="/">SDDC</a><br/>
           </div>
           <button id="prepare-btn" type="button" class="btn btn-primary">Prepare</button><br/>
           {% include "vmosui/_prepare_menu.html" %}
@@ -44,14 +48,10 @@
             <div id="error-message" class="text-error">{{ error_message }}</div>
           </div>
           <div id="loading"><img src="{{ STATIC_URL }}vmosui/img/loading.gif" alt="Loading..."></div>
-          <div id="contents">
-            {% block contents %}{% endblock %}
-          </div>
+          <div id="contents"></div>
         </div>
       </div>
     {% endblock %}
-
-    {% block footer %}{% endblock %}
 
     {% comment %} Placed at the end of the document so the pages load faster {% endcomment %}
     {% block js %}

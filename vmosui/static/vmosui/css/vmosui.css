@@ -4,18 +4,41 @@ html {
 }
 
 body {
-  font-family: Arial, sans-serif;
-  background: #717074;
+  font-family: "Helvetica Neue", sans-serif;
+  background-color: #717074;
   margin-bottom: 40px;
-  margin-top: 40px;
+  margin-top: 10px;
   height: 100%;
+  background-image: url('/static/vmosui/img/bg_rb.png');
+  background-repeat: no-repeat;
+  background-position: right 100%;
 }
 
 label {
   font-weight: normal;
 }
 
-/* navigation */
+/* Navigation */
+
+.header {
+  text-align: right;
+  color: #FFFFFF;
+  padding: 10px 20px;
+}
+
+.header-link {
+  color: #FFFFFF;
+  margin-left: 20px;
+}
+.header-link a,
+.header-link a:focus,
+.header-link a:active {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+.header-link a:hover {
+  text-decoration: underline;
+}
 
 #leftnav {
   display: inline-block;
@@ -34,13 +57,15 @@ label {
 }
 
 .logo {
-  font-size: 20px;
+  font-size: 24px;
   margin-bottom: 20px;
   margin-top: -5px;
+  color: #717074;
 }
 .logo img {
-  height: 72px;
-  width: auto;
+  /* Same width as leftnav buttons */
+  width: 140px;
+  height: auto;
 }
 .logo a,
 .logo a:hover,
@@ -48,7 +73,18 @@ label {
 .logo a:active {
   color: #717074;
   text-decoration: none;
-} 
+}
+
+#login-form .logo {
+  color: #FFFFFF;
+  text-align: left;
+  margin-top: 40px;
+  /* Vertically align with .form-field */
+  margin-left: 100px;
+}
+#login-form .logo img {
+  width: 250px;
+}
 
 .menu ul {
   list-style: none;
@@ -110,7 +146,7 @@ span.clickable-hover {
   border-left: 17px solid #003D79;
 }
 
-/* contents */
+/* Contents */
 
 #loading {
   margin-top: 50px;
@@ -121,8 +157,8 @@ span.clickable-hover {
   background-color: #FFFFFF;
   padding-top: 20px;
   padding-bottom: 20px;
-  /* get rid of space between child inline-block divs*/
-  /* NOTE: need to reset font-size for all child elements */
+  /* Get rid of space between child inline-block divs */
+  /* NOTE: Need to reset font-size for all child elements */
   font-size: 0;
 }
 
@@ -144,12 +180,18 @@ span.clickable-hover {
   padding: 0 30px 20px 30px;
 }
 
+#vmosui-login {
+  background-color: #EEEEEE;
+  text-align: center;
+  padding-top: 40px;
+}
+
 #deploy-output,
 #configure-output {
   max-height: 650px;
 }
 
-/* forms */
+/* Forms */
 
 .form-group-title {
   font-size: 28px;
@@ -187,8 +229,26 @@ span.clickable-hover {
   z-index: 2;
 }
 
+#login-form .form-section {
+  width: 600px;
+  height: 320px;
+  background-color: #006990;
+  border-radius: 14px;
+  background-image: url('/static/vmosui/img/bg_rt.png');
+  background-repeat: no-repeat;
+  background-position: right 0;
+}
+
 .form-field {
   margin: 0 10px 8px 10px;
+}
+
+#login-form .form-field {
+  margin-right: 100px;
+  margin-bottom: 10px;
+  margin-left: 100px;
+  color: #FFFFFF;
+  text-align: left;
 }
 
 .form-field-title {
@@ -209,6 +269,7 @@ span.clickable-hover {
 
 .form-group-buttons {
   margin-top: 5px;
+  margin-bottom: 10px;
 }
 
 .btn {
@@ -224,7 +285,7 @@ span.clickable-hover {
 }
 
 .btn-primary {
-  background-color: #0095D3;
+  background-color: #006990;
   border-color: transparent;
 }
 .btn-primary:hover,
@@ -296,7 +357,7 @@ label.disabled {
   color: #717074;
 }
 
-/* text */
+/* Text */
 
 .has-success .help-block,
 .has-success .control-label,

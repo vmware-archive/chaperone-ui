@@ -5,9 +5,17 @@ from settings import *
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = False
+
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+    'vmosui.context_processors.Vmosui',
+)
 
 ALLOWED_HOSTS = ['vmos']
+
+AUTHENTICATION_BACKENDS = ('vmosui.auth.PamBackend',)
+
+LOGIN_URL = '/login'
 
 ANSWER_FILE_DIR = '/var/lib/vmos/'
 

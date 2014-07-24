@@ -32,6 +32,20 @@ $ mkdir <VMOS_LOG_DIR>
 $ chown -R nicira:nicira <VMOS_LOG_DIR>
 $ cp /opt/vmosui/vmosui/base.yml <ANSWER_FILE_DIR>
 
+Create Django database and tables.
+$ sudo apt-get install sqlite3
+  (sqlite3)
+$ touch /opt/vmosui/vmosui.db
+$ vim /opt/vmosui/vmosui/settings.py
+# Add these lines.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/opt/vmosui/vmosui.db',
+    }
+}
+$ python manage.py syncdb --noinput
+
 Install Apache and mod_wsgi.
 - https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/modwsgi/
 $ sudo apt-get install apache2

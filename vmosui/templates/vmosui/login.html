@@ -1,0 +1,60 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{% block title %}VMware NSX + OpenStack{% endblock %}</title>
+
+    {% comment %} Load CSS sheets before JavaScript {% endcomment %}
+    {% block css %}
+      <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" rel="stylesheet">
+      <link href="{{ STATIC_URL }}vmosui/css/vmosui.css" rel="stylesheet">
+    {% endblock %}
+
+    <link rel="shortcut icon" href="{{ STATIC_URL }}vmosui/img/favicon.ico">
+    <script src="{{ STATIC_URL }}vmosui/js/base.js" type="text/javascript" charset="utf-8"></script>
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body id="vmosui-login">
+    {% block content %}
+      <div id="messages">
+        <div id="success-message" class="text-success">{{ success_message }}</div>
+        <div id="error-message" class="text-error">{{ error_message }}</div>
+      </div>
+      <form id="login-form" action="{% url 'login' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="next" value="{{ next_url }}"/>
+        <div class="form-section">
+          <div class="logo">
+            <img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware NSX"><br/>
+            SDDC
+          </div>
+          <div class="form-field">
+            <!--[if lt IE 10]>Username:<![endif]--><input type="text" name="username" class="form-control" value="{{ username }}" placeholder="Username"/>
+          </div>
+          <div class="form-field">
+            <!--[if lt IE 10]>Password:<![endif]--><input type="password" name="password" class="form-control" placeholder="Password"/>
+          </div>
+          <div class="form-group-buttons">
+            <button type="submit" class="btn btn-reset">Log In</button>
+          </div>
+        </div>
+      </form>
+    {% endblock %}
+
+    {% comment %} Placed at the end of the document so the pages load faster {% endcomment %}
+    {% block js %}
+      <script src="{{ STATIC_URL }}vmosui/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}vmosui/js/vmosui.js" type="text/javascript" charset="utf-8"></script>
+    {% endblock %}
+  </body>
+</html>

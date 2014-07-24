@@ -15,8 +15,8 @@ ACTION_RUN = 'run'
 TMP_FILENAME = '%s.tmp'
 
 
-def index(request, logname, deploy_type):
-    """ Show knobs to start running the deployment commands. """
+def _index(request, logname, deploy_type):
+    # Show knobs to start running the deployment commands.
     file_contents = ''
     if os.path.exists(logname):
         with open(logname, 'r') as lp:
@@ -31,13 +31,13 @@ def index(request, logname, deploy_type):
 def nsx_index(request):
     """ Display start page for NSX deployment commands. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_DEPLOY_LOG)
-    return index(request, logname, 'nsx')
+    return _index(request, logname, 'nsx')
 
 
 def sddc_index(request):
     """ Display start page for SDDC deployment commands. """
     logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_DEPLOY_LOG)
-    return index(request, logname, 'sddc')
+    return _index(request, logname, 'sddc')
 
 
 def _tail_log(request, logname):
