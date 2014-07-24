@@ -97,7 +97,7 @@ def _run_commands(request, logname, commands):
         num_cmds = len(commands)
         for i in xrange(0, num_cmds):
             cmd = commands[i]
-            if request.REQUEST.get('debug'):
+            if request.REQUEST.get('debug') == '1':
                 cmd = '%s %s' % (cmd, settings.DEBUG_OPTION)
 
             # Set Python output to be unbuffered so any output is returned

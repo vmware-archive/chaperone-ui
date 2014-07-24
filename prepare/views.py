@@ -91,8 +91,8 @@ def _write_answer_file(filename, new_answers={}):
     text = []
     for key, default in base_answers.iteritems():
         if new_answers and key in new_answers:
-            # Set new value.
-            value = new_answers[key]
+            # Set new value. Escape double quotation marks.
+            value = new_answers[key].replace('"', '\\"')
             LOG.debug('Saving new value %s: %s' % (key, value))
         elif saved_answers and key in saved_answers:
             # Use currently saved value.
