@@ -1,5 +1,5 @@
 <div id="configure-{{ configure_type }}-contents">
-  <pre id="configure-output">{{ log_contents }}</pre>
+  <pre id="configure-{{ configure_type }}-output" class="command-output">{{ log_contents }}</pre>
   <form id="configure-form" action="/configure/run/{{ configure_type }}" method="get">
     {% csrf_token %}
     <input type="hidden" name="ctype" value="{{ configure_type }}"/>

@@ -36,14 +36,6 @@ Create Django database and tables.
 $ sudo apt-get install sqlite3
   (sqlite3)
 $ touch /opt/vmosui/vmosui.db
-$ vim /opt/vmosui/vmosui/settings.py
-# Add these lines.
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/opt/vmosui/vmosui.db',
-    }
-}
 $ python manage.py syncdb --noinput
 
 Install Apache and mod_wsgi.
@@ -86,3 +78,5 @@ $ sudo vim vmosui
 $ sudo a2dissite default
 $ sudo a2ensite vmosui
 $ sudo service apache2 restart
+
+NOTE: The command that configures hypervisors requires Ansible to be installed.

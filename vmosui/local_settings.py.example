@@ -41,6 +41,7 @@ NSX_DEPLOY_LOG = 'nsx-deploy.log'
 NSX_CONFIGURE_LOG = 'nsx-configure.log'
 SDDC_DEPLOY_LOG = 'sddc-deploy.log'
 SDDC_CONFIGURE_LOG = 'sddc-configure.log'
+HVS_CONFIGURE_LOG = 'hvs-configure.log'
 
 DEBUG_OPTION = '-vvv'
 
@@ -57,3 +58,11 @@ SDDC_DEPLOY_VALIDATE = []
 SDDC_DEPLOY_RUN = []
 SDDC_CONFIGURE_VALIDATE = []
 SDDC_CONFIGURE_RUN = []
+
+NICS_FILE = 'get_nics.yml'
+HVS_FILE = 'hvs.yml'
+# List of hypervisor-related commands, one string per command and its
+# arguments.
+# Example: [ 'echo "Hello World"', 'ls -la', ]
+HVS_CONFIGURE_VALIDATE = []
+HVS_CONFIGURE_RUN = []

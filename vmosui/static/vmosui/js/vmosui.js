@@ -45,7 +45,7 @@ vmosui.utils = {
 
   getFormCgid: function() {
     /* Get form's container_group id. */
-    var regex = /(.+)-form/;
+    var regex = /^(.+)-form$/;
     var match = regex.exec($('#prepare-form').parents('div').attr('id'));
     return match[1];
   },
@@ -62,6 +62,15 @@ vmosui.utils = {
         /* Include checked checkbox inputs and all other input types. */
         values[this.name] = $input.val();
       }
+    });
+    $form.find('select').each(function(index) {
+      var $select = $(this);
+      var vals = [];
+      $select.find('option:selected').each(function(index) {
+        var $option = $(this);
+        vals.push($option.val());
+      });
+      values[this.name] = vals.join(',');
     });
     return values;
   },
@@ -99,11 +108,10 @@ vmosui.utils = {
     $.ajax({
       url: '/configure/tail/' + configureType,
       success: function(response) {
-        if (response) {
-          /* Show recent output and scroll to the bottom. */
-          $('#configure-output').append(response);
-          $('#configure-output').scrollTop($('#configure-output')[0]
-            .scrollHeight);
+        /* Show recent output and scroll to the bottom. */
+        var $output = $('#configure-' + configureType + '-output');
+        if (response && $output.length) {
+          $output.append(response).scrollTop($output[0].scrollHeight);
         }
 
         /* Schedule another update, if we're still on the page. */
@@ -124,10 +132,10 @@ vmosui.utils = {
     $.ajax({
       url: '/deploy/tail/' + deployType,
       success: function(response) {
-        if (response) {
-          /* Show recent output and scroll to the bottom. */
-          $('#deploy-output').append(response)
-            .scrollTop($('#deploy-output')[0].scrollHeight);
+        /* Show recent output and scroll to the bottom. */
+        var $output = $('#deploy-' + deployType + '-output');
+        if (response && $output.length) {
+          $output.append(response).scrollTop($output[0].scrollHeight);
         }
 
         /* Schedule another update, if we're still on the page. */
@@ -146,16 +154,13 @@ vmosui.utils = {
 };
 
 vmosui.addInitFunction(function() {
-  /* Hide loading indicator. */
-  $('#loading').hide();
-
   /* Hide prepare-able menu items. */
   if (!$('#prepare-contents').length) {
     $('#prepare-menu').hide();
   }
 
   /* Allow user to expand or collapse each contianer in the nav. */
-  $('#prepare-menu div.expand-collapse-container').click(function() {
+  $('#prepare-menu div.expand-collapse-container').click(function(event) {
     var cid = this.id;
     $container = $(this);
     var $indicator = $container.find('div.collapsible');
@@ -174,7 +179,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Show preparation forms. */
-  $('#prepare-btn').click(function() {
+  $('#prepare-btn').click(function(event) {
     var $button = $(this);
     if ($button.hasClass('active-step')) {
       /* Nothing to do. */
@@ -188,7 +193,7 @@ vmosui.addInitFunction(function() {
 
     /* Show status of each group, indicating if there are missing values. */
     if (!$('#prepare-menu span.group-status').length) {
-      $('#prepare-menu span.clickable').each(function() {
+      $('#prepare-menu span.clickable').each(function(index) {
         var containerName = vmosui.utils.getNavCname(this);
         var $span = $(this);
         var groupName = $span.text();
@@ -210,7 +215,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Retrieve page content based on button clicked. */
-  $('button.actionable').click(function() {
+  $('button.actionable').click(function(event) {
     var $button = $(this);
     var action = $button.attr('action');
     if (!action || $button.hasClass('active-step')) {
@@ -243,7 +248,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Show form to set the group's answers. */
-  $('#prepare-menu span.clickable').click(function() {
+  $('#prepare-menu span.clickable').click(function(event) {
     vmosui.utils.clearMessages();
 
     var containerName = vmosui.utils.getNavCname(this);
@@ -267,7 +272,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Reset form change indicator. */
-  $(document).on('click', '#prepare-form button.btn-reset', function() {
+  $(document).on('click', '#prepare-form button.btn-reset', function(event) {
     vmosui.utils.clearMessages();
 
     var $title = $('.form-group-title');
@@ -328,7 +333,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Update log viewers periodically. */
-  $('button.btn-command').click(function() {
+  $('button.btn-command').click(function(event) {
     vmosui.utils.clearMessages();
 
     var idArr = this.id.split('-');
@@ -357,7 +362,7 @@ vmosui.addInitFunction(function() {
 
     var deployType = $('#deploy-form input[name="dtype"]').val();
     var message = 'Starting to ' + action + ' ' + deployType + ' deployment...\n';
-    $('#deploy-output').text(message);
+    $('#deploy-' + deployType + '-output').text(message);
 
     $.ajax({
       url: '/deploy/run/' + deployType,
@@ -383,12 +388,18 @@ vmosui.addInitFunction(function() {
     values['action'] = action;
 
     var configureType = $('#configure-form input[name="ctype"]').val();
+    /* Create area for output, if it doesn't exist. */
+    if (!$('#configure-' + configureType + '-output').length) {
+      var pre = '<pre id="configure-' + configureType + '-output"></pre>';
+      $('#configure-' + configureType + '-contents').append(pre);
+    }
     var message = 'Starting to ' + action + ' ' + configureType +
                   ' configuration...\n';
-    $('#configure-output').text(message);
+    $('#configure-' + configureType + '-output').text(message);
 
     $.ajax({
       url: '/configure/run/' + configureType,
+      type: 'POST',
       data: values,
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
@@ -398,6 +409,141 @@ vmosui.addInitFunction(function() {
 
     /* Prevent normal form submit action. */
     return false;
+  });
+
+  /* Clone row to a new section of inputs to configure another hypervisor. */
+  $(document).on('click', 'button.btn-hv-add', function(event) {
+    var countCookie = 'hvcount';
+    var newCount = parseInt($.cookie(countCookie)) + 1;
+    $.cookie(countCookie, newCount);
+
+    /* Copy template row, updating count in all the ids and names. */
+    var $div = $('#hv-row-0').clone();
+    var divId = $div.attr('id');
+    $div.attr('id', divId.replace(/0$/, newCount));
+    $div.find('[id]').each(function() {
+      this.id = this.id.replace(/^(hv-.+-)0$/, '$1' + newCount);
+    });
+    $div.find('[name]').each(function() {
+      this.name = this.name.replace(/^(hv-.+-)0$/, '$1' + newCount);
+    });
+
+    /* Copy input values. */
+    var regex = /^hv-add-(.+)$/;
+    var match = regex.exec(this.id);
+    var current = match[1];
+    var $row = $('#hv-row-' + current);
+    regex = new RegExp('(hv-.+-)' + current);
+    $row.find('input').each(function(index) {
+      var $input = $(this);
+      var name = this.name.replace(regex, '$1' + newCount);
+      $div.find('input[name="' + name + '"]').val($input.val());
+    });
+
+    /* Keep NIC inputs disabled. */
+    $('#hv-bond-' + newCount).prop('disabled', true);
+    $('#hv-nic-' + newCount).prop('disabled', true);
+
+    $('#hv-row-' + current).after($div[0]);
+  });
+
+  /* Remove form to configure hypervisor. */
+  $(document).on('click', 'button.btn-hv-remove', function(event) {
+    /* Must have at least one row plus template on the page. */
+    if ($('div.form-section').length == 2) {
+      return;
+    }
+
+    var regex = /^hv-remove-(.+)$/;
+    var match = regex.exec(this.id);
+    var current = match[1];
+    $('#hv-row-' + current).remove();
+  });
+
+  /* Enable NICs selection. */
+  $(document).on('change',
+                 '#configure-hvs-contents input.hv-host, ' +
+                 '#configure-hvs-contents input.hv-user, ' +
+                 '#configure-hvs-contents input.hv-password',
+                 function(event) {
+    var regex = /^hv-(.+)-(.+)$/;
+    var match = regex.exec(this.id);
+    var current = match[2];
+
+    var $bond = $('#hv-bond-' + current);
+    var $nic = $('#hv-nic-' + current);
+
+    var host = $('#hv-host-' + current).val();
+    var user = $('#hv-user-' + current).val();
+    var password = $('#hv-password-' + current).val();
+
+    if (host && user && password) {
+      /* Load list of NICs for this host. */
+      var values = { host: host, user: user, password: password };
+      /* Need CSRF token for Django POST requests. */
+      var csrf = 'csrfmiddlewaretoken';
+      values[csrf] = $('#configure-form input[name="' + csrf + '"]').val();
+
+      $.ajax({
+        url: '/configure/hvs/nics',
+        type: 'POST',
+        data: values,
+        beforeSend: function() {
+          $('#hv-loadnics-' + current).show()
+        }, 
+        success: function(response) {
+          $nic.empty();
+          if (!response.length) {
+            /* Couldn't retrieve NICs. */
+            $bond.prop('disabled', true);
+            $nic.prop('disabled', true);
+            return;
+          }
+
+          /* Expecting JSON response. */
+          response.sort();
+          for (var i = 0; i < response.length; i++) {
+            var nic = response[i];
+            $nic.append('<option value="' + nic + '">' + nic + '</option>');
+          }
+
+          if ($bond.find('option:selected').hasClass('multinic')) {
+            $nic.prop('multiple', true);
+          } else {
+            $nic.prop('multiple', false);
+          }
+          $bond.prop('disabled', false);
+          $nic.prop('disabled', false);
+        },
+        error: function(jqxhr, status, error) {
+          var message = vmosui.utils.ajaxError(jqxhr, status, error);
+          $('#error-message').html(message);
+        },
+        complete: function() {
+          $('#hv-loadnics-' + current).hide();
+        }
+      });
+    } else {
+      $bond.prop('disabled', true);
+      $nic.prop('disabled', true);
+    }
+  });
+
+  /* Toggle multi-select for NICs, based on the bond mode value. */
+  $(document).on('change',
+                 '#configure-hvs-contents div.form-row-field select.hv-bond',
+                 function(event) {
+    var regex = /^hv-bond-(.+)$/;
+    var match = regex.exec(this.id);
+    var current = match[1];
+    var $nic = $('#hv-nic-' + current);
+
+    var $select = $(this);
+    if ($select.find('option:selected').hasClass('multinic')) {
+      $nic.prop('multiple', true);
+    } else {
+      $nic.prop('multiple', false);
+    }
   });
 });
 

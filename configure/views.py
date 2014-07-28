@@ -1,6 +1,8 @@
 import fcntl
+import json
 import logging
 import os
+import re
 import subprocess
 import time
 
@@ -13,6 +15,9 @@ LOG = logging.getLogger(__name__)
 
 
 ACTION_RUN = 'run'
+HV_TEMPLATE = """%s ansible_ssh_user="%s" ansible_ssh_pass="%s" nic="[%s]" bond_mode="%s" transport_ip="%s" transport_mask="%s" transport_gateway="%s"
+"""
+HV_COUNT_COOKIE = 'hvcount'
 TMP_FILENAME = '%s.tmp'
 
 
@@ -41,43 +46,22 @@ def sddc_index(request):
     return _index(request, logname, 'sddc')
 
 
-def _tail_log(request, logname):
-    tmp = TMP_FILENAME % logname
+def hypervisors_index(request):
+    """ Display form to configure hypervisors. """
+    # Show knobs to start running the configuration commands.
+    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.HVS_CONFIGURE_LOG)
     file_contents = ''
-    
-    if os.path.exists(tmp):
-        with open(tmp, 'r+') as tp:
-            # Read what has been written to the file so far.
-            fcntl.flock(tp, fcntl.LOCK_EX)
-            file_contents = tp.read()
-            # Empty out what we've read.
-            tp.truncate(0)
-            fcntl.flock(tp, fcntl.LOCK_UN)
+    if os.path.exists(logname):
+        with open(logname, 'r') as lp:
+            file_contents = lp.read()
 
-    if file_contents:
-        # After tmp file gets truncated, subprocess is still writing the output
-        # to the last file position, so the truncated part gets filled with
-        # nul bytes. Remove those.
-        file_contents = file_contents.lstrip('\x00')
-        with open(logname, 'a+') as lp:
-            # Now write the contents back out to the complete log file.
-            fcntl.flock(lp, fcntl.LOCK_EX)
-            lp.write(file_contents)
-            fcntl.flock(lp, fcntl.LOCK_UN)
-
-    return HttpResponse(file_contents, content_type='text/plain')
-
-
-def tail_nsx_log(request):
-    """ Return output written to the NSX log, since the last call to this. """
-    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_CONFIGURE_LOG)
-    return _tail_log(request, logname)
-
-
-def tail_sddc_log(request):
-    """ Return output written to the SDDC log, since the last call to this. """
-    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_CONFIGURE_LOG)
-    return _tail_log(request, logname)
+    response = render(request, 'configure/_hvs.html', {
+        'log_contents': file_contents,
+        'count': '1',
+    });
+    # Initialize cookie value.
+    response.set_cookie(HV_COUNT_COOKIE, '1')
+    return response
 
 
 def _run_commands(request, logname, commands):
@@ -136,3 +120,120 @@ def run_sddc_commands(request):
     _run_commands(request, logname, commands)
     # AJAX polling will check for output.
     return HttpResponse('')
+
+
+def run_hvs_commands(request):
+    """ Run configuration commands for SDDC. """
+    # Build dictionary of hypervisors.
+    # { 1: { ... }, 2: { ... }, ... }
+    hvs = {}
+    for key, value in request.REQUEST.iteritems():
+        if not key.startswith('hv-'):
+            continue
+
+        # Get host number and argument name.
+        data = key.split('-')
+        num = data[-1]
+        hv = hvs.setdefault(num, {})
+        arg = data[-2]
+        hv[arg] = value
+
+    # Write out all the input values into the init file.
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.HVS_FILE)
+    with open(filename, 'w+') as fp:
+        fcntl.flock(fp, fcntl.LOCK_EX)
+        fp.write('[hypervisors]\n')
+        for hv in hvs.values():
+            nics = ["'%s'" % n for n in hv.get('nic', []).split(',')]
+            fp.write(HV_TEMPLATE % (hv.get('host', ''), hv.get('user', ''),
+                                    hv.get('password', ''), ', '.join(nics),
+                                    hv.get('bond', ''), hv.get('txip', ''),
+                                    hv.get('txmask', ''), hv.get('txgw', '')))
+        fcntl.flock(fp, fcntl.LOCK_UN)
+
+    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.HVS_CONFIGURE_LOG)
+    if request.REQUEST.get('action') == ACTION_RUN:
+        commands = settings.HVS_CONFIGURE_RUN
+    else:
+        commands = settings.HVS_CONFIGURE_VALIDATE
+
+    _run_commands(request, logname, commands)
+    # AJAX polling will check for output.
+    return HttpResponse('')
+
+
+def _tail_log(request, logname):
+    tmp = TMP_FILENAME % logname
+    file_contents = ''
+    
+    if os.path.exists(tmp):
+        with open(tmp, 'r+') as tp:
+            # Read what has been written to the file so far.
+            fcntl.flock(tp, fcntl.LOCK_EX)
+            file_contents = tp.read()
+            # Empty out what we've read.
+            tp.truncate(0)
+            fcntl.flock(tp, fcntl.LOCK_UN)
+
+    if file_contents:
+        # After tmp file gets truncated, subprocess is still writing the output
+        # to the last file position, so the truncated part gets filled with
+        # nul bytes. Remove those.
+        file_contents = file_contents.lstrip('\x00')
+        with open(logname, 'a+') as lp:
+            # Now write the contents back out to the complete log file.
+            fcntl.flock(lp, fcntl.LOCK_EX)
+            lp.write(file_contents)
+            fcntl.flock(lp, fcntl.LOCK_UN)
+
+    return HttpResponse(file_contents, content_type='text/plain')
+
+
+def tail_nsx_log(request):
+    """ Return output written to the NSX log, since the last call to this. """
+    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.NSX_CONFIGURE_LOG)
+    return _tail_log(request, logname)
+
+
+def tail_sddc_log(request):
+    """ Return output written to the SDDC log, since the last call to this. """
+    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.SDDC_CONFIGURE_LOG)
+    return _tail_log(request, logname)
+
+
+def tail_hvs_log(request):
+    """ Return output written to the hypervisors log, since the last call to
+    this.
+    """
+    logname = '%s/%s' % (settings.VMOS_LOG_DIR, settings.HVS_CONFIGURE_LOG)
+    return _tail_log(request, logname)
+
+
+def get_nics(request):
+    """ Return list of NICs on the given hypervisor. """
+    host = request.REQUEST.get('host')
+    user = request.REQUEST.get('user')
+    password = request.REQUEST.get('password')
+
+    filename = '%s/nics.ini' % settings.ANSWER_FILE_DIR
+    with open(filename, 'w+') as fp:
+        fcntl.flock(fp, fcntl.LOCK_EX)
+        fp.write('[getnics]\n')
+        # Need to quote argument values, to escape special characters.
+        fp.write("'%s' ansible_ssh_user='%s' ansible_ssh_pass='%s'\n" %
+                 (host, user, password))
+        fcntl.flock(fp, fcntl.LOCK_UN)
+
+    try:
+        command = 'ansible-playbook -i %s/nics.ini %s/%s' % (
+            settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_DIR,
+            settings.NICS_FILE)
+        LOG.info('Running "%s"' % command)
+        output = subprocess.check_output(command.split())
+    except subprocess.CalledProcessError as e:
+        return HttpResponse('')
+
+    # Parse out NIC names from output.
+    nics = set(re.findall(r'(vmnic[0-9]+)', output))
+    nics_json = json.dumps(list(nics))
+    return HttpResponse(nics_json, content_type='application/json')

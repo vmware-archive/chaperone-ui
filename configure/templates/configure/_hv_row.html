@@ -1,0 +1,37 @@
+<div id="hv-row-{{ count }}" class="form-section no-title">
+  <div class="form-row-buttons">
+    <button id="hv-add-{{ count }}" type="button" class="btn btn-sm btn-reset btn-hv-add">+</button>
+    <button id="hv-remove-{{ count }}" type="button" class="btn btn-sm btn-reset btn-hv-remove">&#8722;</button>
+  </div>
+  <div class="form-row-field">
+    <div class="form-row-field"><span class="form-field-title">Host IP</span>
+      <input id="hv-host-{{ count }}" type="text" class="form-control hv-host" name="hv-host-{{ count }}" value="" required/>
+    </div>
+    <div class="form-row-field"><span class="form-field-title">User</span>
+      <input id="hv-user-{{ count }}" type="text" class="form-control hv-user" name="hv-user-{{ count }}" value="" required/>
+    </div>
+    <div class="form-row-field"><span class="form-field-title">Password</span>
+      <input id="hv-password-{{ count }}" type="text" class="form-control hv-password" name="hv-password-{{ count }}" value="" required/>
+    </div>
+    <div class="form-row-field"><span class="form-field-title">Bond Mode</span>
+      <select id="hv-bond-{{ count }}" class="form-control hv-bond" name="hv-bond-{{ count }}" disabled>
+        <option value="none">single NIC</option>
+        <option class="multinic" value="lacp">LACP</option>
+        <option class="multinic" value="failover">failover</option>
+      </select>
+    </div>
+    <div class="form-row-field"><span class="form-field-title">NICs&nbsp;</span><img id="hv-loadnics-{{ count }}" src="{{ STATIC_URL }}vmosui/img/loading-sm.gif" alt="Loading..." class="loading-sm no-display">
+      <select id="hv-nic-{{ count }}" class="form-control" name="hv-nic-{{ count }}" disabled></select>
+    </div>
+    <br/>
+    <div class="form-row-field"><span class="form-field-title">Transport IP</span>
+      <input id="hv-txip-{{ count }}" type="text" class="form-control" name="hv-txip-{{ count }}" value="" required/>
+    </div>
+    <div class="form-row-field"><span class="form-field-title">Transport Mask</span>
+      <input id="hv-txmask-{{ count }}" type="text" class="form-control" name="hv-txmask-{{ count }}" value="" required/>
+    </div>
+    <div class="form-row-field"><span class="form-field-title">Transport Gateway</span>
+      <input id="hv-txgw-{{ count }}" type="text" class="form-control" name="hv-txgw-{{ count }}" value="" required/>
+    </div>
+  </div>
+</div>
