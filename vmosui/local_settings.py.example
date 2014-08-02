@@ -35,6 +35,8 @@ ANSWER_FILE_BASE = 'base.yml'
 # TODO: Allow user to choose file.
 ANSWER_FILE_DEFAULT = 'answerfile.yml'
 
+PREPARE_FILES_DIR = '/var/lib/vmos/prepare/'
+
 VMOS_LOG_DIR = '/var/log/vmos/'
 
 NSX_DEPLOY_LOG = 'nsx-deploy.log'
@@ -59,7 +61,9 @@ SDDC_DEPLOY_RUN = []
 SDDC_CONFIGURE_VALIDATE = []
 SDDC_CONFIGURE_RUN = []
 
+# Name of playbook to get list of NICs from a hypervisor.
 NICS_FILE = 'get_nics.yml'
+# File containing [hypervisors] block for configuration.
 HVS_FILE = 'hvs.yml'
 # List of hypervisor-related commands, one string per command and its
 # arguments.

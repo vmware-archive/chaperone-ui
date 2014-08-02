@@ -5,10 +5,10 @@
         <div class="collapsible"></div>
         <span class="container-name">{{ cname }}</span>
       </div>
-      <div id="{{ cname|slugify }}-groups" class="expand-collapse-groups">
+      <div id="groups-{{ cname|slugify }}" class="expand-collapse-groups">
         <ul>
           {% for group in groups %}{% for gname, _ in group.items %}<li>
-            <span id="{{ cname|slugify }}_{{ gname|slugify }}" class="group-name clickable">{{ gname }}</span>
+            <span id="status-{{ cname|slugify}}_{{ gname|slugify }}" class="group-status"></span>&nbsp;<span id="{{ cname|slugify }}_{{ gname|slugify }}" class="group-name clickable">{{ gname }}</span>
           </li>{% endfor %}{% endfor %}
         </ul>
       </div>

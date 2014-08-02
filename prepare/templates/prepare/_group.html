@@ -1,7 +1,7 @@
 <div id="prepare-contents">
   <div class="form-group-title">{{ container_name }}: {{ group_name }}</div>
   <div id="{{ container_name|slugify }}_{{ group_name|slugify }}-form">
-    <form id="prepare-form" action="{% url 'prepare:save' %}" method="post">
+    <form id="prepare-form" action="{% url 'prepare:save' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="hidden" name="cname" value="{{ container_name }}"/>
       <input type="hidden" name="gname" value="{{ group_name }}"/>
@@ -9,6 +9,11 @@
         <div class="form-section-title">{{ sname }}</div>
         {% for attr in attributes %}<div class="form-field">
           {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox" name="{{ attr.id }}" value="1" {% if attr.value == "1" %}checked="checked"{% endif %}/> <span class="form-field-title">{{ attr.name }}</span></label>
+          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show" name="{{ attr.id }}" value="1" {% if attr.value == "1" %}checked="checked"{% endif %}/> <span class="form-field-title">Use <span class="form-field-name">{{ attr.name }}</span></span></label>
+            <div class="toggle-{{ attr.id }}{% if attr.value != '1' %} no-display{% endif %}">
+              {% if attr.current %}<a id="current-{{ attr.id }}" href="{% url 'prepare:download' attr.id %}">current version</a>, or upload new one:{% endif %}
+              <input id="file-{{ attr.id }}" type="file" class="form-control" name="file-{{ attr.id }}"/>
+            </div>
           {% else %}<span class="form-field-title">{{ attr.name }}</span> <input id="{{ attr.id }}" type="text" class="form-control" name="{{ attr.id }}" value="{{ attr.value }}"/>{% endif %}
         </div>{% endfor %}
       </div>{% endfor %}{% endfor %}

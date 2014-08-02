@@ -33,15 +33,15 @@
         <div id="leftnav" class="fifth-width">
           <div class="logo">
             <a href="/"><img src="{{ STATIC_URL }}vmosui/img/vmw_gray.png" alt="VMware NSX"></a><br/>
-            <a href="/">SDDC</a><br/>
+            <a href="/">SDDC</a>
           </div>
-          <button id="prepare-btn" type="button" class="btn btn-primary">Prepare</button><br/>
-          {% include "vmosui/_prepare_menu.html" %}
-          <button id="deploy-nsx-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'deploy:nsx' %}">Deploy NSX</button><br/>
-          <button id="configure-nsx-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:nsx' %}">Configure NSX</button><br/>
-          <button id="deploy-sddc-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'deploy:sddc' %}">Deploy SDDC</button><br/>
-          <button id="configure-sddc-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:sddc' %}">Configure SDDC</button><br/>
-          <button id="configure-hvs-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:hvs' %}">Configure HVs</button><br/>
+          <div class="leftnav-btn"><button id="prepare-btn" type="button" class="btn btn-primary">Prepare</button></div>
+          {% include "prepare/_menu.html" %}
+          <div class="leftnav-btn"><button id="deploy-nsx-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'deploy:nsx' %}">Deploy NSX</button></div>
+          <div class="leftnav-btn"><button id="configure-nsx-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:nsx' %}">Configure NSX</button></div>
+          <div class="leftnav-btn"><button id="deploy-sddc-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'deploy:sddc' %}">Deploy SDDC</button></div>
+          <div class="leftnav-btn"><button id="configure-sddc-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:sddc' %}">Configure SDDC</button></div>
+          <div class="leftnav-btn"><button id="configure-hvs-btn" type="button" class="btn btn-primary btn-command actionable" action="{% url 'configure:hvs' %}">Configure HVs</button></div>
         </div>
         <div id="main">
           <div id="messages">

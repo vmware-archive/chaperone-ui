@@ -144,7 +144,7 @@ def run_hvs_commands(request):
         fcntl.flock(fp, fcntl.LOCK_EX)
         fp.write('[hypervisors]\n')
         for hv in hvs.values():
-            nics = ["'%s'" % n for n in hv.get('nic', []).split(',')]
+            nics = ["'%s'" % n for n in hv.get('nic', '').split(',')]
             fp.write(HV_TEMPLATE % (hv.get('host', ''), hv.get('user', ''),
                                     hv.get('password', ''), ', '.join(nics),
                                     hv.get('bond', ''), hv.get('txip', ''),

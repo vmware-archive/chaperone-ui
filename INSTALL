@@ -28,6 +28,7 @@ $ vim /opt/vmosui/vmosui/local_settings.py
   NSX_CONFIGURE_VALIDATE = 'ansible-playbook -i /var/lib/vmos/tmp/nsxautoconfig/hosts.ini /var/lib/vmos/tmp/nsxautoconfig/nsx.yml -C'
 $ mkdir <ANSWER_FILE_DIR>
 $ chown -R nicira:nicira <ANSWER_FILE_DIR>
+$ mkdir <PREPARE_FILES_DIR>
 $ mkdir <VMOS_LOG_DIR>
 $ chown -R nicira:nicira <VMOS_LOG_DIR>
 $ cp /opt/vmosui/vmosui/base.yml <ANSWER_FILE_DIR>

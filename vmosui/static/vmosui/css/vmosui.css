@@ -18,6 +18,18 @@ label {
   font-weight: normal;
 }
 
+a,
+a:focus,
+a:active {
+  color: #003D79;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #003D79;
+  text-decoration: underline;
+}
+
 /* Navigation */
 
 .header {
@@ -54,6 +66,11 @@ label {
 #leftnav button.btn-primary {
   width: 140px;
   text-align: left;
+}
+
+.leftnav-btn {
+  /* #leftnav button.btn-primary width + .btn-arrow-right width */
+  width: 157px;
 }
 
 .logo {
@@ -200,6 +217,10 @@ span.clickable-hover {
 .no-display {
   display: none;
 }
+input[type="file"].no-display {
+  display:none;
+}
+
 
 /* Forms */
 
@@ -228,7 +249,7 @@ span.clickable-hover {
   margin-top: 0;
   padding: 5px 10px;
   display: block;
-  min-width: 850px;
+  min-width: 870px;
   margin-bottom: 5px;
 }
 .form-section .checkbox {

@@ -46,51 +46,59 @@ vmosui.utils = {
   getFormCgid: function() {
     /* Get form's container_group id. */
     var regex = /^(.+)-form$/;
-    var match = regex.exec($('#prepare-form').parents('div').attr('id'));
+    var match = regex.exec($('#prepare-form').closest('div').attr('id'));
     return match[1];
   },
 
   getFormValues: function(form) {
     var $form = $(form);
-    var values = {};
-    $form.find('input').each(function(index) {
-      var $input = $(this);
-      if (($input.attr('type') == 'checkbox') && !$input.prop('checked')) {
-        /* Need to know if the checkbox is being unchecked. */
-        values[this.name] = '0';
-      } else {
-        /* Include checked checkbox inputs and all other input types. */
-        values[this.name] = $input.val();
+    message = '';
+
+    /* Clear previous errors. */
+    var errorClass = 'has-error';
+    $form.find('div.form-field.' + errorClass).removeClass(errorClass);
+
+    /* Form validation. */
+    $form.find('input.file-checkbox:checked').each(function(index) {
+      if (!$('#current-' + this.id).length && !$('#file-' + this.id).val()) {
+        var $input = $(this);
+        var section = $input.closest('div.form-section')
+                        .find('div.form-section-title').text();
+        var field = $input.parent().find('span.form-field-name').text();
+        message += 'File missing for ' + section + ': ' + field + '.<br/>';
+        $input.closest('div.form-field').addClass(errorClass);
       }
     });
-    $form.find('select').each(function(index) {
-      var $select = $(this);
-      var vals = [];
-      $select.find('option:selected').each(function(index) {
-        var $option = $(this);
-        vals.push($option.val());
-      });
-      values[this.name] = vals.join(',');
+    if (message) {
+      $('#error-message').html(message);
+      return null;
+    }
+
+    var values = new FormData(form);
+    $form.find('input[type="checkbox"]').each(function(index) {
+      var $input = $(this);
+      if (!$input.prop('checked')) {
+        /* Need to know if the checkbox is being unchecked. */
+        values.append(this.name, '0');
+      }
     });
     return values;
   },
 
   getNavCname: function(span) {
     /* Get clickable nav item's container name. */
-    return $(span).parents('div.expand-collapse-groups')
-                .prev('div.expand-collapse-container')
-                .find('span.container-name').text();
+    return $(span).closest('div.expand-collapse-groups')
+             .prev('div.expand-collapse-container')
+             .find('span.container-name').text();
   },
 
   loadGroup: function(containerName, groupName) {
     /* Return form for group. */
+    $('#contents').empty();
+    $('#loading').show();
     $.ajax({
       url: '/prepare/group',
       data: { cname: containerName, gname: groupName },
-      beforeSend: function() {
-        $('#contents').empty();
-        $('#loading').show();
-      },
       success: function(response) {
         $('#contents').html(response);
       },
@@ -163,19 +171,15 @@ vmosui.addInitFunction(function() {
   $('#prepare-menu div.expand-collapse-container').click(function(event) {
     var cid = this.id;
     $container = $(this);
-    var $indicator = $container.find('div.collapsible');
-    if (!$indicator.length) {
-      $indicator = $container.find('div.expandable');
+    var $knob = $container.find('div.collapsible');
+    if (!$knob.length) {
+      $knob = $container.find('div.expandable');
     }
 
-    /* Toggle indicator and hide/show groups. */
-    if ($indicator.hasClass('collapsible')) {
-      $('#' + cid + '-groups').hide();
-    } else {
-      $('#' + cid + '-groups').show();
-    }
-    $indicator.toggleClass('collapsible');
-    $indicator.toggleClass('expandable');
+    /* Toggle expande/collapse knob and hide/show groups. */
+    $('#groups-' + cid).toggle();
+    $knob.toggleClass('collapsible');
+    $knob.toggleClass('expandable');
   });
 
   /* Show preparation forms. */
@@ -192,7 +196,7 @@ vmosui.addInitFunction(function() {
     $('#prepare-menu span.clickable').first().click();
 
     /* Show status of each group, indicating if there are missing values. */
-    if (!$('#prepare-menu span.group-status').length) {
+    if (!$('#prepare-menu span.group-status').first().html().length) {
       $('#prepare-menu span.clickable').each(function(index) {
         var containerName = vmosui.utils.getNavCname(this);
         var $span = $(this);
@@ -202,8 +206,12 @@ vmosui.addInitFunction(function() {
         $.ajax({
           url: '/prepare/status',
           data: { cname: containerName, gname: groupName },
-          success: function(response) {
-            $('#' + cgid).before(response);
+          success: function(data) {
+            if (data.complete) {
+              $('#status-' + cgid).addClass('text-success').html('&#10004;');
+            } else {
+              $('#status-' + cgid).addClass('text-error').html('&#10008;');
+            }
           }
           /* Ignore errors. */
         });
@@ -227,12 +235,10 @@ vmosui.addInitFunction(function() {
     vmosui.utils.clearMessages();
 
     /* Fill in the page contents based on the action given. */
+    $('#contents').empty();
+    $('#loading').show();
     $.ajax({
       url: action,
-      beforeSend: function(){
-        $('#contents').empty();
-        $('#loading').show();
-      },
       success: function(response) {
         $('#contents').html(response);
       },
@@ -264,68 +270,96 @@ vmosui.addInitFunction(function() {
 
   /* Indicate when there are changes made in the form before saving. */
   $(document).on('change', '#prepare-form input', function(event) {
-    var text = $('.form-group-title').text();
+    var text = $('div.form-group-title').text();
     var suffix = ' *';
     if (text.indexOf(suffix, text.length - suffix.length) == -1) {
-      $('.form-group-title').append(suffix);
+      $('div.form-group-title').append(suffix);
     }
   });
 
-  /* Reset form change indicator. */
+  /* Show/hide fields based on state of other fields. */
+  $(document).on('change', '#prepare-form input.toggle-show', function(event) {
+    /* CSV list of ids of divs to show/hide. */
+    var ids = this.id.split(',');
+    for (var i = 0; i < ids.length; i++) {
+      $('div.toggle-' + ids[i]).toggle();
+    }
+  });
+
+  /* Reset form. */
   $(document).on('click', '#prepare-form button.btn-reset', function(event) {
+    /*
+     * Reload entire contents versus only the input value, because the
+     * display of shown/hidden fields also needs to be reset.
+     */
+    var cgid = vmosui.utils.getFormCgid();
+    $('#' + cgid).click();
+    return false;
+  });
+
+  /* Submit form to save group's answers. */
+  $(document).on('submit', '#prepare-form', function(event) {
     vmosui.utils.clearMessages();
 
-    var $title = $('.form-group-title');
-    var text = $title.text();
-    var suffix = ' *';
-    if (text.indexOf(suffix, text.length - suffix.length) != -1) {
-      $('.form-group-title').text(text.slice(0, -2));
-    }
-  });
-
-  /* Submit form to set group's answers. */
-  $(document).on('submit', '#prepare-form', function(event) {
     var $form = $(this);
     var action = $form.attr('action');
     var containerName = $('#prepare-form input[name="cname"]').val();
     var groupName = $('#prepare-form input[name="gname"]').val();
-
-    vmosui.utils.clearMessages();
-    $('#prepare-form button.btn-submit').button('loading');
+    var values = vmosui.utils.getFormValues(this);
+    if (!values) {
+        return false;
+    }
 
     /* Send the data. */
+    $('#prepare-form button.btn-submit').button('loading');
     $.ajax({
       url: action,
       type: 'POST',
-      data: vmosui.utils.getFormValues(this),
-      success: function(response) {
+      data: values,
+      success: function(data) {
+        if (data.errors && data.errors.length) {
+          $('#error-message').html(data.errors.join('<br/>'));
+          return;
+        }
+
         $('#success-message').html('Answer file updated.');
-        $('#contents').html(response);
+        $('#contents').html(data.group);
 
         /* Update group status indicator. */
         $.ajax({
           url: '/prepare/status',
           data: { cname: containerName, gname: groupName },
-          success: function(response) {
+          success: function(data) {
             var cgid = vmosui.utils.getFormCgid();
-            $('#' + cgid + '-status').replaceWith(response);
+            var $indicator = $('#status-' + cgid);
+            var incompleteClass = 'text-error';
+            var completeClass = 'text-success';
+
+            if (data.complete && $indicator.hasClass(incompleteClass)) {
+              $indicator.toggleClass(incompleteClass + ' ' + completeClass)
+                .html('&#10004;')
+            } else if (!data.complete && $indicator.hasClass(completeClass)) {
+              $indicator.toggleClass(incompleteClass + ' ' + completeClass)
+                .html('&#10008;');
+            }
           },
           error: function(jqxhr, status, error) {
             /* Leave the status blank. */
             var cgid = vmosui.utils.getFormCgid();
-            $('#' + cgid + '-status').empty();
+            $('#status-' + cgid).empty();
           }
         });
       },
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
         $('#error-message').html(message);
-
-        vmosui.utils.loadGroup(containerName, groupName);
       },
       complete: function(jqxhr, status, error) {
         $('#prepare-form button.btn-submit').button('reset');
-      }
+      },
+      /* Need these for sending FormData. */
+      processData: false,
+      contentType: false
     });
 
     /* Prevent normal form submit action. */
@@ -354,6 +388,10 @@ vmosui.addInitFunction(function() {
   /* Start deployment. */
   $(document).on('click', '#deploy-validate, #deploy-run', function(event) {
     var values = vmosui.utils.getFormValues($('#deploy-form')[0]);
+    if (!values) {
+        return false;
+    }
+
     var action = 'validate';
     if (this.id == 'deploy-run') {
         action = 'run';
@@ -361,7 +399,8 @@ vmosui.addInitFunction(function() {
     values['action'] = action;
 
     var deployType = $('#deploy-form input[name="dtype"]').val();
-    var message = 'Starting to ' + action + ' ' + deployType + ' deployment...\n';
+    var message = 'Starting to ' + action + ' ' + deployType +
+                  ' deployment...\n';
     $('#deploy-' + deployType + '-output').text(message);
 
     $.ajax({
@@ -370,7 +409,10 @@ vmosui.addInitFunction(function() {
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
         $('#error-message').html(message);
-      }      
+      },
+      /* Need these for sending FormData. */
+      processData: false,
+      contentType: false
     });
 
     /* Prevent normal form submit action. */
@@ -381,6 +423,10 @@ vmosui.addInitFunction(function() {
   $(document).on('click', '#configure-validate, #configure-run',
                  function(event) {
     var values = vmosui.utils.getFormValues($('#configure-form')[0]);
+    if (!values) {
+        return false;
+    }
+
     var action = 'validate';
     if (this.id == 'configure-run') {
         action = 'run';
@@ -404,7 +450,10 @@ vmosui.addInitFunction(function() {
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
         $('#error-message').html(message);
-      }      
+      },
+      /* Need these for sending FormData. */
+      processData: false,
+      contentType: false
     });
 
     /* Prevent normal form submit action. */
@@ -484,13 +533,11 @@ vmosui.addInitFunction(function() {
       var csrf = 'csrfmiddlewaretoken';
       values[csrf] = $('#configure-form input[name="' + csrf + '"]').val();
 
+      $('#hv-loadnics-' + current).show()
       $.ajax({
         url: '/configure/hvs/nics',
         type: 'POST',
         data: values,
-        beforeSend: function() {
-          $('#hv-loadnics-' + current).show()
-        }, 
         success: function(response) {
           $nic.empty();
           if (!response.length) {
