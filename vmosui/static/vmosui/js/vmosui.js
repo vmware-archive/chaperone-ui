@@ -197,24 +197,23 @@ vmosui.addInitFunction(function() {
 
     /* Show status of each group, indicating if there are missing values. */
     if (!$('#prepare-menu span.group-status').first().html().length) {
-      $('#prepare-menu span.clickable').each(function(index) {
-        var containerName = vmosui.utils.getNavCname(this);
-        var $span = $(this);
-        var groupName = $span.text();
-        var cgid = this.id;
+      $.ajax({
+        url: '/prepare/status',
+        success: function(data) {
+          $('#prepare-menu span.clickable').each(function(index) {
+            var containerName = vmosui.utils.getNavCname(this);
+            var $span = $(this);
+            var groupName = $span.text();
+            var cgid = this.id;
 
-        $.ajax({
-          url: '/prepare/status',
-          data: { cname: containerName, gname: groupName },
-          success: function(data) {
-            if (data.complete) {
+            if (data[containerName][groupName].complete) {
               $('#status-' + cgid).addClass('text-success').html('&#10004;');
             } else {
               $('#status-' + cgid).addClass('text-error').html('&#10008;');
             }
-          }
-          /* Ignore errors. */
-        });
+          });
+        }
+        /* Ignore errors. */
       });
     }
 
@@ -279,10 +278,17 @@ vmosui.addInitFunction(function() {
 
   /* Show/hide fields based on state of other fields. */
   $(document).on('change', '#prepare-form input.toggle-show', function(event) {
-    /* CSV list of ids of divs to show/hide. */
-    var ids = this.id.split(',');
-    for (var i = 0; i < ids.length; i++) {
-      $('div.toggle-' + ids[i]).toggle();
+    var $knob = $(this);
+    if ($knob.hasClass('file-checkbox')) {
+      /* Toggle the inputs related to file uploads. */
+      $('#file-field-' + this.id).toggle();
+    } else {
+      /* CSV list of ids of divs to show/hide. */
+      var ids = $knob.attr('data-toggle-show').split(',');
+      for (var i = 0; i < ids.length; i++) {
+        var target = ids[i].trim();
+        $('#form-field-' + target).toggle();
+      }
     }
   });
 
@@ -325,30 +331,20 @@ vmosui.addInitFunction(function() {
         $('#success-message').html('Answer file updated.');
         $('#contents').html(data.group);
 
-        /* Update group status indicator. */
-        $.ajax({
-          url: '/prepare/status',
-          data: { cname: containerName, gname: groupName },
-          success: function(data) {
-            var cgid = vmosui.utils.getFormCgid();
-            var $indicator = $('#status-' + cgid);
-            var incompleteClass = 'text-error';
-            var completeClass = 'text-success';
+        if (data.complete != null) {
+          var cgid = vmosui.utils.getFormCgid();
+          var $indicator = $('#status-' + cgid);
+          var missingClass = 'text-error';
+          var completeClass = 'text-success';
 
-            if (data.complete && $indicator.hasClass(incompleteClass)) {
-              $indicator.toggleClass(incompleteClass + ' ' + completeClass)
-                .html('&#10004;')
-            } else if (!data.complete && $indicator.hasClass(completeClass)) {
-              $indicator.toggleClass(incompleteClass + ' ' + completeClass)
-                .html('&#10008;');
-            }
-          },
-          error: function(jqxhr, status, error) {
-            /* Leave the status blank. */
-            var cgid = vmosui.utils.getFormCgid();
-            $('#status-' + cgid).empty();
+          if (data.complete && $indicator.hasClass(missingClass)) {
+            $indicator.toggleClass(missingClass + ' ' + completeClass)
+              .html('&#10004;')
+          } else if (!data.complete && $indicator.hasClass(completeClass)) {
+            $indicator.toggleClass(missingClass + ' ' + completeClass)
+              .html('&#10008;');
           }
-        });
+        }
       },
       error: function(jqxhr, status, error) {
         var message = vmosui.utils.ajaxError(jqxhr, status, error);
