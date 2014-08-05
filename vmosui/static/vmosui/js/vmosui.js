@@ -20,8 +20,13 @@ vmosui.utils = {
 
   ajaxError: function(jqxhr, status, error) {
     /* Return error message. */
-    var message = 'Error: ';
+    var message = '';
     if (jqxhr.status) {
+      if (jqxhr.status == '401') {
+        /* Redirect to login page. */
+        window.location = '/login';
+      }
+
       message += jqxhr.status + ' ' + error + '.';
       if (!message) {
         message += 'Unknown error.';
@@ -35,7 +40,7 @@ vmosui.utils = {
     } else {
       message += 'Unknown error.';
     }
-    return message;
+    $('#error-message').html(message);
   },
 
   clearMessages: function() {
@@ -103,8 +108,7 @@ vmosui.utils = {
         $('#contents').html(response);
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
       },
       complete: function() {
         $('#loading').hide();
@@ -130,8 +134,7 @@ vmosui.utils = {
         }
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
       }
     });
   },
@@ -154,8 +157,7 @@ vmosui.utils = {
         }
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
       }
     });
   }
@@ -242,8 +244,7 @@ vmosui.addInitFunction(function() {
         $('#contents').html(response);
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
         $('#contents').empty();
       },
       complete: function(){
@@ -347,8 +348,7 @@ vmosui.addInitFunction(function() {
         }
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
       },
       complete: function(jqxhr, status, error) {
         $('#prepare-form button.btn-submit').button('reset');
@@ -403,8 +403,7 @@ vmosui.addInitFunction(function() {
       url: '/deploy/run/' + deployType,
       data: values,
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
       },
       /* Need these for sending FormData. */
       processData: false,
@@ -444,8 +443,7 @@ vmosui.addInitFunction(function() {
       type: 'POST',
       data: values,
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#error-message').html(message);
+        vmosui.utils.ajaxError(jqxhr, status, error);
       },
       /* Need these for sending FormData. */
       processData: false,
@@ -485,8 +483,9 @@ vmosui.addInitFunction(function() {
       $div.find('input[name="' + name + '"]').val($input.val());
     });
 
-    /* Keep NIC inputs disabled. */
-    $('#hv-bond-' + newCount).prop('disabled', true);
+    /* Reset bond mode selection. */
+    $('#hv-bond-' + newCount).val('');
+    /* Keep NIC input disabled. */
     $('#hv-nic-' + newCount).prop('disabled', true);
 
     $('#hv-row-' + current).after($div[0]);
@@ -514,8 +513,11 @@ vmosui.addInitFunction(function() {
     var regex = /^hv-(.+)-(.+)$/;
     var match = regex.exec(this.id);
     var current = match[2];
+    $('#hv-error-' + current).empty();
 
+    /* Reset bond mode selection. */
     var $bond = $('#hv-bond-' + current);
+    $bond.val('');
     var $nic = $('#hv-nic-' + current);
 
     var host = $('#hv-host-' + current).val();
@@ -534,41 +536,47 @@ vmosui.addInitFunction(function() {
         url: '/configure/hvs/nics',
         type: 'POST',
         data: values,
-        success: function(response) {
+        success: function(data) {
           $nic.empty();
-          if (!response.length) {
+
+          var message = data.error
+          var nics = data.nics
+          if (message || !nics.length) {
             /* Couldn't retrieve NICs. */
-            $bond.prop('disabled', true);
             $nic.prop('disabled', true);
+            $nic.empty();
+            $nic.prop('multiple', false);
+            if (message) {
+              $('#hv-error-' + current).text('Error: ' + message + '.');
+            }
             return;
           }
 
-          /* Expecting JSON response. */
-          response.sort();
-          for (var i = 0; i < response.length; i++) {
-            var nic = response[i];
+          nics.sort();
+          for (var i = 0; i < nics.length; i++) {
+            var nic = nics[i];
             $nic.append('<option value="' + nic + '">' + nic + '</option>');
           }
 
+          /* Change input type in case bond mode chosen before NICs enabled. */
           if ($bond.find('option:selected').hasClass('multinic')) {
             $nic.prop('multiple', true);
           } else {
             $nic.prop('multiple', false);
           }
-          $bond.prop('disabled', false);
           $nic.prop('disabled', false);
         },
         error: function(jqxhr, status, error) {
-          var message = vmosui.utils.ajaxError(jqxhr, status, error);
-          $('#error-message').html(message);
+          vmosui.utils.ajaxError(jqxhr, status, error);
         },
         complete: function() {
           $('#hv-loadnics-' + current).hide();
         }
       });
     } else {
-      $bond.prop('disabled', true);
       $nic.prop('disabled', true);
+      $nic.empty();
+      $nic.prop('multiple', false);
     }
   });
 
@@ -580,6 +588,11 @@ vmosui.addInitFunction(function() {
     var match = regex.exec(this.id);
     var current = match[1];
     var $nic = $('#hv-nic-' + current);
+
+    /* Ignore if NIC selection not available. */
+    if ($nic.prop('disabled')) {
+      return;
+    }
 
     var $select = $(this);
     if ($select.find('option:selected').hasClass('multinic')) {

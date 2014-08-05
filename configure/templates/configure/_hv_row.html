@@ -4,6 +4,7 @@
     <button id="hv-remove-{{ count }}" type="button" class="btn btn-sm btn-reset btn-hv-remove">&#8722;</button>
   </div>
   <div class="form-row-field">
+    <div id="hv-error-{{ count }}" class="text-error"></div>
     <div class="form-row-field"><span class="form-field-title">Host IP</span>
       <input id="hv-host-{{ count }}" type="text" class="form-control hv-host" name="hv-host-{{ count }}" value="" required/>
     </div>
@@ -14,7 +15,8 @@
       <input id="hv-password-{{ count }}" type="text" class="form-control hv-password" name="hv-password-{{ count }}" value="" required/>
     </div>
     <div class="form-row-field"><span class="form-field-title">Bond Mode</span>
-      <select id="hv-bond-{{ count }}" class="form-control hv-bond" name="hv-bond-{{ count }}" disabled>
+      <select id="hv-bond-{{ count }}" class="form-control hv-bond" name="hv-bond-{{ count }}">
+        <option value=""></option>
         <option value="none">single NIC</option>
         <option class="multinic" value="lacp">LACP</option>
         <option class="multinic" value="failover">failover</option>

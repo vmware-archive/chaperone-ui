@@ -310,9 +310,11 @@ def download_file(request, name):
     basename = os.path.basename(name)
     filename = '%s/%s' % (settings.PREPARE_FILES_DIR, basename)
 
-    # Loading file in chunks, in case it's large.
+    # Loading file in chunks, in case it's large. Returning it as MIME type
+    # text/plain causes Chrome to guess what file extension to add to the
+    # filename during the download.
     response = HttpResponse(FileWrapper(open(filename)),
-                            content_type=mimetypes.guess_type(filename)[0])
+                            content_type='text/plain')
     response['Content-Length'] = os.path.getsize(filename)
     response['Content-Disposition'] = "attachment; filename=%s" % basename
     return response

@@ -13,7 +13,6 @@ from django.shortcuts import render
 
 LOG = logging.getLogger(__name__)
 
-
 ACTION_RUN = 'run'
 HV_TEMPLATE = """%s ansible_ssh_user="%s" ansible_ssh_pass="%s" nic="[%s]" bond_mode="%s" transport_ip="%s" transport_mask="%s" transport_gateway="%s"
 """
@@ -224,6 +223,7 @@ def get_nics(request):
                  (host, user, password))
         fcntl.flock(fp, fcntl.LOCK_UN)
 
+    data = { 'nics': [] }
     try:
         command = 'ansible-playbook -i %s/nics.ini %s/%s' % (
             settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_DIR,
@@ -231,9 +231,12 @@ def get_nics(request):
         LOG.info('Running "%s"' % command)
         output = subprocess.check_output(command.split())
     except subprocess.CalledProcessError as e:
-        return HttpResponse('')
-
-    # Parse out NIC names from output.
-    nics = set(re.findall(r'(vmnic[0-9]+)', output))
-    nics_json = json.dumps(list(nics))
-    return HttpResponse(nics_json, content_type='application/json')
+        # Use first sentence of "fatal" string as error message.
+        matches = re.search(r'^fatal: \[.+\] => (?P<error>.+)$', e.output,
+                            re.MULTILINE)
+        data['error'] = matches.group('error').split('.')[0]
+    else:
+        # Parse NIC names from output.
+        nics = set(re.findall(r'(vmnic[0-9]+)', output))
+        data['nics'] = list(nics)
+    return HttpResponse(json.dumps(data), content_type='application/json')
