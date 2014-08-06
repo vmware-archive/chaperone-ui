@@ -392,7 +392,7 @@ vmosui.addInitFunction(function() {
     if (this.id == 'deploy-run') {
         action = 'run';
     }
-    values['action'] = action;
+    values.append('action', action);
 
     var deployType = $('#deploy-form input[name="dtype"]').val();
     var message = 'Starting to ' + action + ' ' + deployType +
@@ -401,6 +401,7 @@ vmosui.addInitFunction(function() {
 
     $.ajax({
       url: '/deploy/run/' + deployType,
+      type: 'POST',
       data: values,
       error: function(jqxhr, status, error) {
         vmosui.utils.ajaxError(jqxhr, status, error);
@@ -426,7 +427,7 @@ vmosui.addInitFunction(function() {
     if (this.id == 'configure-run') {
         action = 'run';
     }
-    values['action'] = action;
+    values.append('action', action);
 
     var configureType = $('#configure-form input[name="ctype"]').val();
     /* Create area for output, if it doesn't exist. */

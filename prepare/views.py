@@ -13,6 +13,7 @@ from django.shortcuts import render
 
 LOG = logging.getLogger(__name__)
 
+# Input types that are not required to have a value set.
 OPTIONAL_INPUT_TYPES = ('checkbox', 'file')
 
 
@@ -25,9 +26,20 @@ def _get_contents(filename):
     return yaml.load(file_contents)
 
 
-def _get_sections(container_name, group_name):
-    # Get group's sections, filling with saved values from the given file and
-    # other information needed to display the group.
+def _has_value(attribute):
+    # Return True if attribute has its value set.
+    is_optional = attribute.get('input') in OPTIONAL_INPUT_TYPES
+    value = attribute.get('value')
+    if is_optional:
+        return value == '1'
+    else:
+        return value
+
+
+def _get_sections(container_name=None, group_name=None):
+    # Return containers with all sections populated with the calculated
+    # metadata for all attributes, or only the section for the given group in
+    # the given container.
     base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
     containers = _get_contents(base)
 
@@ -36,19 +48,19 @@ def _get_sections(container_name, group_name):
     saved_answers = {}
     if os.path.exists(filename):
         saved_answers = _get_contents(filename)
-    hidden_fields = []
+    hidden_attributes = []
 
     # [{ ... }]
     for container in containers:
         # { 'Container': { ... } }
         for cname, groups in container.iteritems():
-            if cname != container_name:
+            if container_name and cname != container_name:
                 continue
             # [{ ... }]
             for group in groups:
                 # { 'Group': [...] }
                 for gname, sections in group.iteritems():
-                    if gname != group_name:
+                    if group_name and gname != group_name:
                         continue
                     # [{ ... }]
                     for section in sections:
@@ -72,64 +84,53 @@ def _get_sections(container_name, group_name):
                                     if os.path.exists(current_filename):
                                         attr['current'] = '1';
 
-                                # Find fields that need to be hidden.
+                                # Find attributes that need to be hidden.
                                 attr_show = attr.get('show')
-                                if (attr_show and
-                                        ((attr.get('input') in
-                                          OPTIONAL_INPUT_TYPES and
-                                          value != '1') or not value)):
-                                    fields = [f.strip()
-                                              for f in attr_show.split(',')]
-                                    hidden_fields.extend(fields)
+                                if attr_show and not _has_value(attr):
+                                    ids = [f.strip()
+                                           for f in attr_show.split(',')]
+                                    hidden_attributes.extend(ids)
 
-                    # Note which fields not to display.
+                    # Note which attributes not to display.
                     for section in sections:
                         for _, attributes in section.iteritems():
                             for attr in attributes:
-                                if attr['id'] in hidden_fields:
+                                if attr['id'] in hidden_attributes:
                                     attr['hide'] = '1'
-                    return sections
-    return None
+                    if group_name:
+                        return sections
+    return containers
 
 
-def _get_attributes_by_id():
-    # Return all attributes from the base file, keyed by attribute id.
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    containers = _get_contents(filename)
+def _get_attributes_by_id(container_name=None, group_name=None):
+    # Return all attribute metadata, keyed by attribute id, optionally for only
+    # the given group in the given container.
+    containers_or_sections = _get_sections(container_name=container_name,
+                                           group_name=group_name)
+    if group_name:
+        # Already got sections for the group.
+        all_sections = containers_or_sections
+    else:
+        all_sections = []
+        # [{ ... }]
+        for container in containers_or_sections:
+            # { 'Container': { ... } }
+            for _, groups in container.iteritems():
+                # [{ ... }]
+                for group in groups:
+                    # { 'Group': [...] }
+                    for _, sections in group.iteritems():
+                        all_sections.extend(sections)
+
     attributes_by_id = {}
-    # Which fields does the key depend on being set in order to be shown.
-    show_deps = {}
-
     # [{ ... }]
-    for container in containers:
-        # { 'Container': { ... } }
-        for cname, groups in container.iteritems():
+    for section in all_sections:
+        # { 'Section': [...] }
+        for _, attributes in section.iteritems():
             # [{ ... }]
-            for group in groups:
-                # { 'Group': [...] }
-                for gname, sections in group.iteritems():
-                    # [{ ... }]
-                    for section in sections:
-                        # { 'Section': [...] }
-                        for _, attributes in section.iteritems():
-                            # [{ ... }]
-                            for attr in attributes:
-                                attr_id = attr['id']
-                                attributes_by_id[attr_id] = attr
-
-                                # Find dependencies.
-                                attr_show = attr.get('show')
-                                if attr_show:
-                                    fields = [f.strip()
-                                              for f in attr_show.split(',')]
-                                    for fld in fields:
-                                        current = show_deps.setdefault(fld, [])
-                                        current.append(attr_id)
-                                        show_deps[fld] = current
-
-    # Add dependency information.
-    for attr_id, fields in show_deps.iteritems():
-        attributes_by_id[attr_id]['show_deps'] = fields
+            for attr in attributes:
+                attr_id = attr['id']
+                attributes_by_id[attr_id] = attr
     return attributes_by_id
 
 
@@ -197,7 +198,8 @@ def get_group(request):
     """ Display form to set answers for the sections in this group. """
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
-    sections = _get_sections(container_name, group_name)
+    sections = _get_sections(container_name=container_name,
+                             group_name=group_name)
 
     return render(request, 'prepare/_group.html', {
         'container_name': container_name,
@@ -206,81 +208,45 @@ def get_group(request):
     })
 
 
-def _is_group_complete(sections, attributes_by_id=None):
-    # Check if group has all required values set in its sections.
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
-                          settings.ANSWER_FILE_DEFAULT)
-    saved_answers = {}
-    if os.path.exists(filename):
-        # Get currently saved values.
-        saved_answers = _get_contents(filename)
-
-    # Caller might not have built the map if only one group is being checked
-    # for completeness.
-    if not attributes_by_id:
-        attributes_by_id = _get_attributes_by_id()
-
-    # [{ ... }]
+def _is_group_complete(sections):
+    # Return True if group has all required values set in its sections.
     for section in sections:
         # { 'Section': [...] }
         for _, attributes in section.iteritems():
             # [{ ... }]
             for attr in attributes:
-                attr_id = attr['id']
-
-                if (not saved_answers.get(attr_id) and
-                        not attr.get('input') in OPTIONAL_INPUT_TYPES):
-                    show_deps = attributes_by_id[attr_id].get('show_deps')
-                    if show_deps:
-                        # Allowed to be empty only if all fields it's dependent
-                        # upon are also empty.
-                        for field in show_deps:
-                            value = saved_answers.get(field)
-                            input_type = attributes_by_id[field].get('input')
-                            if ((input_type not in OPTIONAL_INPUT_TYPES and
-                                    value) or value == '1'):
-                                LOG.debug('%s missing whle %s set' %
-                                          (attr_id, field))
-                                return False
-                        continue
-                    else:
-                        LOG.debug('%s missing' % attr_id)
-                        return False
+                if (not attr.get('input') in OPTIONAL_INPUT_TYPES and
+                        not attr.get('optional') and not attr.get('hide') and
+                        not _has_value(attr)):
+                    LOG.debug('%s missing' % attr['id'])
+                    return False
     return True
 
 
 def get_group_status(request):
     """ Get current state of group, or all groups, if group name not given. """
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    containers = _get_contents(filename)
-    
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
+    containers_or_sections = _get_sections(container_name=container_name,
+                                           group_name=group_name)
     data = {}
-    attributes_by_id = _get_attributes_by_id()
 
-    # [{ ... }]
-    for container in containers:
-        # { 'Container': { ... } }
-        for cname, groups in container.iteritems():
-            if container_name and cname != container_name:
-                continue
-
-            data[cname] = {}
-            # [{ ... }]
-            for group in groups:
-                # { 'Group': [...] }
-                for gname, sections in group.iteritems():
-                    if group_name and gname != group_name:
-                        continue
-
-                    is_complete = _is_group_complete(
-                        sections, attributes_by_id=attributes_by_id)
-                    data[cname][gname] = { 'complete': is_complete }
-                    if group_name:
-                        # Done - only one group requested.
-                        return HttpResponse(json.dumps(data),
-                                            content_type='application/json')
+    if group_name:
+        # Only dealing with one group.
+        is_complete = _is_group_complete(containers_or_sections)
+        data[container_name][group_name] = { 'complete': is_complete }
+    else:
+        # [{ ... }]
+        for container in containers_or_sections:
+            # { 'Container': { ... } }
+            for cname, groups in container.iteritems():
+                data[cname] = {}
+                # [{ ... }]
+                for group in groups:
+                    # { 'Group': [...] }
+                    for gname, sections in group.iteritems():
+                        is_complete = _is_group_complete(sections)
+                        data[cname][gname] = { 'complete': is_complete }
     # Return status for all groups.
     return HttpResponse(json.dumps(data), content_type='application/json')
 
@@ -300,7 +266,8 @@ def save_group(request):
     if not errors:
         container_name = request.REQUEST.get('cname')
         group_name = request.REQUEST.get('gname')
-        sections = _get_sections(container_name, group_name)
+        sections = _get_sections(container_name=container_name,
+                                 group_name=group_name)
         data['complete'] = _is_group_complete(sections)
     return HttpResponse(json.dumps(data), content_type='application/json')
 
