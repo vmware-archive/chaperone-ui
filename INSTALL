@@ -19,9 +19,11 @@ $ mkdir /opt/vmosui/.blackhole
 # Same user and group as in Apache conf's WSGIDaemonProcess
 $ sudo chown -R nicira:nicira /opt/vmosui/
 
-Edit /opt/vmosui/vmosui/local_settings.py.
-- ANSWER_FILE_DIR, VMOS_LOG_DIR, and files underneath need to be owned by same
-  user and group from Apache conf's WSGIDaemonProcess.
+Create /opt/vmosui/vmosui/local_settings.py.
+$ cp /opt/vmosui/vmosui/local_settings.py.example /opt/vmosui/vmosui/local_settings.py
+- *_DIR directories need to be created if not already existing. All these
+  directories and files underneath them must be owned by same user and group
+  from Apache conf's WSGIDaemonProcess.
 - Fill in *_VALIDATE and *_RUN commands.
 $ vim /opt/vmosui/vmosui/local_settings.py
   # Example:

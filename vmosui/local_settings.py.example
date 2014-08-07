@@ -24,11 +24,15 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 #     - <group_name>
 #         - <section_name>
 #             - id: <attribute_id>
-#               name: <attribute_name>
-#               default: <optional_default_value>
+#               (name: <attribute_name>)
+#               (default: <default_value)
 #               (input: checkbox|file)
-#               (show: <id1>,<id2>,<id3>)
+#               (show: <attr_id1>,<attr_id2>,<attr_id3>)
 #               (optional: 1)
+#               (options:
+#                   - id: <option_id>
+#                     (name: <option_name>)
+#                     (show: <attr_id1>,<attr_id2>,<attr_id3>)
 #
 # Keep all list items in the order that they should appear in when displayed.
 # Each container and group is a heading in the nav menu for the "Prepare" step.

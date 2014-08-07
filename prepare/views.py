@@ -40,6 +40,8 @@ def _get_sections(container_name=None, group_name=None):
     # Return containers with all sections populated with the calculated
     # metadata for all attributes, or only the section for the given group in
     # the given container.
+    #
+    # See vmosui/local_settings.py.example for schema.
     base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
     containers = _get_contents(base)
 
@@ -49,6 +51,7 @@ def _get_sections(container_name=None, group_name=None):
     if os.path.exists(filename):
         saved_answers = _get_contents(filename)
     hidden_attributes = []
+    shown_opt_attrs = []
 
     # [{ ... }]
     for container in containers:
@@ -69,6 +72,10 @@ def _get_sections(container_name=None, group_name=None):
                             # [{ ... }]
                             for attr in attributes:
                                 attr_id = attr['id']
+                                # Default name to id.
+                                if not attr.get('name'):
+                                    attr['name'] = attr_id
+
                                 if attr_id in saved_answers:
                                     # Used saved value if it exists.
                                     value = saved_answers[attr_id]
@@ -84,18 +91,59 @@ def _get_sections(container_name=None, group_name=None):
                                     if os.path.exists(current_filename):
                                         attr['current'] = '1';
 
-                                # Find attributes that need to be hidden.
                                 attr_show = attr.get('show')
-                                if attr_show and not _has_value(attr):
-                                    ids = [f.strip()
-                                           for f in attr_show.split(',')]
-                                    hidden_attributes.extend(ids)
+                                if attr_show:
+                                    ids = [a.strip()
+                                           for a in attr_show.split(',')]
+                                    attr['show'] = ids
+                                    # Get attributes that need to be hidden.
+                                    if not _has_value(attr):
+                                        hidden_attributes.extend(ids)
+
+                                attr_options = attr.get('options', [])
+                                if attr.get('input') == 'dropdown':
+                                    # Set default option.
+                                    default_option = { 'id': '' }
+                                    if not attr_options:
+                                        attr['options'] = default_option
+                                    elif attr.get('optional'):
+                                        attr_options.insert(0, default_option)
+
+                                # Populate options metadata.
+                                hidden_opt_attrs = []
+                                for option in attr_options:
+                                    option_id = option['id']
+                                    if not option.get('name'):
+                                        option['name'] = option_id
+
+                                    option_show = option.get('show')
+                                    if option_show:
+                                        attr['show'] = '1'
+                                        ids = [o.strip()
+                                               for o in option_show.split(',')]
+                                        option['show'] = ids
+                                        hidden_opt_attrs.extend(ids)
+                                        # Get attributes that need to be hidden.
+                                        if attr.get('value') == option_id:
+                                            shown_opt_attrs.extend(ids)
+                                        else:
+                                            hidden_attributes.extend(ids)
+
+                                # Need to know which fields to hide when
+                                # selected option changes.
+                                if hidden_opt_attrs:
+                                    for option in attr_options:
+                                        ids = [o for o in hidden_opt_attrs if o
+                                               not in option.get('show', [])]
+                                        option['hide'] = ids
 
                     # Note which attributes not to display.
                     for section in sections:
                         for _, attributes in section.iteritems():
                             for attr in attributes:
-                                if attr['id'] in hidden_attributes:
+                                attr_id = attr['id']
+                                if (attr_id in hidden_attributes and
+                                        attr_id not in shown_opt_attrs):
                                     attr['hide'] = '1'
                     if group_name:
                         return sections
@@ -105,6 +153,8 @@ def _get_sections(container_name=None, group_name=None):
 def _get_attributes_by_id(container_name=None, group_name=None):
     # Return all attribute metadata, keyed by attribute id, optionally for only
     # the given group in the given container.
+    #
+    # See vmosui/local_settings.py.example for schema.
     containers_or_sections = _get_sections(container_name=container_name,
                                            group_name=group_name)
     if group_name:

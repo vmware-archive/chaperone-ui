@@ -269,7 +269,8 @@ vmosui.addInitFunction(function() {
    */
 
   /* Indicate when there are changes made in the form before saving. */
-  $(document).on('change', '#prepare-form input', function(event) {
+  $(document).on('change', '#prepare-form input:not(.password-checkbox), ' +
+                 '#prepare-form select', function(event) {
     var text = $('div.form-group-title').text();
     var suffix = ' *';
     if (text.indexOf(suffix, text.length - suffix.length) == -1) {
@@ -277,18 +278,64 @@ vmosui.addInitFunction(function() {
     }
   });
 
-  /* Show/hide fields based on state of other fields. */
-  $(document).on('change', '#prepare-form input.toggle-show', function(event) {
-    var $knob = $(this);
-    if ($knob.hasClass('file-checkbox')) {
-      /* Toggle the inputs related to file uploads. */
+  /* Show/hide elements based on state of other elements. */
+  $(document).on('change',
+                 '#prepare-form input.toggle-show', function(event) {
+    /* Toggle the inputs related to file uploads. */
+    var $input = $(this);
+    if ($input.hasClass('file-checkbox')) {
       $('#file-field-' + this.id).toggle();
-    } else {
-      /* CSV list of ids of divs to show/hide. */
-      var ids = $knob.attr('data-toggle-show').split(',');
+    }
+
+    if ($input.attr('data-show')) {
+      /* CSV list of ids of elements to show/hide. */
+      var data;
+      var ids = $input.attr('data-show').split(',');
       for (var i = 0; i < ids.length; i++) {
         var target = ids[i].trim();
         $('#form-field-' + target).toggle();
+      }
+    }
+  });
+
+  /* Show/hide password in clear text. */
+  $(document).on('change',
+                 '#prepare-form input.toggle-show.password-checkbox',
+                 function(event) {
+    var $knob = $(this);
+    var $input = $knob.closest('div.form-field, div.form-row-field')
+                   .find('input[type="password"], input[type="text"]');
+
+    if ($input.attr('type') == 'password') {
+      $input.attr('type', 'text');
+    } else {
+      $input.attr('type', 'password');
+    }
+  });
+
+  /* Show/hide other elements based on selected option. */
+  $(document).on('change', '#prepare-form select.toggle-show',
+                 function(event) {
+    var $select = $(this);
+    var $option = $select.find('option:selected');
+
+    if ($option.attr('data-hide')) {
+      /* CSV list of ids of elements to hide. */
+      var data;
+      var ids = $option.attr('data-hide').split(',');
+      for (var i = 0; i < ids.length; i++) {
+        var target = ids[i].trim();
+        $('#form-field-' + target).hide();
+      }
+    }
+
+    if ($option.attr('data-show')) {
+      /* CSV list of ids of elements to show. */
+      var data;
+      var ids = $option.attr('data-show').split(',');
+      for (var i = 0; i < ids.length; i++) {
+        var target = ids[i].trim();
+        $('#form-field-' + target).show();
       }
     }
   });
@@ -509,8 +556,7 @@ vmosui.addInitFunction(function() {
   $(document).on('change',
                  '#configure-hvs-contents input.hv-host, ' +
                  '#configure-hvs-contents input.hv-user, ' +
-                 '#configure-hvs-contents input.hv-password',
-                 function(event) {
+                 '#configure-hvs-contents input.hv-password', function(event) {
     var regex = /^hv-(.+)-(.+)$/;
     var match = regex.exec(this.id);
     var current = match[2];
