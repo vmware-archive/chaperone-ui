@@ -1,4 +1,5 @@
 <div id="configure-hvs-contents">
+  <div class="form-group-title">Configure</div>
   <form id="configure-form" action="{% url 'configure:run_hvs' %}" method="post">
     {% csrf_token %}
     <input type="hidden" name="ctype" value="hvs"/>

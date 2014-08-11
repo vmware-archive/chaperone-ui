@@ -1,23 +1,4 @@
 vmosui.utils = {
-  activateStep: function(button) {
-    if (button.id != 'prepare-btn') {
-      $('#prepare-menu').hide();
-    }
-
-    /* Visual pointer to the page contents. */
-    var $button = $(button);
-    if ($button.next().hasClass('btn-arrow-right')) {
-      return;
-    }
-
-    /* De-activate previously active button. */
-    $('div.btn-arrow-right').remove();
-    $('button.active-step').removeClass('active-step');
-
-    $button.addClass('active-step');
-    $button.after('<div class="btn-arrow-right"></div>');
-  },
-
   ajaxError: function(jqxhr, status, error) {
     /* Return error message. */
     var message = '';
@@ -99,6 +80,7 @@ vmosui.utils = {
 
   loadGroup: function(containerName, groupName) {
     /* Return form for group. */
+    vmosui.utils.clearMessages();
     $('#contents').empty();
     $('#loading').show();
     $.ajax({
@@ -164,11 +146,6 @@ vmosui.utils = {
 };
 
 vmosui.addInitFunction(function() {
-  /* Hide prepare-able menu items. */
-  if (!$('#prepare-contents').length) {
-    $('#prepare-menu').hide();
-  }
-
   /* Allow user to expand or collapse each contianer in the nav. */
   $('#prepare-menu div.expand-collapse-container').click(function(event) {
     var cid = this.id;
@@ -184,20 +161,8 @@ vmosui.addInitFunction(function() {
     $knob.toggleClass('expandable');
   });
 
-  /* Show preparation forms. */
-  $('#prepare-btn').click(function(event) {
-    var $button = $(this);
-    if ($button.hasClass('active-step')) {
-      /* Nothing to do. */
-      return;
-    }
-
-    vmosui.utils.activateStep(this);
-
-    /* Show form for the first item. */
-    $('#prepare-menu span.clickable').first().click();
-
-    /* Show status of each group, indicating if there are missing values. */
+  /* Show status of each group, indicating if there are missing values. */
+  $('#prepare').click(function(event) {
     if (!$('#prepare-menu span.group-status').first().html().length) {
       $.ajax({
         url: '/prepare/status',
@@ -218,45 +183,10 @@ vmosui.addInitFunction(function() {
         /* Ignore errors. */
       });
     }
-
-    /* Show the list of items to prepare. */
-    $('#prepare-menu').slideDown();
-  });
-
-  /* Retrieve page content based on button clicked. */
-  $('button.actionable').click(function(event) {
-    var $button = $(this);
-    var action = $button.attr('action');
-    if (!action || $button.hasClass('active-step')) {
-      /* Nothing to do. */
-      return;
-    }
-
-    vmosui.utils.activateStep(this);
-    vmosui.utils.clearMessages();
-
-    /* Fill in the page contents based on the action given. */
-    $('#contents').empty();
-    $('#loading').show();
-    $.ajax({
-      url: action,
-      success: function(response) {
-        $('#contents').html(response);
-      },
-      error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
-        $('#contents').empty();
-      },
-      complete: function(){
-        $('#loading').hide();
-      }
-    });
   });
 
   /* Show form to set the group's answers. */
   $('#prepare-menu span.clickable').click(function(event) {
-    vmosui.utils.clearMessages();
-
     var containerName = vmosui.utils.getNavCname(this);
     var $span = $(this);
     var groupName = $span.text();
@@ -303,7 +233,7 @@ vmosui.addInitFunction(function() {
                  '#prepare-form input.toggle-show.password-checkbox',
                  function(event) {
     var $knob = $(this);
-    var $input = $knob.closest('div.form-field, div.form-row-field')
+    var $input = $knob.closest('div.form-field')
                    .find('input[type="password"], input[type="text"]');
 
     if ($input.attr('type') == 'password') {
@@ -353,8 +283,6 @@ vmosui.addInitFunction(function() {
 
   /* Submit form to save group's answers. */
   $(document).on('submit', '#prepare-form', function(event) {
-    vmosui.utils.clearMessages();
-
     var $form = $(this);
     var action = $form.attr('action');
     var containerName = $('#prepare-form input[name="cname"]').val();
@@ -410,9 +338,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Update log viewers periodically. */
-  $('button.btn-command').click(function(event) {
-    vmosui.utils.clearMessages();
-
+  $('span.btn-command').click(function(event) {
     var idArr = this.id.split('-');
     var commandType = idArr[0];
     var thingType = idArr[1];
@@ -479,7 +405,8 @@ vmosui.addInitFunction(function() {
     var configureType = $('#configure-form input[name="ctype"]').val();
     /* Create area for output, if it doesn't exist. */
     if (!$('#configure-' + configureType + '-output').length) {
-      var pre = '<pre id="configure-' + configureType + '-output"></pre>';
+      var pre = '<pre id="configure-' + configureType +
+                '-output" class="command-output"></pre>';
       $('#configure-' + configureType + '-contents').append(pre);
     }
     var message = 'Starting to ' + action + ' ' + configureType +
@@ -542,7 +469,7 @@ vmosui.addInitFunction(function() {
   /* Remove form to configure hypervisor. */
   $(document).on('click', 'button.btn-hv-remove', function(event) {
     /* Must have at least one row plus template on the page. */
-    if ($('div.form-section').length == 2) {
+    if ($('div.form-row-section').length == 2) {
       return;
     }
 
@@ -648,6 +575,79 @@ vmosui.addInitFunction(function() {
       $nic.prop('multiple', false);
     }
   });
+
+  /* Change active leftnav button. */
+  $('#leftnav div.leftnav-btn').click(function(event) {
+    var $button = $(this);
+    if ($button.hasClass('active-btn')) {
+      /* Already on this. */
+      return;
+    }
+    vmosui.utils.clearMessages();
+
+    /* De-activate previously active button. */
+    var prevId = $('#leftnav div.leftnav-btn.active-btn').attr('id');
+    $('#' + prevId + '-menu').slideUp();
+    $('#' + prevId).removeClass('active-btn');
+
+    /* Activate new button .*/
+    $.cookie('activeButton', this.id);
+    var $button = $(this);
+    $button.addClass('active-btn');
+    $('#' + this.id + '-menu').slideDown();
+
+    /* Show contents for last item viewed. Default to first item. */
+    var itemId = $.cookie(this.id + 'Item');
+    if (!itemId) {
+      itemId = $('#' + this.id + '-menu span.clickable').first().attr('id');
+    }
+    $('#' + itemId).click();
+  });
+
+  /* Note which item was last viewed. */
+  $('#leftnav span.clickable').click(function(event) {
+    vmosui.utils.clearMessages();
+
+    var $span = $(this);
+    var buttonId = $span.closest('div.menu').prev('#leftnav div.leftnav-btn')
+                     .attr('id');
+    $.cookie(buttonId + 'Item', this.id);
+  });
+
+  /* Retrieve page content based on button clicked. */
+  $('#leftnav span.actionable').click(function(event) {
+    var $button = $(this);
+    var action = $button.attr('data-action');
+    if (!action || $button.hasClass('active-btn')) {
+      /* Nothing to do. */
+      return;
+    }
+
+    /* Fill in the page contents based on the action given. */
+    $('#contents').empty();
+    $('#loading').show();
+    $.ajax({
+      url: action,
+      success: function(response) {
+        $('#contents').html(response);
+        $('#contents div.form-group-title').append(' ' + $button.text());
+      },
+      error: function(jqxhr, status, error) {
+        vmosui.utils.ajaxError(jqxhr, status, error);
+        $('#contents').empty();
+      },
+      complete: function(){
+        $('#loading').hide();
+      }
+    });
+  });
+
+  /* Show contents for leftnav button last viewed. Default to first button. */
+  var activeButton = $.cookie('activeButton');
+  if (!activeButton) {
+    activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
+  }
+  $('#' + activeButton).click();
 });
 
 $(document).ready(vmosui.init);

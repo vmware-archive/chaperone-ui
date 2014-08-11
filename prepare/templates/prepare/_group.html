@@ -1,5 +1,5 @@
 <div id="prepare-contents">
-  <div class="form-group-title">{{ container_name }}: {{ group_name }}</div>
+  <div class="form-group-title">Prepare {{ container_name }}: {{ group_name }}</div>
   <div id="{{ container_name|slugify }}_{{ group_name|slugify }}-form">
     <form id="prepare-form" action="{% url 'prepare:save' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}
@@ -9,22 +9,22 @@
         <div class="form-section-title">{{ sname }}</div>
         {% for attr in attributes %}<div id="form-field-{{ attr.id }}" class="form-field{% if attr.hide %} no-display{% endif %}">
 
-          {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}/>&nbsp;<span class="form-field-title">{{ attr.name }}</span></label>
+          {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}/>&nbsp;{{ attr.name }}</label>
 
-          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show{% if attr.show %}" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}/>&nbsp;<span class="form-field-title">Use <span class="form-field-name">{{ attr.name }}</span></span></label>
+          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show{% if attr.show %}" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}/>&nbsp;Use <span class="form-field-name">{{ attr.name }}</span></label>
             <div id="file-field-{{ attr.id }}"{% if attr.value != '1' %} class="no-display"{% endif %}>
               {% if attr.current %}<a id="current-{{ attr.id }}" href="{% url 'prepare:download' attr.id %}">current version</a>, or upload new one:{% endif %}
               <input id="file-{{ attr.id }}" type="file" class="form-control" name="file-{{ attr.id }}"/>
             </div>
 
-          {% elif attr.input == 'dropdown' %}<span class="form-field-title">{{ attr.name }}</span>
+          {% elif attr.input == 'dropdown' %}{{ attr.name }}
             <select id="{{ attr.id }}" class="form-control{% if attr.show %} toggle-show{% endif %}" name="{{ attr.id }}">
             {% for option in attr.options %}<option{% if option.show %} data-show="{{ option.show|join:',' }}"{% endif %}{% if option.hide %} data-hide="{{ option.hide|join:',' }}"{% endif %}  value="{{ option.id }}"{% if attr.value == option.id %} selected="selected"{% endif %}>{{ option.name }}</option>{% endfor %}
             </select>
 
-          {% else %}<span class="form-field-title">{{ attr.name }}</span>
+          {% else %}{{ attr.name }}
             <input id="{{ attr.id }}" type="{% if attr.input == 'password' %}password{% else %}text{% endif %}" class="form-control{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="{{ attr.value }}"/>
-            {% if attr.input == 'password' %}<label><input type="checkbox" class="form-control checkbox password-checkbox toggle-show">&nbsp;<span class="form-field-title">Show password</span></label>{% endif %}{% endif %}
+            {% if attr.input == 'password' %}<label><input type="checkbox" class="form-control checkbox password-checkbox toggle-show">&nbsp;Show password</label>{% endif %}{% endif %}
 
         </div>{% endfor %}
       </div>{% endfor %}{% endfor %}

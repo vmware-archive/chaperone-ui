@@ -34,11 +34,11 @@
         <input type="hidden" name="next" value="{{ next_url }}"/>
         <div class="form-section">
           <div class="logo">
-            <img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware NSX"><br/>
+            <img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware"><br/>
             SDDC
           </div>
           <div class="form-field">
-            <!--[if lt IE 10]>Username:<![endif]--><input type="text" name="username" class="form-control" value="{{ username }}" placeholder="Username"/>
+            <!--[if lt IE 10]>Username:<![endif]--><input type="text" name="username" class="form-control" value="{{ username }}" placeholder="Username" autofocus="autofocus"/>
           </div>
           <div class="form-field">
             <!--[if lt IE 10]>Password:<![endif]--><input type="password" name="password" class="form-control" placeholder="Password"/>

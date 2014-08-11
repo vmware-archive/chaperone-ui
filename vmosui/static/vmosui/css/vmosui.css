@@ -5,13 +5,12 @@ html {
 
 body {
   font-family: "Helvetica Neue", sans-serif;
-  background-color: #717074;
-  margin-bottom: 40px;
-  margin-top: 10px;
   height: 100%;
-  background-image: url('/static/vmosui/img/bg_rb.png');
-  background-repeat: no-repeat;
-  background-position: right 100%;
+  overflow: auto;
+  color: #333333;
+  /* Get rid of space between child inline-block divs */
+  /* NOTE: Need to reset font-size for all direct child elements */
+  font-size: 0;
 }
 
 label {
@@ -33,9 +32,10 @@ a:hover {
 /* Navigation */
 
 .header {
+  background-color: #006990;
   text-align: right;
   color: #FFFFFF;
-  padding: 10px 20px;
+  padding: 15px 40px;
 }
 
 .header-link {
@@ -53,42 +53,55 @@ a:hover {
 }
 
 #leftnav {
-  display: inline-block;
-  width: 19%;
-  vertical-align: top;
+  float: left;
+  width: 220px;
   padding-top: 20px;
   padding-bottom: 20px;
-  padding-left: 20px;
-  border-right: 1px solid #DDDDDD;
-  font-size: 14px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  background-color: #006990;
+  background-image: url('/static/vmosui/img/bg_lb.png');
+  background-repeat: no-repeat;
+  background-position: left 100%;
+  background-size: 100%;
   overflow: auto;
-}
-#leftnav button.btn-primary {
-  width: 140px;
-  text-align: left;
+  /* Reset font-size from body font-size: 0 */
+  font-size: 14px;
 }
 
 .leftnav-btn {
-  /* #leftnav button.btn-primary width + .btn-arrow-right width */
-  width: 157px;
+  padding: 10px 20px;
+  color: #FFFFFF;
+  cursor: pointer;
+  cursor: hand;
+}
+.leftnav-btn:hover {
+  background-color: #FFFFFF;
+  color: #333333;
+}
+.leftnav-btn.active-btn {
+  background-color: #FFFFFF;
+  color: #333333;
+  cursor: default;
+  font-weight: bold;
 }
 
 .logo {
   font-size: 24px;
-  margin-bottom: 20px;
-  margin-top: -5px;
-  color: #717074;
+  margin-top: 30px;
+  color: #FFFFFF;
+  padding: 10px 20px;
 }
 .logo img {
-  /* Same width as leftnav buttons */
-  width: 140px;
+  width: 150px;
   height: auto;
 }
 .logo a,
 .logo a:hover,
 .logo a:focus,
 .logo a:active {
-  color: #717074;
+  color: #FFFFFF;
   text-decoration: none;
 }
 
@@ -97,23 +110,33 @@ a:hover {
   text-align: left;
   margin-top: 40px;
   /* Vertically align with .form-field */
-  margin-left: 100px;
+  margin-left: 80px;
 }
 #login-form .logo img {
   width: 250px;
 }
 
+.menu {
+  background-color: #EEEEEE;
+  padding: 5px 5px 5px 15px;
+}
 .menu ul {
-  list-style: none;
-  text-align: left;
   margin-top: 5px;
   margin-right: 0;
   margin-bottom: 5px;
-  margin-left: -36px;
+  margin-left: -22px;
 }
 .menu ul ul {
   margin-top: 0;
   margin-bottom: 5px;
+  margin-left: -26px;
+}
+
+#prepare-menu ul {
+  list-style: none;
+  margin-left: -36px;
+}
+#prepare-menu ul ul {
   margin-left: -26px;
 }
 
@@ -153,22 +176,7 @@ span.clickable-hover {
   margin-right: 5px;
 }
 
-.btn-arrow-right {
-  display: inline-block;
-  vertical-align: -16px;
-  width: 0;
-  height: 0;
-  border-top: 17px solid transparent;
-  border-bottom: 17px solid transparent;
-  border-left: 17px solid #003D79;
-}
-
 /* Contents */
-
-#loading {
-  margin-top: 50px;
-  text-align: center;
-}
 
 .loading-sm {
   height: 14px;
@@ -177,31 +185,20 @@ span.clickable-hover {
   font-size: 10px;
 }
 
-.main-container {
+#rightside {
   background-color: #FFFFFF;
-  padding-top: 20px;
-  padding-bottom: 20px;
-  /* Get rid of space between child inline-block divs */
-  /* NOTE: Need to reset font-size for all child elements */
-  font-size: 0;
+  /* Reset font-size from body font-size: 0 */
+  font-size: 14px;
+  /* #leftnav width */
+  margin-left: 220px;
 }
 
 #main {
-  display: inline-block;
-  width: 74%;
-  border-left: 1px solid #DDDDDD;
-  margin-left: -1px;
-  font-size: 14px;
+  padding: 20px 30px 20px 30px;
 }
 
 #messages {
   font-size: 20px;
-  margin-top: 20px;
-  margin-left: 30px;
-}
-
-#contents {
-  padding: 0 30px 20px 30px;
 }
 
 #vmosui-login {
@@ -211,7 +208,9 @@ span.clickable-hover {
 }
 
 .command-output {
-  max-height: 650px;
+  max-height: 600px;
+  background-color: #EEEEEE;
+  border: none;
 }
 
 .no-display {
@@ -226,32 +225,30 @@ input[type="file"].no-display {
 
 .form-group-title {
   font-size: 28px;
-  border-bottom: 2px solid #6DB33F;
+  margin-bottom: 5px;
   text-align: text-top;
 }
 
 .form-section-title {
   font-size: 18px;
   margin-bottom: 10px;
-  background-color: #717074;
+  background-color: #003D79;
   color: #FFFFFF;
-  padding: 5px 10px;
+  padding: 5px 15px;
 }
 
+.form-control {
+  border-radius: 0;
+  box-shadow: none;
+}
 .form-section {
   display: inline-block;
   vertical-align: top;
-  margin-top: 8px;
   margin-right: 5px;
+  margin-bottom: 5px;
   background-color: #EEEEEE;
 }
-.form-section.no-title {
-  margin-top: 0;
-  padding: 5px 10px;
-  display: block;
-  min-width: 870px;
-  margin-bottom: 5px;
-}
+
 .form-section .checkbox {
   font-weight: normal;
 }
@@ -278,7 +275,7 @@ input[type="file"].no-display {
 }
 
 .form-field {
-  margin: 0 10px 8px 10px;
+  margin: 0 15px 10px 15px;
 }
 
 #login-form .form-field {
@@ -289,12 +286,24 @@ input[type="file"].no-display {
   text-align: left;
 }
 
-.form-row-buttons {
+.form-row-section {
   display: inline-block;
-  vertical-align: bottom;
-  position: relative;
-  top: -5px;
+  vertical-align: top;
   margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: #EEEEEE;
+  padding: 10px;
+  overflow: auto;
+}
+
+.form-row-buttons {
+  float: left;
+  vertical-align: bottom;
+}
+
+.form-row-fields {
+  /* .form-row-buttons width */
+  margin-left: 80px;
 }
 
 .form-row-field {
@@ -302,14 +311,10 @@ input[type="file"].no-display {
   vertical-align: top;
 }
 
-.form-field-title {
-  color: #555555;
-}
-
 .form-control:focus {
-  border-color: #0095D3;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(137, 203, 223, .6);
-          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(137, 203, 223, .6);
+  border-color: #717074;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(113, 112, 116, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(113, 112, 116, .6);
 }
 
 .form-control.checkbox {
@@ -325,14 +330,6 @@ input[type="file"].no-display {
 
 .btn {
   margin-top: 5px;
-}
-.btn.active-step {
-  box-shadow: none;
-  background-color: #003D79;
-  border-color: transparent;
-  cursor: default;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
 }
 
 .btn-primary {
@@ -366,7 +363,7 @@ fieldset[disabled] .btn-primary.active {
 }
 
 .btn-reset {
-  background-color: #999999;
+  background-color: #717074;
   border-color: transparent;
   color: #FFFFFF;
 }
@@ -374,7 +371,7 @@ fieldset[disabled] .btn-primary.active {
 .btn-reset:focus,
 .btn-reset:active,
 .open .dropdown-toggle.btn-reset {
-  background-color: #CCCCCC;
+  background-color: #999999;
   border-color: transparent;
   color: #FFFFFF;
 }
