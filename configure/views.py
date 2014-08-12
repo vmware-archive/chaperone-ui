@@ -17,6 +17,7 @@ ACTION_RUN = 'run'
 HV_TEMPLATE = """%s ansible_ssh_user="%s" ansible_ssh_pass="%s" nic="[%s]" bond_mode="%s" transport_ip="%s" transport_mask="%s" transport_gateway="%s"
 """
 HV_COUNT_COOKIE = 'hvcount'
+HVS_FILE = 'hvs.yml'
 TMP_FILENAME = '%s.tmp'
 
 
@@ -138,7 +139,7 @@ def run_hvs_commands(request):
         hv[arg] = value
 
     # Write out all the input values into the init file.
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.HVS_FILE)
+    filename = '%s/%s' % (settings.ANSWER_FILE_DIR, HVS_FILE)
     with open(filename, 'w+') as fp:
         fcntl.flock(fp, fcntl.LOCK_EX)
         fp.write('[hypervisors]\n')
@@ -225,9 +226,8 @@ def get_nics(request):
 
     data = { 'nics': [] }
     try:
-        command = 'ansible-playbook -i %s/nics.ini %s/%s' % (
-            settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_DIR,
-            settings.NICS_FILE)
+        command = 'ansible-playbook -i %s/nics.ini %s' % (
+            settings.ANSWER_FILE_DIR, settings.NICS_FILE)
         LOG.info('Running "%s"' % command)
         output = subprocess.check_output(command.split())
     except subprocess.CalledProcessError as e:

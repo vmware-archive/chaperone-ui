@@ -408,6 +408,10 @@ vmosui.addInitFunction(function() {
       var pre = '<pre id="configure-' + configureType +
                 '-output" class="command-output"></pre>';
       $('#configure-' + configureType + '-contents').append(pre);
+
+      /* Scroll to the output so user sees it exists. */
+      $('html').scrollTop($('#configure-' + configureType +
+                            '-output').offset().top);
     }
     var message = 'Starting to ' + action + ' ' + configureType +
                   ' configuration...\n';

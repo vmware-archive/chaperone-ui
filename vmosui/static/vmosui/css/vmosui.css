@@ -211,6 +211,7 @@ span.clickable-hover {
   max-height: 600px;
   background-color: #EEEEEE;
   border: none;
+  border-radius: 0;
 }
 
 .no-display {

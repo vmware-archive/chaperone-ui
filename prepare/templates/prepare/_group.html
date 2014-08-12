@@ -23,7 +23,7 @@
             </select>
 
           {% else %}{{ attr.name }}
-            <input id="{{ attr.id }}" type="{% if attr.input == 'password' %}password{% else %}text{% endif %}" class="form-control{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="{{ attr.value }}"/>
+            <input id="{{ attr.id }}" type="{% if attr.input == 'password' %}password{% else %}text{% endif %}" class="form-control{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="{{ attr.value }}"{% if attr.optional %} placeholder="optional"{% endif %}/>
             {% if attr.input == 'password' %}<label><input type="checkbox" class="form-control checkbox password-checkbox toggle-show">&nbsp;Show password</label>{% endif %}{% endif %}
 
         </div>{% endfor %}

@@ -67,10 +67,8 @@ SDDC_DEPLOY_RUN = []
 SDDC_CONFIGURE_VALIDATE = []
 SDDC_CONFIGURE_RUN = []
 
-# Name of playbook to get list of NICs from a hypervisor.
-NICS_FILE = 'get_nics.yml'
-# File containing [hypervisors] block for configuration.
-HVS_FILE = 'hvs.yml'
+# Full path to playbook that gets list of NICs from a hypervisor.
+NICS_FILE = '%s/get_nics.yml' % ANSWER_FILE_DIR
 # List of hypervisor-related commands, one string per command and its
 # arguments.
 # Example: [ 'echo "Hello World"', 'ls -la', ]
