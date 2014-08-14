@@ -71,9 +71,9 @@ vmosui.utils = {
     return values;
   },
 
-  getNavCname: function(span) {
+  getNavCname: function(div) {
     /* Get clickable nav item's container name. */
-    return $(span).closest('div.expand-collapse-groups')
+    return $(div).closest('div.expand-collapse-groups')
              .prev('div.expand-collapse-container')
              .find('span.container-name').text();
   },
@@ -167,10 +167,10 @@ vmosui.addInitFunction(function() {
       $.ajax({
         url: '/prepare/status',
         success: function(data) {
-          $('#prepare-menu span.clickable').each(function(index) {
+          $('#prepare-menu div.clickable').each(function(index) {
             var containerName = vmosui.utils.getNavCname(this);
-            var $span = $(this);
-            var groupName = $span.text();
+            var $div = $(this);
+            var groupName = $div.find('span.group-name').text();
             var cgid = this.id;
 
             if (data[containerName][groupName].complete) {
@@ -186,10 +186,10 @@ vmosui.addInitFunction(function() {
   });
 
   /* Show form to set the group's answers. */
-  $('#prepare-menu span.clickable').click(function(event) {
+  $('#prepare-menu div.clickable').click(function(event) {
     var containerName = vmosui.utils.getNavCname(this);
-    var $span = $(this);
-    var groupName = $span.text();
+    var $div = $(this);
+    var groupName = $div.find('span.group-name').text();
     vmosui.utils.loadGroup(containerName, groupName);
   });
 
@@ -338,7 +338,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Update log viewers periodically. */
-  $('span.btn-command').click(function(event) {
+  $('div.btn-command').click(function(event) {
     var idArr = this.id.split('-');
     var commandType = idArr[0];
     var thingType = idArr[1];
@@ -603,23 +603,26 @@ vmosui.addInitFunction(function() {
     /* Show contents for last item viewed. Default to first item. */
     var itemId = $.cookie(this.id + 'Item');
     if (!itemId) {
-      itemId = $('#' + this.id + '-menu span.clickable').first().attr('id');
+      itemId = $('#' + this.id + '-menu div.clickable').first().attr('id');
     }
     $('#' + itemId).click();
   });
 
   /* Note which item was last viewed. */
-  $('#leftnav span.clickable').click(function(event) {
+  $('#leftnav div.clickable').click(function(event) {
     vmosui.utils.clearMessages();
 
-    var $span = $(this);
-    var buttonId = $span.closest('div.menu').prev('#leftnav div.leftnav-btn')
+    var $div = $(this);
+    var activeClass = 'active-item';
+    $('#leftnav div.clickable.' + activeClass).removeClass(activeClass);
+    $div.addClass(activeClass);
+    var buttonId = $div.closest('div.menu').prev('#leftnav div.leftnav-btn')
                      .attr('id');
     $.cookie(buttonId + 'Item', this.id);
   });
 
   /* Retrieve page content based on button clicked. */
-  $('#leftnav span.actionable').click(function(event) {
+  $('#leftnav div.actionable').click(function(event) {
     var $button = $(this);
     var action = $button.attr('data-action');
     if (!action || $button.hasClass('active-btn')) {

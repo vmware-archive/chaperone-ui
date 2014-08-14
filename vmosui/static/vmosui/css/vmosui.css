@@ -77,14 +77,19 @@ a:hover {
   cursor: hand;
 }
 .leftnav-btn:hover {
-  background-color: #FFFFFF;
-  color: #333333;
+  background-color: #717074;
+  color: #FFFFFF;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 9px;
 }
 .leftnav-btn.active-btn {
-  background-color: #FFFFFF;
-  color: #333333;
+  background-color: #717074;
+  color: #FFFFFF;
   cursor: default;
-  font-weight: bold;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 9px;
 }
 
 .logo {
@@ -118,42 +123,44 @@ a:hover {
 
 .menu {
   background-color: #EEEEEE;
-  padding: 5px 5px 5px 15px;
-}
-.menu ul {
-  margin-top: 5px;
-  margin-right: 0;
-  margin-bottom: 5px;
-  margin-left: -22px;
-}
-.menu ul ul {
-  margin-top: 0;
-  margin-bottom: 5px;
-  margin-left: -26px;
-}
-
-#prepare-menu ul {
-  list-style: none;
-  margin-left: -36px;
-}
-#prepare-menu ul ul {
-  margin-left: -26px;
+  padding-bottom: 7px;
 }
 
 .expand-collapse-container {
   cursor: pointer;
   cursor: hand;
-  font-weight: bold;
+  font-style: italic;
+  padding: 4px 20px;
 }
 
-span.clickable {
+.clickable {
   cursor: pointer;
   cursor: hand;
   text-decoration: none;
+  padding: 8px 20px;
+  padding: 8px 20px;
 }
-span.clickable:hover,
-span.clickable-hover {
-  text-decoration: underline;
+.clickable:hover {
+  background-color: #FFFFFF;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */ 
+  padding-top: 7px;
+}
+.clickable.active-item {
+  background-color: #FFFFFF;
+  font-weight: bold;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 7px;
+}
+.expand-collapse-groups .clickable {
+  padding: 3px 20px 3px 33px;
+}
+.expand-collapse-groups .clickable:hover,
+.expand-collapse-groups .clickable.active-item {
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 2px;
 }
 
 .collapsible {
@@ -277,6 +284,7 @@ input[type="file"].no-display {
 
 .form-field {
   margin: 0 15px 10px 15px;
+  width: 210px;
 }
 
 #login-form .form-field {
@@ -285,6 +293,7 @@ input[type="file"].no-display {
   margin-left: 100px;
   color: #FFFFFF;
   text-align: left;
+  width: initial;
 }
 
 .form-row-section {
@@ -509,4 +518,8 @@ a.text-warning:hover {
 }
 a.text-error:hover {
   color: #D9541E;
+}
+
+.form-field-help {
+  font-size: 11px;
 }
