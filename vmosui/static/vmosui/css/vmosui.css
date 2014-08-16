@@ -123,7 +123,6 @@ a:hover {
 
 .menu {
   background-color: #EEEEEE;
-  padding-bottom: 7px;
 }
 
 .expand-collapse-container {
@@ -137,7 +136,6 @@ a:hover {
   cursor: pointer;
   cursor: hand;
   text-decoration: none;
-  padding: 8px 20px;
   padding: 8px 20px;
 }
 .clickable:hover {
@@ -293,7 +291,7 @@ input[type="file"].no-display {
   margin-left: 100px;
   color: #FFFFFF;
   text-align: left;
-  width: initial;
+  width: auto;
 }
 
 .form-row-section {
