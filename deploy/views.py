@@ -20,7 +20,9 @@ def _index(request, logname, deploy_type):
     file_contents = ''
     if os.path.exists(logname):
         with open(logname, 'r') as lp:
+            fcntl.flock(lp, fcntl.LOCK_SH)
             file_contents = lp.read()
+            fcntl.flock(lp, fcntl.LOCK_UN)
 
     return render(request, 'deploy/_run.html', {
         'deploy_type': deploy_type,

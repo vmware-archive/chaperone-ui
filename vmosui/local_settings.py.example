@@ -68,9 +68,10 @@ SDDC_CONFIGURE_VALIDATE = []
 SDDC_CONFIGURE_RUN = []
 
 # Full path to playbook that gets list of NICs from a hypervisor.
-NICS_FILE = '%s/get_nics.yml' % ANSWER_FILE_DIR
+NICS_PLAYBOOK = '%s/get_nics.yml' % ANSWER_FILE_DIR
 # List of hypervisor-related commands, one string per command and its
 # arguments.
 # Example: [ 'echo "Hello World"', 'ls -la', ]
+HVS_INI = '%s/hvs.yml' % ANSWER_FILE_DIR
 HVS_CONFIGURE_VALIDATE = []
 HVS_CONFIGURE_RUN = []

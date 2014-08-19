@@ -78,6 +78,78 @@ vmosui.utils = {
              .find('span.container-name').text();
   },
 
+  loadNics: function(input, resetBond, selected) {
+    /*
+     * Get list of NICs for the host whose row contains the given input.
+     * Optionally, reset bond mode value and select NIC values given in
+     * CSV list.
+     */
+    var regex = /^hv-(.+)-(.+)$/;
+    var match = regex.exec(input.id);
+    var current = match[2];
+    $('#hv-error-' + current).empty();
+
+    /* Reset selections. */
+    var $bond = $('#hv-bond-' + current);
+    if (resetBond) {
+      $bond.val('');
+    }
+    var $nics = $('#hv-nics-' + current);
+    $nics.empty();
+    $nics.prop('disabled', true);
+    $nics.prop('multiple', false);
+
+    var host = $('#hv-host-' + current).val();
+    var user = $('#hv-user-' + current).val();
+    var password = $('#hv-password-' + current).val();
+    if (host && user && password) {
+      /* Load list of NICs for this host. */
+      var values = { host: host, user: user, password: password };
+      /* Need CSRF token for Django POST requests. */
+      var csrf = 'csrfmiddlewaretoken';
+      values[csrf] = $('#configure-form input[name="' + csrf + '"]').val();
+
+      $('#hv-loadnics-' + current).show()
+      $.ajax({
+        url: '/configure/hvs/nics',
+        type: 'POST',
+        data: values,
+        success: function(data) {
+          var message = data.error
+          var options = data.nics
+          if (message || !options.length) {
+            /* Couldn't retrieve NICs. */
+            if (message) {
+              $('#hv-error-' + current).text('Error: ' + message + '.');
+            }
+            return;
+          }
+
+          for (var i = 0; i < options.length; i++) {
+            var nic = options[i];
+            $nics.append('<option value="' + nic + '">' + nic + '</option>');
+          }
+
+          /* Change input type in case bond mode chosen before NICs enabled. */
+          if ($bond.find('option:selected').hasClass('multinic')) {
+            $nics.prop('multiple', true);
+          } else {
+            $nics.prop('multiple', false);
+          }
+
+          $nics.val(selected.split(','));
+          $nics.prop('disabled', false);
+        },
+        error: function(jqxhr, status, error) {
+          vmosui.utils.ajaxError(jqxhr, status, error);
+        },
+        complete: function() {
+          $('#hv-loadnics-' + current).hide();
+        }
+      });
+    }
+  },
+
   loadGroup: function(containerName, groupName) {
     /* Return form for group. */
     vmosui.utils.clearMessages();
@@ -465,7 +537,7 @@ vmosui.addInitFunction(function() {
     /* Reset bond mode selection. */
     $('#hv-bond-' + newCount).val('');
     /* Keep NIC input disabled. */
-    $('#hv-nic-' + newCount).prop('disabled', true);
+    $('#hv-nics-' + newCount).prop('disabled', true);
 
     $('#hv-row-' + current).after($div[0]);
   });
@@ -488,74 +560,7 @@ vmosui.addInitFunction(function() {
                  '#configure-hvs-contents input.hv-host, ' +
                  '#configure-hvs-contents input.hv-user, ' +
                  '#configure-hvs-contents input.hv-password', function(event) {
-    var regex = /^hv-(.+)-(.+)$/;
-    var match = regex.exec(this.id);
-    var current = match[2];
-    $('#hv-error-' + current).empty();
-
-    /* Reset bond mode selection. */
-    var $bond = $('#hv-bond-' + current);
-    $bond.val('');
-    var $nic = $('#hv-nic-' + current);
-
-    var host = $('#hv-host-' + current).val();
-    var user = $('#hv-user-' + current).val();
-    var password = $('#hv-password-' + current).val();
-
-    if (host && user && password) {
-      /* Load list of NICs for this host. */
-      var values = { host: host, user: user, password: password };
-      /* Need CSRF token for Django POST requests. */
-      var csrf = 'csrfmiddlewaretoken';
-      values[csrf] = $('#configure-form input[name="' + csrf + '"]').val();
-
-      $('#hv-loadnics-' + current).show()
-      $.ajax({
-        url: '/configure/hvs/nics',
-        type: 'POST',
-        data: values,
-        success: function(data) {
-          $nic.empty();
-
-          var message = data.error
-          var nics = data.nics
-          if (message || !nics.length) {
-            /* Couldn't retrieve NICs. */
-            $nic.prop('disabled', true);
-            $nic.empty();
-            $nic.prop('multiple', false);
-            if (message) {
-              $('#hv-error-' + current).text('Error: ' + message + '.');
-            }
-            return;
-          }
-
-          nics.sort();
-          for (var i = 0; i < nics.length; i++) {
-            var nic = nics[i];
-            $nic.append('<option value="' + nic + '">' + nic + '</option>');
-          }
-
-          /* Change input type in case bond mode chosen before NICs enabled. */
-          if ($bond.find('option:selected').hasClass('multinic')) {
-            $nic.prop('multiple', true);
-          } else {
-            $nic.prop('multiple', false);
-          }
-          $nic.prop('disabled', false);
-        },
-        error: function(jqxhr, status, error) {
-          vmosui.utils.ajaxError(jqxhr, status, error);
-        },
-        complete: function() {
-          $('#hv-loadnics-' + current).hide();
-        }
-      });
-    } else {
-      $nic.prop('disabled', true);
-      $nic.empty();
-      $nic.prop('multiple', false);
-    }
+    vmosui.utils.loadNics(this, true, '');
   });
 
   /* Toggle multi-select for NICs, based on the bond mode value. */
@@ -565,18 +570,18 @@ vmosui.addInitFunction(function() {
     var regex = /^hv-bond-(.+)$/;
     var match = regex.exec(this.id);
     var current = match[1];
-    var $nic = $('#hv-nic-' + current);
+    var $nics = $('#hv-nics-' + current);
 
     /* Ignore if NIC selection not available. */
-    if ($nic.prop('disabled')) {
+    if ($nics.prop('disabled')) {
       return;
     }
 
     var $select = $(this);
     if ($select.find('option:selected').hasClass('multinic')) {
-      $nic.prop('multiple', true);
+      $nics.prop('multiple', true);
     } else {
-      $nic.prop('multiple', false);
+      $nics.prop('multiple', false);
     }
   });
 
@@ -631,13 +636,24 @@ vmosui.addInitFunction(function() {
     }
 
     /* Fill in the page contents based on the action given. */
-    $('#contents').empty();
     $('#loading').show();
+    var id = this.id;
+    /* Add parent div first, so other functions know what page this is. */
+    $('#contents').html('<div id="' + id +'-contents"></div>');
     $.ajax({
       url: action,
       success: function(response) {
-        $('#contents').html(response);
+        $('#' + id + '-contents').html(response);
         $('#contents div.form-group-title').append(' ' + $button.text());
+
+        if (id == 'configure-hvs') {
+          /* Fill in NICs. */
+          $('#configure-form select.hv-nics').each(function(index) {
+            var $select = $(this);
+            var selected = $select.attr('data-selected-nics');
+            vmosui.utils.loadNics(this, false, selected);
+          });
+        }
       },
       error: function(jqxhr, status, error) {
         vmosui.utils.ajaxError(jqxhr, status, error);

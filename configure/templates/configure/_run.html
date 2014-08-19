@@ -1,11 +1,9 @@
-<div id="configure-{{ configure_type }}-contents">
-  <div class="form-group-title">Configure</div>
-  <pre id="configure-{{ configure_type }}-output" class="command-output">{{ log_contents }}</pre>
-  <form id="configure-form" action="/configure/run/{{ configure_type }}" method="get">
-    {% csrf_token %}
-    <input type="hidden" name="ctype" value="{{ configure_type }}"/>
-    <button id="configure-validate" type="submit" class="btn btn-primary btn-submit">Validate</button>
-    <button id="configure-run" type="submit" class="btn btn-primary btn-submit">Run</button>
-    <span class="submit-options"><label><input type="checkbox" name="debug" value="1"/> Debug</label></span>
-  </form>
-</div>
+<div class="form-group-title">Configure</div>
+<pre id="configure-{{ configure_type }}-output" class="command-output">{{ log_contents }}</pre>
+<form id="configure-form" action="/configure/run/{{ configure_type }}" method="get">
+  {% csrf_token %}
+  <input type="hidden" name="ctype" value="{{ configure_type }}"/>
+  <button id="configure-validate" type="submit" class="btn btn-primary btn-submit">Validate</button>
+  <button id="configure-run" type="submit" class="btn btn-primary btn-submit">Run</button>
+  <span class="submit-options"><label><input type="checkbox" name="debug" value="1"/> Debug</label></span>
+</form>
