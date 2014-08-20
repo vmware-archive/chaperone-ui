@@ -288,7 +288,10 @@ def get_nics(request):
         # Use first sentence of "fatal" string as error message.
         matches = re.search(r'^fatal: \[.+\] => (?P<error>.+)$', e.output,
                             re.MULTILINE)
-        data['error'] = matches.group('error').split('.')[0]
+        if matches:
+            data['error'] = matches.group('error').split('.')[0]
+        else:
+            data['error'] = 'Unable to get NICs'
     else:
         # Parse NIC names from output.
         nics = list(set(re.findall(r'(vmnic[0-9]+)', output)))

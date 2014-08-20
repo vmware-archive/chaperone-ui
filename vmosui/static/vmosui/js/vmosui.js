@@ -95,9 +95,9 @@ vmosui.utils = {
       $bond.val('');
     }
     var $nics = $('#hv-nics-' + current);
-    $nics.empty();
     $nics.prop('disabled', true);
     $nics.prop('multiple', false);
+    $nics.empty();
 
     var host = $('#hv-host-' + current).val();
     var user = $('#hv-user-' + current).val();
