@@ -176,8 +176,8 @@ vmosui.utils = {
       success: function(response) {
         /* Show recent output and scroll to the bottom. */
         var $output = $('#configure-' + configureType + '-output');
-        if (response && $output.length) {
-          $output.append(response).scrollTop($output[0].scrollHeight);
+        if (response && $output.length && response != $output.text()) {
+          $output.text(response).scrollTop($output[0].scrollHeight);
         }
 
         /* Schedule another update, if we're still on the page. */
@@ -199,8 +199,8 @@ vmosui.utils = {
       success: function(response) {
         /* Show recent output and scroll to the bottom. */
         var $output = $('#deploy-' + deployType + '-output');
-        if (response && $output.length) {
-          $output.append(response).scrollTop($output[0].scrollHeight);
+        if (response && $output.length && response != $output.text()) {
+          $output.text(response).scrollTop($output[0].scrollHeight);
         }
 
         /* Schedule another update, if we're still on the page. */
@@ -440,8 +440,7 @@ vmosui.addInitFunction(function() {
     values.append('action', action);
 
     var deployType = $('#deploy-form input[name="dtype"]').val();
-    var message = 'Starting to ' + action + ' ' + deployType +
-                  ' deployment...\n';
+    var message = 'Starting to ' + action + '...\n';
     $('#deploy-' + deployType + '-output').text(message);
 
     $.ajax({
@@ -485,8 +484,7 @@ vmosui.addInitFunction(function() {
       $('html').scrollTop($('#configure-' + configureType +
                             '-output').offset().top);
     }
-    var message = 'Starting to ' + action + ' ' + configureType +
-                  ' configuration...\n';
+    var message = 'Starting to ' + action + '...\n';
     $('#configure-' + configureType + '-output').text(message);
 
     $.ajax({
