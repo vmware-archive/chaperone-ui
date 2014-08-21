@@ -605,7 +605,7 @@ vmosui.addInitFunction(function() {
 
     /* Show contents for last item viewed. Default to first item. */
     var itemId = $.cookie(this.id + 'Item');
-    if (!itemId) {
+    if (!itemId || !$('#' + itemId).length) {
       itemId = $('#' + this.id + '-menu div.clickable').first().attr('id');
     }
     $('#' + itemId).click();
@@ -665,7 +665,7 @@ vmosui.addInitFunction(function() {
 
   /* Show contents for leftnav button last viewed. Default to first button. */
   var activeButton = $.cookie('activeButton');
-  if (!activeButton) {
+  if (!activeButton || !$('#' + activeButton).length) {
     activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
   }
   $('#' + activeButton).click();
