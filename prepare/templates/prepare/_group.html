@@ -22,7 +22,7 @@
           {% elif attr.input == 'dropdown' %}{{ attr.name }}
             {% if attr.help %}<div class="form-field-help">{{ attr.help }}</div>{% endif %}
             <select id="{{ attr.id }}" class="form-control{% if attr.show %} toggle-show{% endif %}" name="{{ attr.id }}">
-            {% for option in attr.options %}<option{% if option.show %} data-show="{{ option.show|join:',' }}"{% endif %}{% if option.hide %} data-hide="{{ option.hide|join:',' }}"{% endif %}  value="{{ option.id }}"{% if attr.value == option.id %} selected{% endif %}>{{ option.name }}</option>{% endfor %}
+            {% for option in attr.options %}<option{% if option.show %} data-show="{{ option.show|join:',' }}"{% endif %}{% if option.hide %} data-hide="{{ option.hide|join:',' }}"{% endif %} value="{{ option.id }}"{% if attr.value == option.id|stringformat:'s' %} selected{% endif %}>{{ option.name }}</option>{% endfor %}
             </select>
 
           {% else %}{{ attr.name }}
