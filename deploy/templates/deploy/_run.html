@@ -3,7 +3,7 @@
 <form id="deploy-form" action="/deploy/run/{{ deploy_type }}" method="get">
   {% csrf_token %}
   <input type="hidden" name="dtype" value="{{ deploy_type }}"/>
-  <button id="deploy-validate" type="submit" class="btn btn-primary btn-submit">Validate</button>
-  <button id="deploy-run" type="submit" class="btn btn-primary btn-submit">Run</button>
+  <button id="deploy-validate" type="submit" class="btn btn-primary">Validate</button>
+  <button id="deploy-run" type="submit" class="btn btn-primary">Run</button>
   <span class="submit-options"><label><input type="checkbox" name="debug" value="1"/> Debug</label></span>
 </form>

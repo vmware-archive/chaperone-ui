@@ -18,8 +18,7 @@ AUTHENTICATION_BACKENDS = ('vmosui.auth.PamBackend',)
 LOGIN_URL = '/login'
 
 ANSWER_FILE_DIR = '/var/lib/vmos/'
-
-# ANSWER_FILE_BASE template schema:
+# ANSWER_FILE_BASE schema:
 # - <container_name>
 #     - <group_name>
 #         - <section_name>
@@ -29,6 +28,7 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 #               (input: checkbox|file)
 #               (show: <attr_id1>,<attr_id2>,<attr_id3>)
 #               (optional: 1)
+#               (help: <help_text>)
 #               (options:
 #                   - id: <option_id>
 #                     (name: <option_name>)
@@ -72,6 +72,6 @@ NICS_PLAYBOOK = '%s/get_nics.yml' % ANSWER_FILE_DIR
 # List of hypervisor-related commands, one string per command and its
 # arguments.
 # Example: [ 'echo "Hello World"', 'ls -la', ]
-HVS_INI = '%s/hvs.yml' % ANSWER_FILE_DIR
+HVS_INI = '%s/hvs.ini' % ANSWER_FILE_DIR
 HVS_CONFIGURE_VALIDATE = []
 HVS_CONFIGURE_RUN = []

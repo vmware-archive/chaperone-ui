@@ -87,7 +87,7 @@ vmosui.utils = {
     var regex = /^hv-(.+)-(.+)$/;
     var match = regex.exec(input.id);
     var current = match[2];
-    $('#hv-error-' + current).empty();
+    $('#hv-errors-' + current).empty();
 
     /* Reset selections. */
     var $bond = $('#hv-bond-' + current);
@@ -120,7 +120,7 @@ vmosui.utils = {
           if (message || !options.length) {
             /* Couldn't retrieve NICs. */
             if (message) {
-              $('#hv-error-' + current).text('Error: ' + message + '.');
+              $('#hv-errors-' + current).text('Error: ' + message + '.');
             }
             return;
           }
@@ -343,7 +343,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Reset form. */
-  $(document).on('click', '#prepare-form button.btn-reset', function(event) {
+  $(document).on('click', '#prepare-reset', function(event) {
     /*
      * Reload entire contents versus only the input value, because the
      * display of shown/hidden fields also needs to be reset.
@@ -365,7 +365,7 @@ vmosui.addInitFunction(function() {
     }
 
     /* Send the data. */
-    $('#prepare-form button.btn-submit').button('loading');
+    $('#prepare-save').button('loading');
     $.ajax({
       url: action,
       type: 'POST',
@@ -398,7 +398,7 @@ vmosui.addInitFunction(function() {
         vmosui.utils.ajaxError(jqxhr, status, error);
       },
       complete: function(jqxhr, status, error) {
-        $('#prepare-form button.btn-submit').button('reset');
+        $('#prepare-save').button('reset');
       },
       /* Need these for sending FormData. */
       processData: false,

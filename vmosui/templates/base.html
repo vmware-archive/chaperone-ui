@@ -30,6 +30,10 @@
           <a href="/"><img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware"></a><br/>
           <a href="/">SDDC</a>
         </div>
+        <div class="header">
+          User:&nbsp;{{ user.username }}<br/>
+          <span class="header-link"><a href="{% url 'logout' %}">Log&nbsp;out</a></span>
+        </div>
         <div id="prepare" class="leftnav-btn">Prepare</div>
         {% include "prepare/_menu.html" %}
         <div id="deploy" class="leftnav-btn">Deploy</div>
@@ -38,10 +42,6 @@
         {% include "configure/_menu.html" %}
       </div>
       <div id="rightside">
-        <div class="header">
-          User:&nbsp;{{ user.username }}
-          <span class="header-link"><a href="{% url 'logout' %}">Log&nbsp;out</a></span>
-        </div>
         <div id="main">
           <div id="messages">
             <div id="success-message" class="text-success">{{ success_message }}</div>

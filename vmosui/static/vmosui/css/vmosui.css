@@ -32,10 +32,9 @@ a:hover {
 /* Navigation */
 
 .header {
-  background-color: #006990;
   text-align: right;
   color: #FFFFFF;
-  padding: 15px 40px;
+  padding: 0px 20px 10px 0px;
 }
 
 .header-link {
@@ -77,14 +76,14 @@ a:hover {
   cursor: hand;
 }
 .leftnav-btn:hover {
-  background-color: #717074;
+  background-color: #003D79;
   color: #FFFFFF;
   border-top: 1px solid #CCCCCC;
   /* make room for border-top */
   padding-top: 9px;
 }
 .leftnav-btn.active-btn {
-  background-color: #717074;
+  background-color: #003D79;
   color: #FFFFFF;
   cursor: default;
   border-top: 1px solid #CCCCCC;
@@ -94,9 +93,8 @@ a:hover {
 
 .logo {
   font-size: 24px;
-  margin-top: 30px;
   color: #FFFFFF;
-  padding: 10px 20px;
+  padding: 0px 20px;
 }
 .logo img {
   width: 150px;
@@ -122,7 +120,7 @@ a:hover {
 }
 
 .menu {
-  background-color: #EEEEEE;
+  background-color: #E6ECF2;
 }
 
 .expand-collapse-container {
@@ -152,7 +150,7 @@ a:hover {
   padding-top: 7px;
 }
 .expand-collapse-groups .clickable {
-  padding: 3px 20px 3px 33px;
+  padding: 3px 20px 6px 33px;
 }
 .expand-collapse-groups .clickable:hover,
 .expand-collapse-groups .clickable.active-item {
@@ -226,7 +224,6 @@ input[type="file"].no-display {
   display:none;
 }
 
-
 /* Forms */
 
 .form-group-title {
@@ -238,7 +235,7 @@ input[type="file"].no-display {
 .form-section-title {
   font-size: 18px;
   margin-bottom: 10px;
-  background-color: #003D79;
+  background-color: #717074;
   color: #FFFFFF;
   padding: 5px 15px;
 }
@@ -341,14 +338,14 @@ input[type="file"].no-display {
 }
 
 .btn-primary {
-  background-color: #006990;
+  background-color: #6DB33F;
   border-color: transparent;
 }
 .btn-primary:hover,
 .btn-primary:focus,
 .btn-primary:active,
 .open .dropdown-toggle.btn-primary {
-  background-color: #003D79;
+  background-color: #387C2C;
   border-color: transparent;
 }
 .btn-primary.disabled,
@@ -366,34 +363,22 @@ fieldset[disabled] .btn-primary:active,
 .btn-primary.disabled.active,
 .btn-primary[disabled].active,
 fieldset[disabled] .btn-primary.active {
-  background-color: #387C2C;
-  border-color: #387C2C;
+  background-color: #CCCCCC;
+  border-color: #CCCCCC;
 }
 
-.btn-reset {
-  background-color: #717074;
-  border-color: transparent;
-  color: #FFFFFF;
-}
-.btn-reset:hover,
-.btn-reset:focus,
-.btn-reset:active,
-.open .dropdown-toggle.btn-reset {
+.btn-secondary {
   background-color: #999999;
   border-color: transparent;
   color: #FFFFFF;
 }
-
-.btn-submit {
-  background-color: #6DB33F;
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active,
+.open .dropdown-toggle.btn-secondary {
+  background-color: #717074;
   border-color: transparent;
-}
-.btn-submit:hover,
-.btn-submit:focus,
-.btn-submit:active,
-.open .dropdown-toggle.btn-submit {
-  background-color: #387C2C;
-  border-color: transparent;
+  color: #FFFFFF;
 }
 
 button a,
@@ -407,10 +392,6 @@ button a:active {
 .submit-options {
   margin-left: 5px;
   vertical-align: middle;
-}
-
-label.disabled {
-  color: #717074;
 }
 
 /* Text */

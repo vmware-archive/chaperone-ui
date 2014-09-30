@@ -33,7 +33,8 @@ $ chown -R nicira:nicira <ANSWER_FILE_DIR>
 $ mkdir <PREPARE_FILES_DIR>
 $ mkdir <VMOS_LOG_DIR>
 $ chown -R nicira:nicira <VMOS_LOG_DIR>
-$ cp /opt/vmosui/vmosui/base.yml <ANSWER_FILE_DIR>
+- Make sure ANSWER_FILE_BASE, NICS_PLAYBOOK, and APPLIANCES_BASE are in their
+  appropriate locations.
 
 Create Django database and tables.
 $ sudo apt-get install sqlite3

@@ -7,7 +7,7 @@ import subprocess
 import time
 
 from django.conf import settings
-from django.http import HttpResponse, StreamingHttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 
 
@@ -15,8 +15,7 @@ LOG = logging.getLogger(__name__)
 
 ACTION_RUN = 'run'
 HV_COUNT_COOKIE = 'hvcount'
-HV_TEMPLATE = """%s ansible_ssh_user="%s" ansible_ssh_pass="%s" bond_mode="%s" nic="[%s]" transport_ip="%s" transport_mask="%s" transport_gateway="%s"
-"""
+HV_TEMPLATE = '%s ansible_ssh_user="%s" ansible_ssh_pass="%s" bond_mode="%s" nic="[%s]" transport_ip="%s" transport_mask="%s" transport_gateway="%s"\n'
 HV_HOST = 'host'
 HV_USER = 'user'
 HV_PASSWORD = 'password'
