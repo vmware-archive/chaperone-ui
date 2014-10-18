@@ -25,14 +25,18 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 #             - id: <attribute_id>
 #               (name: <attribute_name>)
 #               (default: <default_value)
-#               (input: checkbox|file)
+#               (input: checkbox|file|dropdown)
 #               (show: <attr_id1>,<attr_id2>,<attr_id3>)
 #               (optional: 1)
 #               (help: <help_text>)
-#               (options:
-#                   - id: <option_id>
-#                     (name: <option_name>)
-#                     (show: <attr_id1>,<attr_id2>,<attr_id3>)
+#               (options: (comp_vc_datacenters|comp_vc_clusters|comp_vc_hosts|
+#                          comp_vc_datastores|comp_vc_networks|
+#                          mgmt_vc_datacenters|mgmt_vc_clusters|mgmt_vc_hosts|
+#                          mgmt_vc_datastores_mgmt_vc_networks)
+#                OR
+#                    - id: <dropdown_option_id>
+#                      (name: <dropdown_option_name>)
+#                      (show: <attr_id1>,<attr_id2>,<attr_id3>))
 #
 # Keep all list items in the order that they should appear in when displayed.
 # Each container and group is a heading in the nav menu for the "Prepare" step.
@@ -40,6 +44,8 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 # Each section is displayed as a part of the form for its group.
 ANSWER_FILE_BASE = 'base.yml'
 ANSWER_FILE_DEFAULT = 'answerfile.yml'
+
+VCENTER_SETTINGS = '%s/vcenter.yml' % ANSWER_FILE_DIR
 
 PREPARE_FILES_DIR = '/var/lib/vmos/prepare/'
 

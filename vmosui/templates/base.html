@@ -32,7 +32,8 @@
         </div>
         <div class="header">
           User:&nbsp;{{ user.username }}<br/>
-          <span class="header-link"><a href="{% url 'logout' %}">Log&nbsp;out</a></span>
+          <span class="header-link"><a href="{% url 'index' %}">vCenter&nbsp;Settings</a></span><br/>
+          <span class="header-link"><a href="{% url 'logout' %}">Log&nbsp;Out</a></span>
         </div>
         <div id="prepare" class="leftnav-btn">Prepare</div>
         {% include "prepare/_menu.html" %}
@@ -60,5 +61,39 @@
       <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
       <script src="{{ STATIC_URL }}vmosui/js/vmosui.js" type="text/javascript" charset="utf-8"></script>
     {% endblock %}
+
+    <div id="backdrop-vcenter" class="modal-backdrop" data-backdrop="static" data-keyboard="false"></div>
+    <div id="modal-vcenter" class="modal show">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">vCenter Settings</h4>
+            <div id="vcenter-errors" class="text-error"></div>
+          </div>
+          <form id="vcenter-form" action="{% url 'savevc' %}" method="post" role="form">
+            <div class="modal-body">
+              {% csrf_token %}
+              <div class="modal-section">
+                {% for field in vcenter_form %}<div id="{{ field.html_name }}" class="form-field">
+                  <div id="error-{{ field.html_name }}"></div>
+                  {{ field.label_tag }}
+                  {% if '_datacenter' in field.html_name %}<button type="button" class="btn btn-xs btn-secondary list-btn" data-loading-text="...">List</button>{% endif %}
+                  {{ field }}
+                  {% if field.field.widget.input_type == 'password' %}<label>
+                    <input class="form-control checkbox password-checkbox toggle-show" type="checkbox"/>&nbsp;Show password</label>{% endif %}
+                </div>
+                {% if forloop.counter == 5 %}</div>
+                <div class="modal-section left-border">{% endif %}
+              {% endfor %}</div>
+            </div>
+            <div class="modal-footer">
+              <button id="vcenter-save" type="submit" class="btn btn-primary" data-loading-text="Saving...">Continue</button>
+              <a href="{% url 'logout' %}"><button type="button" class="btn btn-secondary">Log out</button></a>
+            </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

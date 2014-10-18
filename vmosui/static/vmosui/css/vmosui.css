@@ -224,6 +224,41 @@ input[type="file"].no-display {
   display:none;
 }
 
+.modal-backdrop {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+
+.modal {
+  /* Reset font-size from body font-size: 0 */
+  font-size: 14px;
+}
+
+.modal-dialog {
+  /* At least 2 * (.modal-section .form-field width) + .modal-body padding */
+  width: 620px;
+}
+
+.modal-body {
+  background-color: #EEEEEE;
+}
+
+.modal-footer {
+  margin-top: 0;
+}
+
+.modal-section .form-field {
+  width: 260px;
+}
+
+.modal-section {
+  display: inline-block;
+}
+
+.left-border {
+  border-left: 1px solid #CCCCCC;
+}
+
 /* Forms */
 
 .form-group-title {
@@ -379,6 +414,11 @@ fieldset[disabled] .btn-primary.active {
   background-color: #717074;
   border-color: transparent;
   color: #FFFFFF;
+}
+
+.list-btn {
+  vertical-align: baseline;
+  margin-left: 5px;
 }
 
 button a,

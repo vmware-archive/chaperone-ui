@@ -11,6 +11,8 @@ $ sudo python setup.py install
 Install Python modules.
 $ sudo apt-get install python-lockfile
   (python-lockfile)
+$ sudo pip install pyvmomi
+  (pyvmomi, requests, six)
 
 Install app.
 $ cd /opt

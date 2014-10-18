@@ -22,6 +22,7 @@ vmosui.utils = {
       message += 'Unknown error.';
     }
     $('#error-message').html(message);
+    return message;
   },
 
   clearMessages: function() {
@@ -193,6 +194,47 @@ vmosui.utils = {
     });
   },
 
+  loadVCenterOptions: function(knob, field, values) {
+    var $field = $(field);
+    /* Need CSRF token for Django POST requests. */
+    var csrf = 'csrfmiddlewaretoken';
+    values[csrf] = $('#vcenter-form input[name="' + csrf + '"]').val();
+
+    var $knob = $(knob);
+    if ($knob.attr('data-loading-text')) {
+      $knob.button('loading');
+    }
+    $('#vcenter-errors').empty();
+    $.ajax({
+      url: '/options',
+      type: 'POST',
+      data: values,
+      success: function(data) {
+        if (data.error_message && data.error_message.length) {
+          $('#vcenter-errors').text(data.error_message);
+          return;
+        }
+
+        /* Add options to input field. */
+        $field.append('<option value="">-- select --</option>');
+        for (var i = 0; i < data.options.length; i++) {
+          var option = data.options[i];
+          $field.append('<option value="' + option + '">' + option +
+                        '</option>');
+        }
+      },
+      error: function(jqxhr, status, error) {
+        var message = vmosui.utils.ajaxError(jqxhr, status, error);
+        $('#vcenter-errors').text(message);
+      },
+      complete: function(jqxhr, status, error) {
+        if ($knob.attr('data-loading-text')) {
+          $knob.button('reset');
+        }
+      },
+    });
+  },
+
   updateDeployLogView: function(deployType) {
     $.ajax({
       url: '/deploy/tail/' + deployType,
@@ -218,6 +260,119 @@ vmosui.utils = {
 };
 
 vmosui.addInitFunction(function() {
+  /* Populate vCenter input field's choices. */
+  $('#vcenter-form button.list-btn').click(function(event) {
+    var $button = $(this);
+    var fieldId = $button.parents('div.form-field').attr('id');
+    var $field = $('#id_' + fieldId);
+
+    var regex = /^(.+?)_(.+)$/;
+    var match = regex.exec(fieldId);
+    var ftype = match[1];
+
+    /* Get login info. */
+    var vcenter = $('#id_' + ftype + '_vc').val();
+    var username = $('#id_' + ftype + '_vc_username').val();
+    var password = $('#id_' + ftype + '_vc_password').val();
+    if (!vcenter || !username || !password) {
+      $('#vcenter-errors').text('Host, user, and password required.');
+      return;
+    }
+    var values = { fid: fieldId, vcenter: vcenter, username: username,
+                   password: password, datacenter: '' };
+
+    /* Clear out input field's choices. */
+    $field.empty();
+    var targetId = $field.attr('data-target');
+    if (targetId) {
+      /* Clear out target input field's choices. */
+      var $target = $('#id_' + targetId);
+      $target.empty();
+    }
+    vmosui.utils.loadVCenterOptions(this, $field[0], values);
+  });
+
+  /* Populate vCenter target input field's choices. */
+  $('#vcenter-form select[data-target]').change(function(event) {
+    var $select = $(this);
+    var fieldId = $select.parents('div.form-field').attr('id');
+
+    var regex = /^(.+?)_(.+)$/;
+    var match = regex.exec(fieldId);
+    var ftype = match[1];
+
+    /* Get login info. */
+    var vcenter = $('#id_' + ftype + '_vc').val();
+    var username = $('#id_' + ftype + '_vc_username').val();
+    var password = $('#id_' + ftype + '_vc_password').val();
+    if (!vcenter || !username || !password) {
+      $('#vcenter-errors').text('Host, user, and password required.');
+      return;
+    }
+    var datacenter = $('#id_' + ftype + '_vc_datacenter').val();
+    var targetId = $select.attr('data-target');
+    var values = { fid: targetId, vcenter: vcenter, username: username,
+                   password: password, datacenter: datacenter, cluster: '' };
+
+    /* Clear out target input field's choices. */
+    var $target = $('#id_' + targetId);
+    $target.empty();
+    vmosui.utils.loadVCenterOptions(this, $target[0], values);
+  });
+
+  /* Submit form to set vCenter settings. */
+  $('#vcenter-form').submit(function(event) {
+    var $form = $(this);
+    var action = $form.attr('action');
+    var values = vmosui.utils.getFormValues(this);
+    if (!values) {
+        return false;
+    }
+
+    /* Send the data. */
+    $('#vcenter-save').button('loading');
+    $.ajax({
+      url: action,
+      type: 'POST',
+      data: values,
+      success: function(data) {
+        /* Field errors. */
+        if (data.errors) {
+          for (field in data.errors) {
+            $('#error-' + field).parent().addClass('has-error');
+            $('#error-' + field).addClass('text-error')
+              .text(data.errors[field]);
+          }
+          return;
+        }
+
+        /* Show contents for leftnav button last viewed. Default to first button. */
+        var activeButton = $.cookie('activeButton');
+        if (!activeButton || !$('#' + activeButton).length) {
+          activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
+        }
+        $('#' + activeButton).click();
+
+        /* Remove modal. */
+        $('#modal-vcenter').remove();
+        $('#backdrop-vcenter').remove();
+      },
+      error: function(jqxhr, status, error) {
+        var message = vmosui.utils.ajaxError(jqxhr, status, error);
+        $('#vcenter-errors').text(message);
+      },
+      complete: function(jqxhr, status, error) {
+        $('#vcenter-save').button('reset');
+      },
+      /* Need these for sending FormData. */
+      processData: false,
+      contentType: false
+    });
+
+    /* Prevent normal form submit action. */
+    return false;
+  });
+
   /* Allow user to expand or collapse each contianer in the nav. */
   $('#prepare-menu div.expand-collapse-container').click(function(event) {
     var cid = this.id;
@@ -302,6 +457,7 @@ vmosui.addInitFunction(function() {
 
   /* Show/hide password in clear text. */
   $(document).on('change',
+                 '#vcenter-form input.toggle-show.password-checkbox, ' +
                  '#prepare-form input.toggle-show.password-checkbox',
                  function(event) {
     var $knob = $(this);
@@ -363,6 +519,7 @@ vmosui.addInitFunction(function() {
     if (!values) {
         return false;
     }
+    vmosui.utils.clearMessages();
 
     /* Send the data. */
     $('#prepare-save').button('loading');
@@ -662,13 +819,6 @@ vmosui.addInitFunction(function() {
       }
     });
   });
-
-  /* Show contents for leftnav button last viewed. Default to first button. */
-  var activeButton = $.cookie('activeButton');
-  if (!activeButton || !$('#' + activeButton).length) {
-    activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
-  }
-  $('#' + activeButton).click();
 });
 
 $(document).ready(vmosui.init);

@@ -10,6 +10,8 @@ from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
 from django.shortcuts import render
 
+import vmosui.utils.getters as getters
+
 
 LOG = logging.getLogger(__name__)
 
@@ -36,10 +38,11 @@ def _has_value(attribute):
         return value
 
 
-def _get_sections(container_name=None, group_name=None):
+def _get_sections(container_name=None, group_name=None, get_options=False):
     # Return containers with all sections populated with the calculated
     # metadata for all attributes, or only the section for the given group in
-    # the given container.
+    # the given container. Retrieving dynamic attribute options can take some
+    # time, so only get them if explicitly requested.
     #
     # See vmosui/local_settings.py.example for schema.
     base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
@@ -101,6 +104,33 @@ def _get_sections(container_name=None, group_name=None):
                                         hidden_attributes.extend(ids)
 
                                 attr_options = attr.get('options', [])
+                                if not isinstance(attr_options, list):
+                                    field_name = attr_options
+                                    # Make options a list now.
+                                    attr_options = []
+                                    if get_options:
+                                        # Need to get options dynamically.
+                                        fn_name = 'get_%s' % field_name
+                                        fn = getattr(getters, fn_name)
+                                        options = fn()
+                                        if isinstance(options, dict):
+                                            opt_names = options.keys()
+                                            opt_names.sort()
+                                            for name in opt_names:
+                                                option = { 'id': name }
+                                                attr_options.append(option)
+                                            if attr['value'] not in opt_names:
+                                                # Reset value.
+                                                attr['value'] = ''
+                                        else:
+                                            # Only one possible value. Don't
+                                            # let user change it.
+                                            attr['readonly'] = '1'
+                                            if not attr['value']:
+                                                # Set default value.
+                                                attr['value'] = options
+                                    attr['options'] = attr_options 
+
                                 if attr.get('input') == 'dropdown':
                                     # Set default option.
                                     default_option = { 'id': '' }
@@ -249,7 +279,7 @@ def get_group(request):
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
     sections = _get_sections(container_name=container_name,
-                             group_name=group_name)
+                             group_name=group_name, get_options=True)
 
     return render(request, 'prepare/_group.html', {
         'container_name': container_name,
@@ -278,7 +308,8 @@ def get_group_status(request):
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
     containers_or_sections = _get_sections(container_name=container_name,
-                                           group_name=group_name)
+                                           group_name=group_name,
+                                           get_options=True)
     data = {}
 
     if group_name:
