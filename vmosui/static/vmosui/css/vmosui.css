@@ -32,19 +32,42 @@ a:hover {
 /* Navigation */
 
 .header {
+  background-color: #006990;
   text-align: right;
   color: #FFFFFF;
-  padding: 0px 20px 10px 0px;
 }
 
-.header-link {
-  color: #FFFFFF;
-  margin-left: 20px;
+.header-btn {
+  /* .dropdown-menu width */
+  width: 160px;
+  background-color: #006990;
+  padding: 10px 0 15px 20px;
+  margin-top: 0;
+  border-radius: 0;
+  text-align: left;
 }
+.open .header-btn,
+.header-btn:hover {
+  background-color: #003D79;
+  color: #FFFFFF;
+  border-left: 1px solid #CCCCCC;
+}
+
+.header .dropdown-menu {
+  /* .header height */
+  top: 45px;
+  left: initial;
+  right: 0;
+  background-color: #E6ECF2;
+  border-radius: 0;
+}
+.header .dropdown-menu li {
+  padding: 3px 20px 6px 20px;
+}
+
 .header-link a,
 .header-link a:focus,
 .header-link a:active {
-  color: #FFFFFF;
   text-decoration: none;
 }
 .header-link a:hover {
@@ -93,8 +116,11 @@ a:hover {
 
 .logo {
   font-size: 24px;
+  margin-top: 26px;
+  margin-bottom: 10px;
   color: #FFFFFF;
-  padding: 0px 20px;
+  padding-right: 20px;
+  padding-left: 20px;
 }
 .logo img {
   width: 150px;
@@ -197,7 +223,7 @@ a:hover {
 }
 
 #main {
-  padding: 20px 30px 20px 30px;
+  padding: 34px 30px 20px 30px;
 }
 
 #messages {
@@ -268,11 +294,10 @@ input[type="file"].no-display {
 }
 
 .form-section-title {
-  font-size: 18px;
   margin-bottom: 10px;
   background-color: #717074;
   color: #FFFFFF;
-  padding: 5px 15px;
+  padding: 10px 15px;
 }
 
 .form-control {
@@ -370,6 +395,9 @@ input[type="file"].no-display {
 
 .btn {
   margin-top: 5px;
+}
+.btn.header-btn {
+  margin-top: 0;
 }
 
 .btn-primary {

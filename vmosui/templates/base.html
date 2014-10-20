@@ -30,11 +30,6 @@
           <a href="/"><img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware"></a><br/>
           <a href="/">SDDC</a>
         </div>
-        <div class="header">
-          User:&nbsp;{{ user.username }}<br/>
-          <span class="header-link"><a href="{% url 'index' %}">vCenter&nbsp;Settings</a></span><br/>
-          <span class="header-link"><a href="{% url 'logout' %}">Log&nbsp;Out</a></span>
-        </div>
         <div id="prepare" class="leftnav-btn">Prepare</div>
         {% include "prepare/_menu.html" %}
         <div id="deploy" class="leftnav-btn">Deploy</div>
@@ -43,6 +38,21 @@
         {% include "configure/_menu.html" %}
       </div>
       <div id="rightside">
+        <div class="header">
+          <div class=dropdown">
+            <button class="btn header-btn dropdown-toggle" type="button" id="user-dropdown" data-toggle="dropdown">User:&nbsp;{{ user.username }}
+              <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="user-dropdown">
+              <li role="presentation">
+                <span class="header-link"><a href="{% url 'index' %}" role="menuitem" tabindex="-1">vCenter&nbsp;Settings</a></span>
+              </li>
+              <li role="presentation">
+                <span class="header-link"><a href="{% url 'logout' %}" role="menuitem" tabindex="-1">Log&nbsp;Out</a></span>
+              </li>
+            </ul>
+          </div>
+        </div>
         <div id="main">
           <div id="messages">
             <div id="success-message" class="text-success">{{ success_message }}</div>

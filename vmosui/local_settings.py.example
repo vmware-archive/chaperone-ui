@@ -29,8 +29,10 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 #               (show: <attr_id1>,<attr_id2>,<attr_id3>)
 #               (optional: 1)
 #               (help: <help_text>)
-#               (options: (comp_vc_datacenters|comp_vc_clusters|comp_vc_hosts|
+#               (options: (comp_vc|comp_vc_username|comp_vc_password|
+#                          comp_vc_datacenters|comp_vc_clusters|comp_vc_hosts|
 #                          comp_vc_datastores|comp_vc_networks|
+#                          mgmt_vc|mgmt_vc_username|mgmt_vc_password|
 #                          mgmt_vc_datacenters|mgmt_vc_clusters|mgmt_vc_hosts|
 #                          mgmt_vc_datastores_mgmt_vc_networks)
 #                OR
