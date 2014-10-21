@@ -22,10 +22,18 @@ def index(request):
         fcntl.flock(fp, fcntl.LOCK_SH)
         containers = yaml.load(fp)
         fcntl.flock(fp, fcntl.LOCK_UN)
-    
+
+    vcenter_form = VCenterForm()
+    missing_values = False
+    for field in vcenter_form:
+        if not field.field.initial:
+            missing_values = True
+            break
+
     return render(request, 'vmosui/index.html', {
         'containers': containers,
-        'vcenter_form': VCenterForm(),
+        'vcenter_form': vcenter_form,
+        'missing_values': missing_values,
     })
 
 

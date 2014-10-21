@@ -5,7 +5,7 @@
   </div>
   <div id="groups-{{ cname|slugify }}" class="expand-collapse-groups">
     {% for group in groups %}{% for gname, _ in group.items %}<div id="{{ cname|slugify }}_{{ gname|slugify }}" class="clickable">
-      <span id="status-{{ cname|slugify}}_{{ gname|slugify }}" class="group-status"></span>&nbsp;<span class="group-name">{{ gname }}</span>
+      <span id="status-{{ cname|slugify}}_{{ gname|slugify }}" class="group-status"></span><img id="loading-{{ cname|slugify }}_{{ gname|slugify }}" src="{{ STATIC_URL }}vmosui/img/loading-sm.gif" class="loading-sm no-display">&nbsp;<span class="group-name">{{ gname }}</span>
     </div>{% endfor %}{% endfor %}
   </div>{% endfor %}{% endfor %}
 </div>
