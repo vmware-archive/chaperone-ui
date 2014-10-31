@@ -68,15 +68,6 @@ def _initialize_values(form_fields, vcenter_data, vcenter_field,
 
 class VCenterForm(forms.Form):
     """ Form to enter vCenter settings. """
-    comp_vc = forms.CharField(label='Compute vCenter', max_length=254)
-    comp_vc_username = forms.CharField(label='Compute vCenter User',
-                                       max_length=254)
-    comp_vc_password = forms.CharField(label='Compute vCenter Password',
-                                       max_length=254,
-                                       widget=forms.PasswordInput)
-    comp_vc_datacenter = DynamicChoiceField(label='Compute vCenter Datacenter')
-    comp_vc_cluster = DynamicChoiceField(label='Compute vCenter Cluster')
-
     mgmt_vc = forms.CharField(label='Management vCenter', max_length=254)
     mgmt_vc_username = forms.CharField(label='Management vCenter User',
                                        max_length=254)
@@ -85,6 +76,15 @@ class VCenterForm(forms.Form):
     mgmt_vc_datacenter = DynamicChoiceField(
         label='Management vCenter Datacenter')
     mgmt_vc_cluster = DynamicChoiceField(label='Management vCenter Cluster')
+
+    comp_vc = forms.CharField(label='Compute vCenter', max_length=254)
+    comp_vc_username = forms.CharField(label='Compute vCenter User',
+                                       max_length=254)
+    comp_vc_password = forms.CharField(label='Compute vCenter Password',
+                                       max_length=254,
+                                       widget=forms.PasswordInput)
+    comp_vc_datacenter = DynamicChoiceField(label='Compute vCenter Datacenter')
+    comp_vc_cluster = DynamicChoiceField(label='Compute vCenter Cluster')
 
     def __init__(self, *args, **kwargs):
         super(VCenterForm, self).__init__(*args, **kwargs)

@@ -217,7 +217,7 @@ a:hover {
 }
 
 #main {
-  padding: 34px 30px 20px 30px;
+  padding: 28px 30px;
 }
 
 #messages {
@@ -285,14 +285,15 @@ input[type="file"].no-display {
 
 .left-border {
   border-left: 1px solid #CCCCCC;
-  margin-left: -4px;
+  /* Eliminate space between inline-block divs */
+  margin-left: -5px;
 }
 
 /* Forms */
 
 .form-group-title {
   font-size: 28px;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
   text-align: text-top;
 }
 

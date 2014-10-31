@@ -1,6 +1,7 @@
 import fcntl
 import json
 import logging
+import os
 import yaml
 
 from django.conf import settings
@@ -8,6 +9,7 @@ from django.contrib import auth
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
+from prepare.views import write_answer_file
 from vmosui.forms import VCenterForm
 from vmosui.utils import getters
 
@@ -49,6 +51,11 @@ def login(request):
             # Success.
             auth.login(request, user)
             LOG.info('User %s logged in' % username)
+            filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
+                                  settings.ANSWER_FILE_DEFAULT)
+            if not os.path.exists(filename):
+                # Initialize answer file with default values.
+                write_answer_file(request, filename)
             return redirect(request.REQUEST.get('next'))
         else:
             # Bad password, no donut.
@@ -106,39 +113,129 @@ def save_vcenter(request):
     data = {}
 
     if form.is_valid():
-        comp_vc = form.cleaned_data[getters.COMP_VC]
-        comp_vc_username = form.cleaned_data[getters.COMP_VC_USERNAME]
-        comp_vc_password = form.cleaned_data[getters.COMP_VC_PASSWORD]
-        comp_vc_datacenter = form.cleaned_data[getters.COMP_VC_DATACENTER]
-        comp_vc_cluster = form.cleaned_data[getters.COMP_VC_CLUSTER]
-
-        mgmt_vc = form.cleaned_data[getters.MGMT_VC]
-        mgmt_vc_username = form.cleaned_data[getters.MGMT_VC_USERNAME]
-        mgmt_vc_password = form.cleaned_data[getters.MGMT_VC_PASSWORD]
-        mgmt_vc_datacenter = form.cleaned_data[getters.MGMT_VC_DATACENTER]
-        mgmt_vc_cluster = form.cleaned_data[getters.MGMT_VC_CLUSTER]
-
         # Cast unicode values as strings.
+        comp_vc = str(form.cleaned_data[getters.COMP_VC])
+        comp_vc_username = str(form.cleaned_data[getters.COMP_VC_USERNAME])
+        comp_vc_password = str(form.cleaned_data[getters.COMP_VC_PASSWORD])
+        comp_vc_datacenter = str(form.cleaned_data[getters.COMP_VC_DATACENTER])
+        comp_vc_cluster = str(form.cleaned_data[getters.COMP_VC_CLUSTER])
+
+        mgmt_vc = str(form.cleaned_data[getters.MGMT_VC])
+        mgmt_vc_username = str(form.cleaned_data[getters.MGMT_VC_USERNAME])
+        mgmt_vc_password = str(form.cleaned_data[getters.MGMT_VC_PASSWORD])
+        mgmt_vc_datacenter = str(form.cleaned_data[getters.MGMT_VC_DATACENTER])
+        mgmt_vc_cluster = str(form.cleaned_data[getters.MGMT_VC_CLUSTER])
+
         vcenter_data = {
-            getters.COMP_VC: str(comp_vc),
-            getters.COMP_VC_USERNAME: str(comp_vc_username),
-            getters.COMP_VC_PASSWORD: str(comp_vc_password),
-            getters.COMP_VC_DATACENTER: str(comp_vc_datacenter),
-            getters.COMP_VC_CLUSTER: str(comp_vc_cluster),
-            getters.MGMT_VC: str(mgmt_vc),
-            getters.MGMT_VC_USERNAME: str(mgmt_vc_username),
-            getters.MGMT_VC_PASSWORD: str(mgmt_vc_password),
-            getters.MGMT_VC_DATACENTER: str(mgmt_vc_datacenter),
-            getters.MGMT_VC_CLUSTER: str(mgmt_vc_cluster),
+            getters.COMP_VC: comp_vc,
+            getters.COMP_VC_USERNAME: comp_vc_username,
+            getters.COMP_VC_PASSWORD: comp_vc_password,
+            getters.COMP_VC_DATACENTER: comp_vc_datacenter,
+            getters.COMP_VC_CLUSTER: comp_vc_cluster,
+            getters.MGMT_VC: mgmt_vc,
+            getters.MGMT_VC_USERNAME: mgmt_vc_username,
+            getters.MGMT_VC_PASSWORD: mgmt_vc_password,
+            getters.MGMT_VC_DATACENTER: mgmt_vc_datacenter,
+            getters.MGMT_VC_CLUSTER: mgmt_vc_cluster,
         }
 
-        # Save to file.
+        # Save vCenter settings to file.
         filename = settings.VCENTER_SETTINGS
         with open(filename, 'w+') as fp:
             fcntl.flock(fp, fcntl.LOCK_EX)
             fp.write(yaml.dump(vcenter_data, default_flow_style=False))
             fcntl.flock(fp, fcntl.LOCK_UN)
             LOG.debug('vCenter data file %s written' % filename)
+
+        options_data = {
+            getters.COMP_VC: [comp_vc],
+            getters.COMP_VC_USERNAME: [comp_vc_username],
+            getters.COMP_VC_PASSWORD: [comp_vc_password],
+            getters.MGMT_VC: [mgmt_vc],
+            getters.MGMT_VC_USERNAME: [mgmt_vc_username],
+            getters.MGMT_VC_PASSWORD: [mgmt_vc_password],
+        }
+
+        # Get datacenters.
+        comp_vc_datacenters = getters.get_comp_vc_datacenters(
+            vcenter=comp_vc, username=comp_vc_username,
+            password=comp_vc_password, datacenter='')
+        field_name = '%ss' % getters.COMP_VC_DATACENTER
+        options_data[field_name] = comp_vc_datacenters.keys()
+
+        mgmt_vc_datacenters = getters.get_mgmt_vc_datacenters(
+            vcenter=mgmt_vc, username=mgmt_vc_username,
+            password=mgmt_vc_password, datacenter='')
+        field_name = '%ss' % getters.MGMT_VC_DATACENTER
+        options_data[field_name] = mgmt_vc_datacenters.keys()
+
+        # Get clusters in these datacenters.
+        comp_vc_clusters = getters.get_comp_vc_clusters(
+            vcenter=comp_vc, username=comp_vc_username,
+            password=comp_vc_password, datacenter=comp_vc_datacenter,
+            cluster='')
+        field_name = '%ss' % getters.COMP_VC_CLUSTER
+        options_data[field_name] = comp_vc_clusters.keys()
+
+        mgmt_vc_clusters = getters.get_mgmt_vc_clusters(
+            vcenter=mgmt_vc, username=mgmt_vc_username,
+            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+            cluster='')
+        field_name = '%ss' % getters.MGMT_VC_CLUSTER
+        options_data[field_name] = mgmt_vc_clusters.keys()
+
+        # Get hosts in these clusters.
+        comp_vc_hosts = getters.get_comp_vc_hosts(
+            vcenter=comp_vc, username=comp_vc_username,
+            password=comp_vc_password, datacenter=comp_vc_datacenter,
+            cluster=comp_vc_cluster)
+        options_data[getters.COMP_VC_HOSTS] = comp_vc_hosts.keys()
+
+        mgmt_vc_hosts = getters.get_mgmt_vc_hosts(
+            vcenter=mgmt_vc, username=mgmt_vc_username,
+            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+            cluster=mgmt_vc_cluster)
+        options_data[getters.MGMT_VC_HOSTS] = mgmt_vc_hosts.keys()
+
+        # Get datastores in these clusters.
+        comp_vc_datastores = getters.get_comp_vc_datastores(
+            vcenter=comp_vc, username=comp_vc_username,
+            password=comp_vc_password, datacenter=comp_vc_datacenter,
+            cluster=comp_vc_cluster)
+        options_data[getters.COMP_VC_DATASTORES] = comp_vc_datastores.keys()
+
+        mgmt_vc_datastores = getters.get_mgmt_vc_datastores(
+            vcenter=mgmt_vc, username=mgmt_vc_username,
+            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+            cluster=mgmt_vc_cluster)
+        options_data[getters.MGMT_VC_DATASTORES] = mgmt_vc_datastores.keys()
+
+        # Get networks in these clusters.
+        comp_vc_networks = getters.get_comp_vc_networks(
+            vcenter=comp_vc, username=comp_vc_username,
+            password=comp_vc_password, datacenter=comp_vc_datacenter,
+            cluster=comp_vc_cluster)
+        options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
+
+        mgmt_vc_networks = getters.get_mgmt_vc_networks(
+            vcenter=mgmt_vc, username=mgmt_vc_username,
+            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+            cluster=mgmt_vc_cluster)
+        options_data[getters.MGMT_VC_NETWORKS] = mgmt_vc_networks.keys()
+
+        # Save vCenter field options to file.
+        options_filename = settings.INPUT_OPTIONS
+        with open(options_filename, 'w+') as op:
+            fcntl.flock(op, fcntl.LOCK_EX)
+            op.write(yaml.dump(options_data, default_flow_style=False))
+            fcntl.flock(op, fcntl.LOCK_UN)
+            LOG.debug('vCenter options written to %s' % options_filename)
+
+        # Rewrite the answer file, in case previously saved values for
+        # dynamically populated fields are no longer valid.
+        answers_filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
+                                      settings.ANSWER_FILE_DEFAULT)
+        write_answer_file(request, answers_filename)
     else:
         LOG.error('Unable to save vCenter settings: %s' % form.errors)
         data['errors'] = form.errors

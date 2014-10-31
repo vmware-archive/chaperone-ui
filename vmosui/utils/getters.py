@@ -1,6 +1,5 @@
-# get_foos() returns either a dict of the foo objects keyed by name, for
-# dropdown fields, or the value saved for foo, for text fields. Used to
-# populate options for fields with attribute "options: foos".
+# get_foos() returns a dict of the foo objects keyed by name. Used to populate
+# options for fields with attribute "options: foos".
 import fcntl
 import inspect
 import logging
@@ -18,12 +17,18 @@ LOG = logging.getLogger(__name__)
 
 COMP_VC_CLUSTER = 'comp_vc_cluster'
 COMP_VC_DATACENTER = 'comp_vc_datacenter'
+COMP_VC_DATASTORES = 'comp_vc_datastores'
+COMP_VC_HOSTS = 'comp_vc_hosts'
+COMP_VC_NETWORKS = 'comp_vc_networks'
 COMP_VC_PASSWORD = 'comp_vc_password'
 COMP_VC_USERNAME = 'comp_vc_username'
 COMP_VC = 'comp_vc'
 
 MGMT_VC_CLUSTER = 'mgmt_vc_cluster'
 MGMT_VC_DATACENTER = 'mgmt_vc_datacenter'
+MGMT_VC_DATASTORES = 'mgmt_vc_datastores'
+MGMT_VC_HOSTS = 'mgmt_vc_hosts'
+MGMT_VC_NETWORKS = 'mgmt_vc_networks'
 MGMT_VC_PASSWORD = 'mgmt_vc_password'
 MGMT_VC_USERNAME = 'mgmt_vc_username'
 MGMT_VC = 'mgmt_vc'
@@ -64,63 +69,66 @@ def vcenter_connection(vcenter, username, password):
 def get_comp_vc():
     """Returns saved name or IP address of compute vCenter host."""
     vcenter_data = _get_vcenter_data()
-    return vcenter_data.get(COMP_VC)
+    return { vcenter_data.get(COMP_VC, ''): None }
 
 
 def get_mgmt_vc():
     """Returns saved name or IP address of management vCenter host."""
     vcenter_data = _get_vcenter_data()
-    return vcenter_data.get(MGMT_VC)
+    return { vcenter_data.get(MGMT_VC, ''): None }
 
 
 def get_comp_vc_username():
     """Returns saved login username for compute vCenter."""
     vcenter_data = _get_vcenter_data()
-    return vcenter_data.get(COMP_VC_USERNAME)
+    return { vcenter_data.get(COMP_VC_USERNAME, ''): None }
 
 
 def get_mgmt_vc_username():
     """Returns saved login username for management vCenter."""
     vcenter_data = _get_vcenter_data()
-    return vcenter_data.get(MGMT_VC_USERNAME)
+    return { vcenter_data.get(MGMT_VC_USERNAME, ''): None }
 
 
 def get_comp_vc_password():
     """Returns saved login password for compute vCenter."""
     vcenter_data = _get_vcenter_data()
-    return vcenter_data.get(COMP_VC_PASSWORD)
+    return { vcenter_data.get(COMP_VC_PASSWORD, ''): None }
 
 
 def get_mgmt_vc_password():
     """Returns saved login password for management vCenter."""
     vcenter_data = _get_vcenter_data()
-    return vcenter_data.get(MGMT_VC_PASSWORD)
+    return { vcenter_data.get(MGMT_VC_PASSWORD, ''): None }
 
 
-def _get_datacenters(vcenter_field, username_field, password_field,
-                     datacenter_field, vcenter, username, password,
-                     datacenter=None):
-    LOG.debug('_get_datacenters: %s, %s, %s, %s' % (vcenter, username,
-                                                    password, datacenter))
-    vcenter_data = _get_vcenter_data()
-    if vcenter is None:
-        vcenter = vcenter_data.get(vcenter_field)
-    if username is None:
-        username = vcenter_data.get(username_field)
-    if password is None:
-        password = vcenter_data.get(password_field)
-    if datacenter is None:
-        datacenter = vcenter_data.get(datacenter_field)
+def _get_datacenters(content=None, vcenter_field=None, username_field=None,
+                     password_field=None, datacenter_field=None, vcenter=None,
+                     username=None, password=None, datacenter=None):
+    if not content:
+        LOG.debug('_get_datacenters: %s, %s, %s, %s' % (vcenter, username,
+                                                        password, datacenter))
+        if not all([vcenter, username, password, datacenter]):
+            vcenter_data = _get_vcenter_data()
+        if vcenter is None:
+            vcenter = vcenter_data.get(vcenter_field)
+        if username is None:
+            username = vcenter_data.get(username_field)
+        if password is None:
+            password = vcenter_data.get(password_field)
+        if datacenter is None:
+            datacenter = vcenter_data.get(datacenter_field)
 
-    service_instance = vcenter_connection(vcenter, username, password)
-    if not service_instance:
-        return None
-    content = service_instance.RetrieveContent()
+        service_instance = vcenter_connection(vcenter, username, password)
+        if not service_instance:
+            return None
+        content = service_instance.RetrieveContent()
+        connect.Disconnect
+
     dcview = content.viewManager.CreateContainerView(content.rootFolder,
                                                      [vim.Datacenter], True)
     datacenters = dcview.view
     dcview.Destroy()
-    connect.Disconnect
 
     datacenters_by_name = {}
     for dc in datacenters:
@@ -137,9 +145,11 @@ def get_comp_vc_datacenters(vcenter=None, username=None, password=None,
     'datacenter' to get all datacenters.
     """
     LOG.debug('get_comp_vc_datacenters caller: %s', inspect.stack()[1][3])
-    return _get_datacenters(COMP_VC, COMP_VC_USERNAME, COMP_VC_PASSWORD,
-                            COMP_VC_DATACENTER, vcenter, username, password,
-                            datacenter=datacenter)
+    return _get_datacenters(
+        vcenter_field=COMP_VC, username_field=COMP_VC_USERNAME,
+        password_field=COMP_VC_PASSWORD, datacenter_field=COMP_VC_DATACENTER,
+        vcenter=vcenter, username=username, password=password,
+        datacenter=datacenter)
 
 
 def get_mgmt_vc_datacenters(vcenter=None, username=None, password=None,
@@ -149,37 +159,40 @@ def get_mgmt_vc_datacenters(vcenter=None, username=None, password=None,
     for 'datacenter' to get all datacenters.
     """
     LOG.debug('get_mgmt_vc_datacenters caller: %s', inspect.stack()[1][3])
-    return _get_datacenters(MGMT_VC, MGMT_VC_USERNAME, MGMT_VC_PASSWORD,
-                            MGMT_VC_DATACENTER, vcenter, username, password,
-                            datacenter=datacenter)
+    return _get_datacenters(
+        vcenter_field=MGMT_VC, username_field=MGMT_VC_USERNAME,
+        password_field=MGMT_VC_PASSWORD, datacenter_field=MGMT_VC_DATACENTER,
+        vcenter=vcenter, username=username, password=password,
+        datacenter=datacenter)
 
 
-def _get_clusters(vcenter_field, username_field, password_field,
-                  datacenter_field, cluster_field, vcenter, username, password,
-                  datacenter=None, cluster=None):
-    LOG.debug('_get_clusters: %s, %s, %s, %s' % (vcenter, username,
-                                                 password, datacenter))
-    vcenter_data = _get_vcenter_data()
-    if vcenter is None:
-        vcenter = vcenter_data.get(vcenter_field)
-    if username is None:
-        username = vcenter_data.get(username_field)
-    if password is None:
-        password = vcenter_data.get(password_field)
-    if datacenter is None:
-        datacenter = vcenter_data.get(datacenter_field)
-    if cluster is None:
-        cluster = vcenter_data.get(cluster_field)
+def _get_clusters(content=None, vcenter_field=None, username_field=None,
+                  password_field=None, datacenter_field=None,
+                  cluster_field=None, vcenter=None, username=None,
+                  password=None, datacenter=None, cluster=None):
+    if not content:
+        LOG.debug('_get_clusters: %s, %s, %s, %s' % (vcenter, username,
+                                                     password, datacenter))
+        if not all([vcenter, username, password, datacenter]):
+            vcenter_data = _get_vcenter_data()
+        if vcenter is None:
+            vcenter = vcenter_data.get(vcenter_field)
+        if username is None:
+            username = vcenter_data.get(username_field)
+        if password is None:
+            password = vcenter_data.get(password_field)
+        if datacenter is None:
+            datacenter = vcenter_data.get(datacenter_field)
+        if cluster is None:
+            cluster = vcenter_data.get(cluster_field)
 
-    service_instance = vcenter_connection(vcenter, username, password)
-    if not service_instance:
-        return None
-    content = service_instance.RetrieveContent()
-    connect.Disconnect
+        service_instance = vcenter_connection(vcenter, username, password)
+        if not service_instance:
+            return None
+        content = service_instance.RetrieveContent()
+        connect.Disconnect
 
-    datacenters = _get_datacenters(vcenter_field, username_field,
-                                   password_field, datacenter_field, vcenter,
-                                   username, password, datacenter=datacenter)
+    datacenters = _get_datacenters(content=content, datacenter=datacenter)
     clusters_by_name = {}
     for dc_name, dc in datacenters.iteritems():
         if datacenter and dc_name != datacenter: 
@@ -200,36 +213,45 @@ def get_comp_vc_clusters(vcenter=None, username=None, password=None,
                          datacenter=None, cluster=None):
     """Returns a dict of clusters in the compute vCenter, optionally only from
     the given datacenter and limited to only the given cluster. Pass in empty
-    string for 'datacenter'/'cluster' to get all datcenters/clusters.
+    string for 'datacenter'/'cluster' to get all datacenters/clusters.
     """
     LOG.debug('get_comp_vc_clusters caller: %s', inspect.stack()[1][3])
-    return _get_clusters(COMP_VC, COMP_VC_USERNAME, COMP_VC_PASSWORD,
-                         COMP_VC_DATACENTER, COMP_VC_CLUSTER, vcenter,
-                         username, password, datacenter=datacenter,
-                         cluster=cluster)
+    return _get_clusters(
+        vcenter_field=COMP_VC, username_field=COMP_VC_USERNAME,
+        password_field=COMP_VC_PASSWORD, datacenter_field=COMP_VC_DATACENTER,
+        cluster_field=COMP_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
 def get_mgmt_vc_clusters(vcenter=None, username=None, password=None,
                          datacenter=None, cluster=None):
     """Returns a dict of clusters in the management vCenter, optionally only
     from the given datacenter and limited to only the given cluster. Pass in
-    empty string for 'datacenter'/'cluster' to get all datcenters/clusters.
+    empty string for 'datacenter'/'cluster' to get all datacenters/clusters.
     """
     LOG.debug('get_mgmt_vc_clusters caller: %s', inspect.stack()[1][3])
-    return _get_clusters(MGMT_VC, MGMT_VC_USERNAME, MGMT_VC_PASSWORD,
-                         MGMT_VC_DATACENTER, MGMT_VC_CLUSTER, vcenter,
-                         username, password, datacenter=datacenter,
-                         cluster=cluster)
+    return _get_clusters(
+        vcenter_field=MGMT_VC, username_field=MGMT_VC_USERNAME,
+        password_field=MGMT_VC_PASSWORD, datacenter_field=MGMT_VC_DATACENTER,
+        cluster_field=MGMT_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
-def _get_hosts(vcenter_field, username_field, password_field, datacenter_field,
-               cluster_field):
-    vcenter_data = _get_vcenter_data()
-    vcenter = vcenter_data.get(vcenter_field)
-    username = vcenter_data.get(username_field)
-    password = vcenter_data.get(password_field)
-    datacenter = vcenter_data.get(datacenter_field)
-    cluster = vcenter_data.get(cluster_field)
+def _get_hosts(vcenter_field=None, username_field=None, password_field=None,
+               datacenter_field=None, cluster_field=None, vcenter=None,
+               username=None, password=None, datacenter=None, cluster=None):
+    if not all([vcenter, username, password, datacenter, cluster]):
+        vcenter_data = _get_vcenter_data()
+    if vcenter is None:
+        vcenter = vcenter_data.get(vcenter_field)
+    if username is None:
+        username = vcenter_data.get(username_field)
+    if password is None:
+        password = vcenter_data.get(password_field)
+    if datacenter is None:
+        datacenter = vcenter_data.get(datacenter_field)
+    if cluster is None:
+        cluster = vcenter_data.get(cluster_field)
 
     service_instance = vcenter_connection(vcenter, username, password)
     if not service_instance:
@@ -237,9 +259,7 @@ def _get_hosts(vcenter_field, username_field, password_field, datacenter_field,
     content = service_instance.RetrieveContent()
     connect.Disconnect
 
-    clusters = _get_clusters(vcenter_field, username_field, password_field,
-                             datacenter_field, cluster_field, vcenter,
-                             username, password, datacenter=datacenter,
+    clusters = _get_clusters(content=content, datacenter=datacenter,
                              cluster=cluster)
     hosts_by_name = {}
     for cl_name, cl in clusters.iteritems():
@@ -255,26 +275,38 @@ def _get_hosts(vcenter_field, username_field, password_field, datacenter_field,
     return hosts_by_name
 
 
-def get_comp_vc_hosts():
+def get_comp_vc_hosts(vcenter=None, username=None, password=None,
+                      datacenter=None, cluster=None):
     """Returns a dict of hosts in the saved compute vCenter cluster."""
-    return _get_hosts(COMP_VC, COMP_VC_USERNAME, COMP_VC_PASSWORD,
-                      COMP_VC_DATACENTER, COMP_VC_CLUSTER)
+    return _get_hosts(
+        vcenter_field=COMP_VC, username_field=COMP_VC_USERNAME,
+        password_field=COMP_VC_PASSWORD, datacenter_field=COMP_VC_DATACENTER,
+        cluster_field=COMP_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
-def get_mgmt_vc_hosts():
+def get_mgmt_vc_hosts(vcenter=None, username=None, password=None,
+                      datacenter=None, cluster=None):
     """Returns a dict of hosts in the saved management vCenter cluster."""
-    return _get_hosts(MGMT_VC, MGMT_VC_USERNAME, MGMT_VC_PASSWORD,
-                      MGMT_VC_DATACENTER, MGMT_VC_CLUSTER)
+    return _get_hosts(
+        vcenter_field=MGMT_VC, username_field=MGMT_VC_USERNAME,
+        password_field=MGMT_VC_PASSWORD, datacenter_field=MGMT_VC_DATACENTER,
+        cluster_field=MGMT_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
-def _get_datastores(vcenter_field, username_field, password_field,
-                    datacenter_field, cluster_field):
-    hosts = _get_hosts(vcenter_field, username_field, password_field,
-                       datacenter_field, cluster_field)
+def _get_datastores(vcenter_field=None, username_field=None,
+                    password_field=None, datacenter_field=None,
+                    cluster_field=None, vcenter=None, username=None,
+                    password=None, datacenter=None, cluster=None):
+    hosts = _get_hosts(
+        vcenter_field=vcenter_field, username_field=username_field,
+        password_field=password_field, datacenter_field=datacenter_field,
+        cluster_field=cluster_field, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
     if not hosts:
         return None
-    # Include empty value, to make user explicitly choose option.
-    datastores_by_name = { '': None }
+    datastores_by_name = {}
 
     for host in hosts.values():
         for datastore in host.datastore:
@@ -282,28 +314,39 @@ def _get_datastores(vcenter_field, username_field, password_field,
     return datastores_by_name 
 
 
-def get_comp_vc_datastores():
+def get_comp_vc_datastores(vcenter=None, username=None, password=None,
+                           datacenter=None, cluster=None):
     """Returns a dict of datastores in the saved compute vCenter cluster."""
     LOG.debug('get_comp_vc_datastores caller: %s', inspect.stack()[1][3])
-    return _get_datastores(COMP_VC, COMP_VC_USERNAME, COMP_VC_PASSWORD,
-                           COMP_VC_DATACENTER, COMP_VC_CLUSTER)
+    return _get_datastores(
+        vcenter_field=COMP_VC, username_field=COMP_VC_USERNAME,
+        password_field=COMP_VC_PASSWORD, datacenter_field=COMP_VC_DATACENTER,
+        cluster_field=COMP_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
-def get_mgmt_vc_datastores():
+def get_mgmt_vc_datastores(vcenter=None, username=None, password=None,
+                           datacenter=None, cluster=None):
     """Returns a dict of datastores in the saved management vCenter."""
     LOG.debug('get_mgmt_vc_datastores caller: %s', inspect.stack()[1][3])
-    return _get_datastores(MGMT_VC, MGMT_VC_USERNAME, MGMT_VC_PASSWORD,
-                           MGMT_VC_DATACENTER, MGMT_VC_CLUSTER)
+    return _get_datastores(
+        vcenter_field=MGMT_VC, username_field=MGMT_VC_USERNAME,
+        password_field=MGMT_VC_PASSWORD, datacenter_field=MGMT_VC_DATACENTER,
+        cluster_field=MGMT_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
-def _get_networks(vcenter_field, username_field, password_field,
-                  datacenter_field, cluster_field):
-    hosts = _get_hosts(vcenter_field, username_field, password_field,
-                       datacenter_field, cluster_field)
+def _get_networks(vcenter_field=None, username_field=None, password_field=None,
+                  datacenter_field=None, cluster_field=None, vcenter=None,
+                  username=None, password=None, datacenter=None, cluster=None):
+    hosts = _get_hosts(
+        vcenter_field=vcenter_field, username_field=username_field,
+        password_field=password_field, datacenter_field=datacenter_field,
+        cluster_field=cluster_field, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
     if not hosts:
         return None
-    # Include empty value, to make user explicitly choose option.
-    networks_by_name = { '': None }
+    networks_by_name = {}
 
     for host in hosts.values():
         for network in host.network:
@@ -311,15 +354,23 @@ def _get_networks(vcenter_field, username_field, password_field,
     return networks_by_name
 
 
-def get_comp_vc_networks():
+def get_comp_vc_networks(vcenter=None, username=None, password=None,
+                         datacenter=None, cluster=None):
     """Returns a dict of networks in the saved compute vCenter cluster."""
     LOG.debug('get_comp_vc_networks caller: %s', inspect.stack()[1][3])
-    return _get_networks(COMP_VC, COMP_VC_USERNAME, COMP_VC_PASSWORD,
-                         COMP_VC_DATACENTER, COMP_VC_CLUSTER)
+    return _get_networks(
+        vcenter_field=COMP_VC, username_field=COMP_VC_USERNAME,
+        password_field=COMP_VC_PASSWORD, datacenter_field=COMP_VC_DATACENTER,
+        cluster_field=COMP_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)
 
 
-def get_mgmt_vc_networks():
+def get_mgmt_vc_networks(vcenter=None, username=None, password=None,
+                         datacenter=None, cluster=None):
     """Returns a dict of networks in the saved management vCenter cluster."""
     LOG.debug('get_mgmt_vc_networks caller: %s', inspect.stack()[1][3])
-    return _get_networks(MGMT_VC, MGMT_VC_USERNAME, MGMT_VC_PASSWORD,
-                         MGMT_VC_DATACENTER, MGMT_VC_CLUSTER)
+    return _get_networks(
+        vcenter_field=MGMT_VC, username_field=MGMT_VC_USERNAME,
+        password_field=MGMT_VC_PASSWORD, datacenter_field=MGMT_VC_DATACENTER,
+        cluster_field=MGMT_VC_CLUSTER, vcenter=vcenter, username=username,
+        password=password, datacenter=datacenter, cluster=cluster)

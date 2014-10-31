@@ -10,7 +10,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
 from django.shortcuts import render
 
-import vmosui.utils.getters as getters
+from vmosui.utils import getters
 
 
 LOG = logging.getLogger(__name__)
@@ -38,11 +38,10 @@ def _has_value(attribute):
         return value
 
 
-def _get_sections(container_name=None, group_name=None, get_options=False):
+def _get_sections(container_name=None, group_name=None):
     # Return containers with all sections populated with the calculated
     # metadata for all attributes, or only the section for the given group in
-    # the given container. Retrieving dynamic attribute options can take some
-    # time, so only get them if explicitly requested.
+    # the given container.
     #
     # See vmosui/local_settings.py.example for schema.
     base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
@@ -55,6 +54,15 @@ def _get_sections(container_name=None, group_name=None, get_options=False):
         saved_answers = _get_contents(filename)
     hidden_attributes = []
     shown_opt_attrs = []
+
+    # Cache option values already retrieved in this request.
+    opt_cache = {}
+    opt_filename = settings.INPUT_OPTIONS
+    if os.path.exists(opt_filename):
+        with open(opt_filename, 'r') as op:
+            fcntl.flock(op, fcntl.LOCK_SH)
+            opt_cache = yaml.load(op)
+            fcntl.flock(op, fcntl.LOCK_UN)
 
     # [{ ... }]
     for container in containers:
@@ -108,28 +116,30 @@ def _get_sections(container_name=None, group_name=None, get_options=False):
                                     field_name = attr_options
                                     # Make options a list now.
                                     attr_options = []
-                                    if get_options:
-                                        # Need to get options dynamically.
+                                    if field_name in opt_cache:
+                                        opt_names = opt_cache[field_name]
+                                    else:
+                                        # Get options dynamically.
                                         fn_name = 'get_%s' % field_name
                                         fn = getattr(getters, fn_name)
                                         options = fn()
-                                        if isinstance(options, dict):
+                                        if options:
                                             opt_names = options.keys()
                                             opt_names.sort()
-                                            for name in opt_names:
-                                                option = { 'id': name }
-                                                attr_options.append(option)
-                                            if attr['value'] not in opt_names:
-                                                # Reset value.
-                                                attr['value'] = ''
                                         else:
-                                            # Only one possible value. Don't
-                                            # let user change it.
-                                            attr['readonly'] = '1'
-                                            if not attr['value']:
-                                                # Set default value.
-                                                attr['value'] = options
+                                            opt_names = ['']
+                                        opt_cache[field_name] = opt_names
+
+                                    # Options for dropdown menu.
+                                    for name in opt_names:
+                                        option = { 'id': name }
+                                        attr_options.append(option)
                                     attr['options'] = attr_options 
+
+                                    # Use first option as default.
+                                    attr['default'] = opt_names[0]
+                                    if attr['value'] not in opt_names:
+                                        attr['value'] = attr['default']
 
                                 if attr.get('input') == 'dropdown':
                                     # Set default option.
@@ -214,8 +224,8 @@ def _get_attributes_by_id(container_name=None, group_name=None):
     return attributes_by_id
 
 
-def _write_answer_file(request, filename):
-    # Write out answer file, replacing old values with new ones, if given.
+def write_answer_file(request, filename):
+    """Write out answer file, replacing old values with new ones, if given."""
     errors = []
     filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
@@ -234,14 +244,14 @@ def _write_answer_file(request, filename):
     new_answers = request.REQUEST
 
     text = []
-    for attr_id, data in attributes_by_id.iteritems():
+    for attr_id, attr in attributes_by_id.iteritems():
         if new_answers and attr_id in new_answers:
             # Set new value.
             value = new_answers[attr_id]
             LOG.debug('Saving new value %s: %s' % (attr_id, value))
 
             # Check if there is a new file to save.
-            if data.get('input') == 'file' and value == '1':
+            if attr.get('input') == 'file' and value == '1':
                 src = request.FILES.get('file-%s' % attr_id)
                 dst_filename = '%s/%s' % (settings.PREPARE_FILES_DIR, attr_id)
                 if src:
@@ -252,14 +262,10 @@ def _write_answer_file(request, filename):
                     # Should have a previously uploaded file available.
                     errors.append('File missing for %s.' % attr_id)
                     return errors
-        elif saved_answers and attr_id in saved_answers:
-            # Use currently saved value.
-            value = saved_answers[attr_id]
-            LOG.debug('Saving old value %s: %s' % (attr_id, value))
         else:
-            # Use default value.
-            value = data.get('default', '')
-            LOG.debug('Saving default %s: %s' % (attr_id, value))
+            # Use currently saved value.
+            value = attr.get('value', '')
+            LOG.debug('Saving old value %s: %s' % (attr_id, value))
 
         # Escape backslashes and double quotation marks.
         value = value.replace('\\', '\\\\').replace('"', '\\"')
@@ -275,11 +281,11 @@ def _write_answer_file(request, filename):
 
 
 def get_group(request):
-    """ Display form to set answers for the sections in this group. """
+    """Display form to set answers for the sections in this group."""
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
     sections = _get_sections(container_name=container_name,
-                             group_name=group_name, get_options=True)
+                             group_name=group_name)
 
     return render(request, 'prepare/_group.html', {
         'container_name': container_name,
@@ -304,12 +310,11 @@ def _is_group_complete(sections):
 
 
 def get_group_status(request):
-    """ Get current state of group, or all groups, if group name not given. """
+    """Get current state of group, or all groups, if group name not given."""
     container_name = request.REQUEST.get('cname')
     group_name = request.REQUEST.get('gname')
     containers_or_sections = _get_sections(container_name=container_name,
-                                           group_name=group_name,
-                                           get_options=True)
+                                           group_name=group_name)
     data = {}
 
     if group_name:
@@ -333,10 +338,10 @@ def get_group_status(request):
 
 
 def save_group(request):
-    """ Save new answers for the group. """
+    """Save new answers for the group."""
     filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
-    errors = _write_answer_file(request, filename)
+    errors = write_answer_file(request, filename)
     # Get updated values, e.g., current versions of files.
     group = get_group(request).content 
     data = {
@@ -354,6 +359,7 @@ def save_group(request):
 
 
 def download_file(request, name):
+    """Retrieve file for user download."""
     # Prevent directory traversal.
     basename = os.path.basename(name)
     filename = '%s/%s' % (settings.PREPARE_FILES_DIR, basename)

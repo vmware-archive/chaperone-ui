@@ -28,6 +28,7 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 #               (input: checkbox|file|dropdown)
 #               (show: <attr_id1>,<attr_id2>,<attr_id3>)
 #               (optional: 1)
+#               (readonly: 1)
 #               (help: <help_text>)
 #               (options: (comp_vc|comp_vc_username|comp_vc_password|
 #                          comp_vc_datacenters|comp_vc_clusters|comp_vc_hosts|
@@ -50,6 +51,7 @@ ANSWER_FILE_DEFAULT = 'answerfile.yml'
 VCENTER_SETTINGS = '%s/vcenter.yml' % ANSWER_FILE_DIR
 
 PREPARE_FILES_DIR = '/var/lib/vmos/prepare/'
+INPUT_OPTIONS = '%s/inputoptions.yml' % ANSWER_FILE_DIR
 
 VMOS_LOG_DIR = '/var/log/vmos/'
 
