@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 import yaml
+from requests import exceptions as requests_exceptions
 
 from django.conf import settings
 
@@ -62,6 +63,9 @@ def vcenter_connection(vcenter, username, password):
                                                 port=VCENTER_PORT)
     except vim.fault.InvalidLogin as e:
         LOG.error('Could not connect to %s: %s' % (vcenter, e.msg))
+        return None
+    except requests_exceptions.ConnectionError as e:
+        LOG.error('Could not connect to %s: %s' % (vcenter, e.message))
         return None
     return service_instance
 
