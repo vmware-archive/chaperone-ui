@@ -188,18 +188,18 @@ vmosui.utils = {
     var csrf = 'csrfmiddlewaretoken';
     values[csrf] = $('#vcenter-form input[name="' + csrf + '"]').val();
 
+    $('#vcenter-errors').empty();
     var $knob = $(knob);
     if ($knob.attr('data-loading-text')) {
       $knob.button('loading');
     }
-    $('#vcenter-errors').empty();
     $.ajax({
       url: '/options',
       type: 'POST',
       data: values,
       success: function(data) {
-        if (data.error_message && data.error_message.length) {
-          $('#vcenter-errors').text(data.error_message);
+        if (data.errors && data.errors.length) {
+          $('#vcenter-errors').html(data.errors.join('<br/>'));
           return;
         }
 
@@ -213,11 +213,10 @@ vmosui.utils = {
 
         /* Show hidden inputs. */
         $field.parents('div.modal-section').find('div.no-display')
-          .removeClass('no-display');
+            .toggleClass('no-display display');
         if (!$('#vcenter-form').find('div.no-display').length) {
-          $('div.modal-footer button.no-display').show();
+          $('div.modal-footer button[type="submit"]').show();
         }
-
         if ($knob.hasClass('btn-primary')) {
           $knob.toggleClass('btn-primary btn-secondary');
         }
@@ -368,9 +367,9 @@ vmosui.utils = {
         return false;
     }
     var cgid = vmosui.utils.getFormCgid();
-    vmosui.utils.clearMessages();
 
     /* Send the data. */
+    vmosui.utils.clearMessages();
     $('#prepare-save').button('loading');
     $('#status-' + cgid).hide();
     $('#loading-' + cgid).show();
@@ -524,6 +523,19 @@ vmosui.addInitFunction(function() {
     vmosui.utils.loadVCenterOptions(this, $target[0], values);
   });
 
+  /* Reset vCenter target input fields. */
+  $('#vcenter-form input.vc-login').change(function(event) {
+    var $field = $(this);
+    var $section = $field.parents('div.modal-section');
+    $section.find('div.display').toggleClass('display no-display');
+
+    $('div.modal-footer button[type="submit"]').hide();
+    var $knob = $section.find('button.connect-btn');
+    if ($knob.hasClass('btn-secondary')) {
+      $knob.toggleClass('btn-secondary btn-primary');
+    }
+  });
+
   /* Submit form to set vCenter settings. */
   $('#vcenter-form').submit(function(event) {
     var $form = $(this);
@@ -534,18 +546,25 @@ vmosui.addInitFunction(function() {
     }
 
     /* Send the data. */
+    $('#vcenter-errors').empty();
     $('#vcenter-save').button('loading');
     $.ajax({
       url: action,
       type: 'POST',
       data: values,
       success: function(data) {
-        /* Field errors. */
-        if (data.errors) {
-          for (field in data.errors) {
-            $('#error-' + field).parent().addClass('has-error');
-            $('#error-' + field).addClass('text-error')
-              .text(data.errors[field]);
+        if (data.errors || data.field_errors) {
+          /* General errors. */
+          if (data.errors && data.errors.length) {
+            $('#vcenter-errors').html(data.errors.join('<br/>'));
+          }
+          /* Field errors. */
+          if (data.errors) {
+            for (field in data.field_errors) {
+              $('#error-' + field).parent().addClass('has-error');
+              $('#error-' + field).addClass('text-error')
+                .text(data.errors[field]);
+            }
           }
           return;
         }

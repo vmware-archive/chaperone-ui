@@ -16,6 +16,8 @@ from vmosui.utils import getters
 
 LOG = logging.getLogger(__name__)
 
+MIN_NETWORKS = 2
+
 
 def index(request):
     """Main page, where the magic happens."""
@@ -103,7 +105,7 @@ def list_options(request):
         opt_names.sort()
         data['options'] = opt_names
     else:
-        data['error_message'] = 'Invalid username or password.'
+        data['errors'] = ['Invalid username or password.']
     return HttpResponse(json.dumps(data), content_type='application/json')
 
 
@@ -113,13 +115,14 @@ def save_vcenter(request):
     data = {}
 
     if form.is_valid():
-        # Cast unicode values as strings.
+        errors = []
+
         comp_vc = str(form.cleaned_data[getters.COMP_VC])
         comp_vc_username = str(form.cleaned_data[getters.COMP_VC_USERNAME])
         comp_vc_password = str(form.cleaned_data[getters.COMP_VC_PASSWORD])
         comp_vc_datacenter = str(form.cleaned_data[getters.COMP_VC_DATACENTER])
         comp_vc_cluster = str(form.cleaned_data[getters.COMP_VC_CLUSTER])
-
+        
         mgmt_vc = str(form.cleaned_data[getters.MGMT_VC])
         mgmt_vc_username = str(form.cleaned_data[getters.MGMT_VC_USERNAME])
         mgmt_vc_password = str(form.cleaned_data[getters.MGMT_VC_PASSWORD])
@@ -160,83 +163,128 @@ def save_vcenter(request):
         comp_vc_datacenters = getters.get_comp_vc_datacenters(
             vcenter=comp_vc, username=comp_vc_username,
             password=comp_vc_password, datacenter='')
-        field_name = '%ss' % getters.COMP_VC_DATACENTER
-        options_data[field_name] = comp_vc_datacenters.keys()
+        if not comp_vc_datacenters:
+            errors.append('No compute vCenter datacenters found.')
+        else:
+            field_name = '%ss' % getters.COMP_VC_DATACENTER
+            options_data[field_name] = comp_vc_datacenters.keys()
 
         mgmt_vc_datacenters = getters.get_mgmt_vc_datacenters(
             vcenter=mgmt_vc, username=mgmt_vc_username,
             password=mgmt_vc_password, datacenter='')
-        field_name = '%ss' % getters.MGMT_VC_DATACENTER
-        options_data[field_name] = mgmt_vc_datacenters.keys()
+        if not mgmt_vc_datacenters:
+            errors.append('No management vCenter datacenters found.')
+        else:
+            field_name = '%ss' % getters.MGMT_VC_DATACENTER
+            options_data[field_name] = mgmt_vc_datacenters.keys()
 
         # Get clusters in these datacenters.
-        comp_vc_clusters = getters.get_comp_vc_clusters(
-            vcenter=comp_vc, username=comp_vc_username,
-            password=comp_vc_password, datacenter=comp_vc_datacenter,
-            cluster='')
-        field_name = '%ss' % getters.COMP_VC_CLUSTER
-        options_data[field_name] = comp_vc_clusters.keys()
+        comp_vc_clusters = None
+        if comp_vc_datacenters:
+            comp_vc_clusters = getters.get_comp_vc_clusters(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster='')
+            if not comp_vc_clusters:
+                errors.append('No compute vCenter clusters found.')
+            else:
+                field_name = '%ss' % getters.COMP_VC_CLUSTER
+                options_data[field_name] = comp_vc_clusters.keys()
 
-        mgmt_vc_clusters = getters.get_mgmt_vc_clusters(
-            vcenter=mgmt_vc, username=mgmt_vc_username,
-            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
-            cluster='')
-        field_name = '%ss' % getters.MGMT_VC_CLUSTER
-        options_data[field_name] = mgmt_vc_clusters.keys()
+        mgmt_vc_clusters = None
+        if mgmt_vc_datacenters:
+            mgmt_vc_clusters = getters.get_mgmt_vc_clusters(
+                vcenter=mgmt_vc, username=mgmt_vc_username,
+                password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+                cluster='')
+            if not mgmt_vc_clusters:
+                errors.append('No management vCenter clusters found.')
+            else:
+                field_name = '%ss' % getters.MGMT_VC_CLUSTER
+                options_data[field_name] = mgmt_vc_clusters.keys()
 
-        # Get hosts in these clusters.
-        comp_vc_hosts = getters.get_comp_vc_hosts(
-            vcenter=comp_vc, username=comp_vc_username,
-            password=comp_vc_password, datacenter=comp_vc_datacenter,
-            cluster=comp_vc_cluster)
-        options_data[getters.COMP_VC_HOSTS] = comp_vc_hosts.keys()
+        if comp_vc_clusters:
+            # Get hosts in these clusters.
+            comp_vc_hosts = getters.get_comp_vc_hosts(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster=comp_vc_cluster)
+            if not comp_vc_hosts:
+                errors.append('No compute vCenter hosts found.')
+            else:
+                options_data[getters.COMP_VC_HOSTS] = comp_vc_hosts.keys()
 
-        mgmt_vc_hosts = getters.get_mgmt_vc_hosts(
-            vcenter=mgmt_vc, username=mgmt_vc_username,
-            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
-            cluster=mgmt_vc_cluster)
-        options_data[getters.MGMT_VC_HOSTS] = mgmt_vc_hosts.keys()
+            # Get datastores in these clusters.
+            comp_vc_datastores = getters.get_comp_vc_datastores(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster=comp_vc_cluster)
+            if not comp_vc_datastores: 
+                errors.append('No compute vCenter datastores found.')
+            else:
+                options_data[getters.COMP_VC_DATASTORES] = comp_vc_datastores.keys()
 
-        # Get datastores in these clusters.
-        comp_vc_datastores = getters.get_comp_vc_datastores(
-            vcenter=comp_vc, username=comp_vc_username,
-            password=comp_vc_password, datacenter=comp_vc_datacenter,
-            cluster=comp_vc_cluster)
-        options_data[getters.COMP_VC_DATASTORES] = comp_vc_datastores.keys()
+            # Get networks in these clusters.
+            comp_vc_networks = getters.get_comp_vc_networks(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster=comp_vc_cluster)
+            if not comp_vc_networks or len(comp_vc_networks) < MIN_NETWORKS:
+                errors.append('At least %s compute vCenter networks must be '
+                              'available.' % MIN_NETWORKS)
+            else:
+                options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
 
-        mgmt_vc_datastores = getters.get_mgmt_vc_datastores(
-            vcenter=mgmt_vc, username=mgmt_vc_username,
-            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
-            cluster=mgmt_vc_cluster)
-        options_data[getters.MGMT_VC_DATASTORES] = mgmt_vc_datastores.keys()
+        if mgmt_vc_clusters:
+            # Get hosts in these clusters.
+            mgmt_vc_hosts = getters.get_mgmt_vc_hosts(
+                vcenter=mgmt_vc, username=mgmt_vc_username,
+                password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+                cluster=mgmt_vc_cluster)
+            if not mgmt_vc_hosts:
+                errors.append('No management vCenter hosts found.')
+            else:
+                options_data[getters.MGMT_VC_HOSTS] = mgmt_vc_hosts.keys()
 
-        # Get networks in these clusters.
-        comp_vc_networks = getters.get_comp_vc_networks(
-            vcenter=comp_vc, username=comp_vc_username,
-            password=comp_vc_password, datacenter=comp_vc_datacenter,
-            cluster=comp_vc_cluster)
-        options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
+            # Get datastores in these clusters.
+            mgmt_vc_datastores = getters.get_mgmt_vc_datastores(
+                vcenter=mgmt_vc, username=mgmt_vc_username,
+                password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+                cluster=mgmt_vc_cluster)
+            if not mgmt_vc_datastores:
+                errors.append('No management vCenter datastores found.')
+            else:
+                options_data[getters.MGMT_VC_DATASTORES] = mgmt_vc_datastores.keys()
 
-        mgmt_vc_networks = getters.get_mgmt_vc_networks(
-            vcenter=mgmt_vc, username=mgmt_vc_username,
-            password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
-            cluster=mgmt_vc_cluster)
-        options_data[getters.MGMT_VC_NETWORKS] = mgmt_vc_networks.keys()
+            # Get networks in these clusters.
+            mgmt_vc_networks = getters.get_mgmt_vc_networks(
+                vcenter=mgmt_vc, username=mgmt_vc_username,
+                password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
+                cluster=mgmt_vc_cluster)
+            if not mgmt_vc_networks or len(mgmt_vc_networks) < MIN_NETWORKS:
+                errors.append('At least %s management vCenter networks must be '
+                              'available.' % MIN_NETWORKS)
+            else:
+                options_data[getters.MGMT_VC_NETWORKS] = mgmt_vc_networks.keys()
 
-        # Save vCenter field options to file.
-        options_filename = settings.INPUT_OPTIONS
-        with open(options_filename, 'w+') as op:
-            fcntl.flock(op, fcntl.LOCK_EX)
-            op.write(yaml.dump(options_data, default_flow_style=False))
-            fcntl.flock(op, fcntl.LOCK_UN)
-            LOG.debug('vCenter options written to %s' % options_filename)
+        if errors:
+            LOG.error('Unable to save vCenter settings: %s' % errors)
+            data['errors'] = errors
+        else:
+            # Save vCenter field options to file.
+            options_filename = settings.INPUT_OPTIONS
+            with open(options_filename, 'w+') as op:
+                fcntl.flock(op, fcntl.LOCK_EX)
+                op.write(yaml.dump(options_data, default_flow_style=False))
+                fcntl.flock(op, fcntl.LOCK_UN)
+                LOG.debug('vCenter options written to %s' % options_filename)
 
-        # Rewrite the answer file, in case previously saved values for
-        # dynamically populated fields are no longer valid.
-        answers_filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
-                                      settings.ANSWER_FILE_DEFAULT)
-        write_answer_file(request, answers_filename)
+            # Rewrite the answer file, in case previously saved values for
+            # dynamically populated fields are no longer valid.
+            answers_filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
+                                          settings.ANSWER_FILE_DEFAULT)
+            write_answer_file(request, answers_filename)
     else:
         LOG.error('Unable to save vCenter settings: %s' % form.errors)
-        data['errors'] = form.errors
+        data['field_errors'] = form.errors
     return HttpResponse(json.dumps(data), content_type='application/json')

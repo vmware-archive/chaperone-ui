@@ -243,7 +243,7 @@ def write_answer_file(request, filename):
     attributes_by_id = _get_attributes_by_id()
     new_answers = request.REQUEST
 
-    text = []
+    answers_data = {}
     for attr_id, attr in attributes_by_id.iteritems():
         if new_answers and attr_id in new_answers:
             # Set new value.
@@ -266,15 +266,11 @@ def write_answer_file(request, filename):
             # Use currently saved value.
             value = attr.get('value', '')
             LOG.debug('Saving old value %s: %s' % (attr_id, value))
+        answers_data[attr_id] = str(value)
 
-        # Escape backslashes and double quotation marks.
-        value = value.replace('\\', '\\\\').replace('"', '\\"')
-        text.append('%s: "%s"' % (attr_id, value or ''))
-
-    file_contents = '\n'.join(text)
     with open(filename, 'w+') as fp:
         fcntl.flock(fp, fcntl.LOCK_EX)
-        fp.write(file_contents)
+        fp.write(yaml.dump(answers_data, default_flow_style=False))
         fcntl.flock(fp, fcntl.LOCK_UN)
     LOG.info('File %s written' % filename)
     return errors

@@ -86,14 +86,14 @@
               <div class="modal-section right-border">
                 {% for field in vcenter_form %}<div id="{{ field.html_name }}" class="form-field">
                   {% if '_datacenter' in field.html_name %}<button type="button" class="btn btn-sm {% if field.field.initial %}btn-secondary{% else %}btn-primary{% endif %} connect-btn" data-loading-text="Connecting...">Get Datacenters</button>{% endif %}
-                  {% if '_datacenter' in field.html_name or '_cluster' in field.html_name %}{% if not field.field.initial%}<div class="no-display">{% endif %}{% endif %}
+                  {% if '_datacenter' in field.html_name or '_cluster' in field.html_name %}<div class="{% if field.field.initial %}display{% else %}no-display{% endif %}">{% endif %}
                     <div id="error-{{ field.html_name }}"></div>
                     {{ field.label_tag }}
                     {{ field }}
                     {% if field.field.widget.input_type == 'password' %}<label>
                       <input class="form-control checkbox password-checkbox toggle-show" type="checkbox"/>&nbsp;Show password
                     </label><br/>{% endif %}
-                    {% if '_datacenter' in field.html_name or '_cluster' in field.html_name %}{% if not field.field.initial%}</div>{% endif %}{% endif %}
+                    {% if '_datacenter' in field.html_name or '_cluster' in field.html_name %}</div>{% endif %}
                   </div>
                 {% if forloop.counter == 5 %}</div>
                 <div class="modal-section left-border">{% endif %}

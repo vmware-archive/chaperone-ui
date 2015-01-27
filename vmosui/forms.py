@@ -92,6 +92,13 @@ class VCenterForm(forms.Form):
             field.widget.attrs['class'] = 'form-control'
             field.widget.attrs['required'] = 'required'
 
+        # Note which fields contain login information.
+        login_fields = [getters.COMP_VC, getters.COMP_VC_USERNAME,
+                        getters.COMP_VC_PASSWORD, getters.MGMT_VC,
+                        getters.MGMT_VC_USERNAME, getters.MGMT_VC_PASSWORD]
+        for fieldname in login_fields:
+            self.fields[fieldname].widget.attrs['class'] += ' vc-login'
+
         # Note which fields are populated based on the values in these.
         self.fields[getters.COMP_VC_DATACENTER].widget.attrs['data-target'] = \
             getters.COMP_VC_CLUSTER
