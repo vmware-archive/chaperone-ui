@@ -213,7 +213,7 @@ vmosui.utils = {
 
         /* Show hidden inputs. */
         $field.parents('div.modal-section').find('div.no-display')
-            .toggleClass('no-display display');
+          .toggleClass('no-display display');
         if (!$('#vcenter-form').find('div.no-display').length) {
           $('div.modal-footer button[type="submit"]').show();
         }

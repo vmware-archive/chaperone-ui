@@ -122,7 +122,7 @@ def save_vcenter(request):
         comp_vc_password = str(form.cleaned_data[getters.COMP_VC_PASSWORD])
         comp_vc_datacenter = str(form.cleaned_data[getters.COMP_VC_DATACENTER])
         comp_vc_cluster = str(form.cleaned_data[getters.COMP_VC_CLUSTER])
-        
+
         mgmt_vc = str(form.cleaned_data[getters.MGMT_VC])
         mgmt_vc_username = str(form.cleaned_data[getters.MGMT_VC_USERNAME])
         mgmt_vc_password = str(form.cleaned_data[getters.MGMT_VC_PASSWORD])
