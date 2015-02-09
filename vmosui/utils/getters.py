@@ -142,8 +142,8 @@ def _get_datacenters(content=None, vcenter_field=None, username_field=None,
     return datacenters_by_name
 
 
-def get_comp_vc_datacenters(vcenter=None, username=None, password=None,
-                            datacenter=None):
+def get_comp_vc_datacenter(vcenter=None, username=None, password=None,
+                           datacenter=None):
     """Returns a dict of datacenters in the compute vCenter, keyed by name,
     optionally limited to only the given datacenter. Pass in empty string for
     'datacenter' to get all datacenters.
@@ -156,8 +156,8 @@ def get_comp_vc_datacenters(vcenter=None, username=None, password=None,
         datacenter=datacenter)
 
 
-def get_mgmt_vc_datacenters(vcenter=None, username=None, password=None,
-                            datacenter=None):
+def get_mgmt_vc_datacenter(vcenter=None, username=None, password=None,
+                           datacenter=None):
     """Returns a dict of datacenters in the management vCenter, keyed by
     name, optionally limited to only the given datacenter. Pass in empty string
     for 'datacenter' to get all datacenters.
@@ -213,8 +213,8 @@ def _get_clusters(content=None, vcenter_field=None, username_field=None,
     return clusters_by_name
 
 
-def get_comp_vc_clusters(vcenter=None, username=None, password=None,
-                         datacenter=None, cluster=None):
+def get_comp_vc_cluster(vcenter=None, username=None, password=None,
+                        datacenter=None, cluster=None):
     """Returns a dict of clusters in the compute vCenter, optionally only from
     the given datacenter and limited to only the given cluster. Pass in empty
     string for 'datacenter'/'cluster' to get all datacenters/clusters.
@@ -227,8 +227,8 @@ def get_comp_vc_clusters(vcenter=None, username=None, password=None,
         password=password, datacenter=datacenter, cluster=cluster)
 
 
-def get_mgmt_vc_clusters(vcenter=None, username=None, password=None,
-                         datacenter=None, cluster=None):
+def get_mgmt_vc_cluster(vcenter=None, username=None, password=None,
+                        datacenter=None, cluster=None):
     """Returns a dict of clusters in the management vCenter, optionally only
     from the given datacenter and limited to only the given cluster. Pass in
     empty string for 'datacenter'/'cluster' to get all datacenters/clusters.
@@ -416,25 +416,25 @@ def get_mgmt_vc_password_value():
     return vcenter_data.get(MGMT_VC_PASSWORD, '')
 
 
-def get_comp_vc_datacenters_value():
+def get_comp_vc_datacenter_value():
     """Returns saved name of compute vCenter datacenter."""
     vcenter_data = _get_vcenter_data()
     return vcenter_data.get(COMP_VC_DATACENTER, '')
 
 
-def get_mgmt_vc_datacenters_value():
+def get_mgmt_vc_datacenter_value():
     """Returns saved name of management vCenter datacenter."""
     vcenter_data = _get_vcenter_data()
     return vcenter_data.get(MGMT_VC_DATACENTER, '')
 
 
-def get_comp_vc_clusters_value():
+def get_comp_vc_cluster_value():
     """Returns saved name of compute vCenter cluster."""
     vcenter_data = _get_vcenter_data()
     return vcenter_data.get(COMP_VC_CLUSTER, '')
 
 
-def get_mgmt_vc_clusters_value():
+def get_mgmt_vc_cluster_value():
     """Returns saved name of management vCenter cluster."""
     vcenter_data = _get_vcenter_data()
     return vcenter_data.get(MGMT_VC_CLUSTER, '')

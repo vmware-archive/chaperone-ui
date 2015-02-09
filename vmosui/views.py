@@ -83,7 +83,7 @@ def logout(request):
 def list_options(request):
     """Get options for a given field."""
     field_id = request.REQUEST.get('fid')
-    fn_name = 'get_%ss' % field_id  # Getter names are in plural form
+    fn_name = 'get_%s' % field_id
     fn = getattr(getters, fn_name)
 
     kwargs = {
@@ -160,48 +160,46 @@ def save_vcenter(request):
         }
 
         # Get datacenters.
-        comp_vc_datacenters = getters.get_comp_vc_datacenters(
+        comp_vc_datacenters = getters.get_comp_vc_datacenter(
             vcenter=comp_vc, username=comp_vc_username,
             password=comp_vc_password, datacenter='')
         if not comp_vc_datacenters:
             errors.append('No compute vCenter datacenters found.')
         else:
-            field_name = '%ss' % getters.COMP_VC_DATACENTER
-            options_data[field_name] = comp_vc_datacenters.keys()
+            options_data[getters.COMP_VC_DATACENTER] = (
+                comp_vc_datacenters.keys())
 
-        mgmt_vc_datacenters = getters.get_mgmt_vc_datacenters(
+        mgmt_vc_datacenters = getters.get_mgmt_vc_datacenter(
             vcenter=mgmt_vc, username=mgmt_vc_username,
             password=mgmt_vc_password, datacenter='')
         if not mgmt_vc_datacenters:
             errors.append('No management vCenter datacenters found.')
         else:
-            field_name = '%ss' % getters.MGMT_VC_DATACENTER
-            options_data[field_name] = mgmt_vc_datacenters.keys()
+            options_data[getters.MGMT_VC_DATACENTER] = (
+                mgmt_vc_datacenters.keys())
 
         # Get clusters in these datacenters.
         comp_vc_clusters = None
         if comp_vc_datacenters:
-            comp_vc_clusters = getters.get_comp_vc_clusters(
+            comp_vc_clusters = getters.get_comp_vc_cluster(
                 vcenter=comp_vc, username=comp_vc_username,
                 password=comp_vc_password, datacenter=comp_vc_datacenter,
                 cluster='')
             if not comp_vc_clusters:
                 errors.append('No compute vCenter clusters found.')
             else:
-                field_name = '%ss' % getters.COMP_VC_CLUSTER
-                options_data[field_name] = comp_vc_clusters.keys()
+                options_data[getters.COMP_VC_CLUSTER] = comp_vc_clusters.keys()
 
         mgmt_vc_clusters = None
         if mgmt_vc_datacenters:
-            mgmt_vc_clusters = getters.get_mgmt_vc_clusters(
+            mgmt_vc_clusters = getters.get_mgmt_vc_cluster(
                 vcenter=mgmt_vc, username=mgmt_vc_username,
                 password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
                 cluster='')
             if not mgmt_vc_clusters:
                 errors.append('No management vCenter clusters found.')
             else:
-                field_name = '%ss' % getters.MGMT_VC_CLUSTER
-                options_data[field_name] = mgmt_vc_clusters.keys()
+                options_data[getters.MGMT_VC_CLUSTER] = mgmt_vc_clusters.keys()
 
         if comp_vc_clusters:
             # Get hosts in these clusters.
@@ -307,10 +305,10 @@ def save_vcenter(request):
                                     # [{ ... }]
                                     for attr in attributes:
                                         attr_id = attr['id']
-                                        if attr_id not in vcenter_data:
-                                            break
                                         opts = attr.get('options', [])
                                         if not isinstance(opts, list):
+                                            if opts not in vcenter_data:
+                                                break
                                             if opts in values_cache:
                                                 new_answers[attr_id] = (
                                                     values_cache[attr_id])

@@ -37,7 +37,7 @@ def _initialize_values(form_fields, vcenter_data, vcenter_field,
 
     if all([vcenter, username, password]):
         # Get datacenters in the vCenter.
-        fn_name = 'get_%ss' % datacenter_field
+        fn_name = 'get_%s' % datacenter_field
         fn = getattr(getters, fn_name)
         # Pass in blank datacenter to get all options.
         datacenters = fn(vcenter=vcenter, username=username, password=password,
@@ -52,7 +52,7 @@ def _initialize_values(form_fields, vcenter_data, vcenter_field,
 
         if datacenter and datacenters:
             # Get clusters in this vCenter's datacenter.
-            fn_name = 'get_%ss' % cluster_field
+            fn_name = 'get_%s' % cluster_field
             fn = getattr(getters, fn_name)
             # Pass in blank cluster to get all options.
             clusters = fn(vcenter=vcenter, username=username,
