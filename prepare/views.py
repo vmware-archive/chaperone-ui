@@ -224,7 +224,7 @@ def _get_attributes_by_id(container_name=None, group_name=None):
     return attributes_by_id
 
 
-def write_answer_file(request, filename):
+def write_answer_file(request, filename, new_answers=None):
     """Write out answer file, replacing old values with new ones, if given."""
     errors = []
     filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
@@ -241,7 +241,8 @@ def write_answer_file(request, filename):
             LOG.debug('Backup file %s written' % backup_filename)
 
     attributes_by_id = _get_attributes_by_id()
-    new_answers = request.REQUEST
+    if not new_answers:
+        new_answers = request.REQUEST
 
     answers_data = {}
     for attr_id, attr in attributes_by_id.iteritems():

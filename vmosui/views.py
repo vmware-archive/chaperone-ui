@@ -279,11 +279,53 @@ def save_vcenter(request):
                 fcntl.flock(op, fcntl.LOCK_UN)
                 LOG.debug('vCenter options written to %s' % options_filename)
 
-            # Rewrite the answer file, in case previously saved values for
-            # dynamically populated fields are no longer valid.
+            # Rewrite the answer file, to update with new vCenter values and
+            # check if previously saved values for dynamically populated fields
+            # are no longer valid.
+            base_filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
+                                       settings.ANSWER_FILE_BASE)
+            with open(base_filename, 'r') as bp:
+                fcntl.flock(bp, fcntl.LOCK_SH)
+                file_contents = bp.read()
+                fcntl.flock(bp, fcntl.LOCK_UN)
+            containers = yaml.load(file_contents)
+
+            new_answers = {}
+            values_cache = {}
+            # [{ ... }]
+            for container in containers:
+                # { 'Container': { ... } }
+                for cname, groups in container.iteritems():
+                    # [{ ... }]
+                    for group in groups:
+                        # { 'Group': [...] }
+                        for gname, sections in group.iteritems():
+                            # [{ ... }]
+                            for section in sections:
+                                # { 'Section': [...] }
+                                for _, attributes in section.iteritems():
+                                    # [{ ... }]
+                                    for attr in attributes:
+                                        attr_id = attr['id']
+                                        if attr_id not in vcenter_data:
+                                            break
+                                        opts = attr.get('options', [])
+                                        if not isinstance(opts, list):
+                                            if opts in values_cache:
+                                                new_answers[attr_id] = (
+                                                    values_cache[attr_id])
+                                            else:
+                                                fn_name = 'get_%s_value' % opts
+                                                fn = getattr(getters, fn_name)
+                                                value = fn()
+                                                new_answers[attr_id] = value
+                                                values_cache[attr_id] = value
+
+            LOG.debug('New vCenter settings answers: %s' % new_answers)
             answers_filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                                           settings.ANSWER_FILE_DEFAULT)
-            write_answer_file(request, answers_filename)
+            write_answer_file(request, answers_filename,
+                              new_answers=new_answers)
     else:
         LOG.error('Unable to save vCenter settings: %s' % form.errors)
         data['field_errors'] = form.errors

@@ -71,37 +71,37 @@ def vcenter_connection(vcenter, username, password):
 
 
 def get_comp_vc():
-    """Returns saved name or IP address of compute vCenter host."""
+    """Returns valid value for compute vCenter."""
     vcenter_data = _get_vcenter_data()
     return { vcenter_data.get(COMP_VC, ''): None }
 
 
 def get_mgmt_vc():
-    """Returns saved name or IP address of management vCenter host."""
+    """Returns valid value for management vCenter."""
     vcenter_data = _get_vcenter_data()
     return { vcenter_data.get(MGMT_VC, ''): None }
 
 
 def get_comp_vc_username():
-    """Returns saved login username for compute vCenter."""
+    """Returns valid value for compute vCenter login username."""
     vcenter_data = _get_vcenter_data()
     return { vcenter_data.get(COMP_VC_USERNAME, ''): None }
 
 
 def get_mgmt_vc_username():
-    """Returns saved login username for management vCenter."""
+    """Returns valid value for management vCenter login username."""
     vcenter_data = _get_vcenter_data()
     return { vcenter_data.get(MGMT_VC_USERNAME, ''): None }
 
 
 def get_comp_vc_password():
-    """Returns saved login password for compute vCenter."""
+    """Returns valid value for compute vCenter login password."""
     vcenter_data = _get_vcenter_data()
     return { vcenter_data.get(COMP_VC_PASSWORD, ''): None }
 
 
 def get_mgmt_vc_password():
-    """Returns saved login password for management vCenter."""
+    """Returns valid value for management vCenter login password."""
     vcenter_data = _get_vcenter_data()
     return { vcenter_data.get(MGMT_VC_PASSWORD, ''): None }
 
@@ -378,3 +378,63 @@ def get_mgmt_vc_networks(vcenter=None, username=None, password=None,
         password_field=MGMT_VC_PASSWORD, datacenter_field=MGMT_VC_DATACENTER,
         cluster_field=MGMT_VC_CLUSTER, vcenter=vcenter, username=username,
         password=password, datacenter=datacenter, cluster=cluster)
+
+
+def get_comp_vc_value():
+    """Returns saved name or IP address of compute vCenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(COMP_VC, '')
+
+
+def get_mgmt_vc_value():
+    """Returns saved name or IP address of management vCenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(MGMT_VC, '')
+
+
+def get_comp_vc_username_value():
+    """Returns saved login username for compute vCenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(COMP_VC_USERNAME, '')
+
+
+def get_mgmt_vc_username_value():
+    """Returns saved login username for management vCenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(MGMT_VC_USERNAME, '')
+
+
+def get_comp_vc_password_value():
+    """Returns saved login password for compute vCenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(COMP_VC_PASSWORD, '')
+
+
+def get_mgmt_vc_password_value():
+    """Returns saved login password for management vCenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(MGMT_VC_PASSWORD, '')
+
+
+def get_comp_vc_datacenters_value():
+    """Returns saved name of compute vCenter datacenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(COMP_VC_DATACENTER, '')
+
+
+def get_mgmt_vc_datacenters_value():
+    """Returns saved name of management vCenter datacenter."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(MGMT_VC_DATACENTER, '')
+
+
+def get_comp_vc_clusters_value():
+    """Returns saved name of compute vCenter cluster."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(COMP_VC_CLUSTER, '')
+
+
+def get_mgmt_vc_clusters_value():
+    """Returns saved name of management vCenter cluster."""
+    vcenter_data = _get_vcenter_data()
+    return vcenter_data.get(MGMT_VC_CLUSTER, '')
