@@ -90,78 +90,6 @@ vmosui.utils = {
              .find('span.container-name').text();
   },
 
-  loadNics: function(input, resetBond, selected) {
-    /*
-     * Get list of NICs for the host whose row contains the given input.
-     * Optionally, reset bond mode value and select NIC values given in
-     * CSV list.
-     */
-    var regex = /^hv-(.+)-(.+)$/;
-    var match = regex.exec(input.id);
-    var current = match[2];
-    $('#hv-errors-' + current).empty();
-
-    /* Reset selections. */
-    var $bond = $('#hv-bond-' + current);
-    if (resetBond) {
-      $bond.val('');
-    }
-    var $nics = $('#hv-nics-' + current);
-    $nics.prop('disabled', true);
-    $nics.prop('multiple', false);
-    $nics.empty();
-
-    var host = $('#hv-host-' + current).val();
-    var user = $('#hv-user-' + current).val();
-    var password = $('#hv-password-' + current).val();
-    if (host && user && password) {
-      /* Load list of NICs for this host. */
-      var values = { host: host, user: user, password: password };
-      /* Need CSRF token for Django POST requests. */
-      var csrf = 'csrfmiddlewaretoken';
-      values[csrf] = $('#configure-form input[name="' + csrf + '"]').val();
-
-      $('#hv-loadnics-' + current).show()
-      $.ajax({
-        url: '/configure/hvs/nics',
-        type: 'POST',
-        data: values,
-        success: function(data) {
-          var message = data.error
-          var options = data.nics
-          if (message || !options.length) {
-            /* Couldn't retrieve NICs. */
-            if (message) {
-              $('#hv-errors-' + current).text('Error: ' + message + '.');
-            }
-            return;
-          }
-
-          for (var i = 0; i < options.length; i++) {
-            var nic = options[i];
-            $nics.append('<option value="' + nic + '">' + nic + '</option>');
-          }
-
-          /* Change input type in case bond mode chosen before NICs enabled. */
-          if ($bond.find('option:selected').hasClass('multinic')) {
-            $nics.prop('multiple', true);
-          } else {
-            $nics.prop('multiple', false);
-          }
-
-          $nics.val(selected.split(','));
-          $nics.prop('disabled', false);
-        },
-        error: function(jqxhr, status, error) {
-          vmosui.utils.ajaxError(jqxhr, status, error);
-        },
-        complete: function() {
-          $('#hv-loadnics-' + current).hide();
-        }
-      });
-    }
-  },
-
   loadGroup: function(containerName, groupName) {
     /* Return form for group. */
     vmosui.utils.clearMessages();
@@ -319,15 +247,6 @@ vmosui.utils = {
         success: function(response) {
           $('#' + id + '-contents').html(response);
           $('#contents div.form-group-title').append(' ' + $div.text());
-
-          if (id == 'configure-hvs') {
-            /* Fill in NICs. */
-            $('#configure-form select.hv-nics').each(function(index) {
-              var $select = $(this);
-              var selected = $select.attr('data-selected-nics');
-              vmosui.utils.loadNics(this, false, selected);
-            });
-          }
         },
         error: function(jqxhr, status, error) {
           vmosui.utils.ajaxError(jqxhr, status, error);
@@ -783,86 +702,6 @@ vmosui.addInitFunction(function() {
 
     /* Prevent normal form submit action. */
     return false;
-  });
-
-  /* Clone row to a new section of inputs to configure another hypervisor. */
-  $(document).on('click', 'button.btn-hv-add', function(event) {
-    var countCookie = 'hvcount';
-    var newCount = parseInt($.cookie(countCookie)) + 1;
-    $.cookie(countCookie, newCount);
-
-    /* Copy template row, updating count in all the ids and names. */
-    var $div = $('#hv-row-0').clone();
-    var divId = $div.attr('id');
-    $div.attr('id', divId.replace(/0$/, newCount));
-    $div.find('[id]').each(function() {
-      this.id = this.id.replace(/^(hv-.+-)0$/, '$1' + newCount);
-    });
-    $div.find('[name]').each(function() {
-      this.name = this.name.replace(/^(hv-.+-)0$/, '$1' + newCount);
-    });
-
-    /* Copy input values. */
-    var regex = /^hv-add-(.+)$/;
-    var match = regex.exec(this.id);
-    var current = match[1];
-    var $row = $('#hv-row-' + current);
-    regex = new RegExp('(hv-.+-)' + current);
-    $row.find('input').each(function(index) {
-      var $input = $(this);
-      var name = this.name.replace(regex, '$1' + newCount);
-      $div.find('input[name="' + name + '"]').val($input.val());
-    });
-
-    /* Reset bond mode selection. */
-    $('#hv-bond-' + newCount).val('');
-    /* Keep NIC input disabled. */
-    $('#hv-nics-' + newCount).prop('disabled', true);
-
-    $('#hv-row-' + current).after($div[0]);
-  });
-
-  /* Remove form to configure hypervisor. */
-  $(document).on('click', 'button.btn-hv-remove', function(event) {
-    /* Must have at least one row plus template on the page. */
-    if ($('div.form-row-section').length == 2) {
-      return;
-    }
-
-    var regex = /^hv-remove-(.+)$/;
-    var match = regex.exec(this.id);
-    var current = match[1];
-    $('#hv-row-' + current).remove();
-  });
-
-  /* Enable NICs selection. */
-  $(document).on('change',
-                 '#configure-hvs-contents input.hv-host, ' +
-                 '#configure-hvs-contents input.hv-user, ' +
-                 '#configure-hvs-contents input.hv-password', function(event) {
-    vmosui.utils.loadNics(this, true, '');
-  });
-
-  /* Toggle multi-select for NICs, based on the bond mode value. */
-  $(document).on('change',
-                 '#configure-hvs-contents div.form-row-field select.hv-bond',
-                 function(event) {
-    var regex = /^hv-bond-(.+)$/;
-    var match = regex.exec(this.id);
-    var current = match[1];
-    var $nics = $('#hv-nics-' + current);
-
-    /* Ignore if NIC selection not available. */
-    if ($nics.prop('disabled')) {
-      return;
-    }
-
-    var $select = $(this);
-    if ($select.find('option:selected').hasClass('multinic')) {
-      $nics.prop('multiple', true);
-    } else {
-      $nics.prop('multiple', false);
-    }
   });
 
   /* Change active leftnav button. */

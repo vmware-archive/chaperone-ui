@@ -35,8 +35,7 @@ $ chown -R nicira:nicira <ANSWER_FILE_DIR>
 $ mkdir <PREPARE_FILES_DIR>
 $ mkdir <VMOS_LOG_DIR>
 $ chown -R nicira:nicira <VMOS_LOG_DIR>
-- Make sure ANSWER_FILE_BASE, NICS_PLAYBOOK, and APPLIANCES_BASE are in their
-  appropriate locations.
+- Make sure ANSWER_FILE_BASE is in its appropriate location.
 
 Create Django database and tables.
 $ sudo apt-get install sqlite3
@@ -84,5 +83,3 @@ $ sudo vim vmosui
 $ sudo a2dissite default
 $ sudo a2ensite vmosui
 $ sudo service apache2 restart
-
-NOTE: The command that configures hypervisors requires Ansible to be installed.

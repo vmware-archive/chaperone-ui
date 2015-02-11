@@ -59,7 +59,6 @@ NSX_DEPLOY_LOG = 'nsx-deploy.log'
 NSX_CONFIGURE_LOG = 'nsx-configure.log'
 SDDC_DEPLOY_LOG = 'sddc-deploy.log'
 SDDC_CONFIGURE_LOG = 'sddc-configure.log'
-HVS_CONFIGURE_LOG = 'hvs-configure.log'
 
 DEBUG_OPTION = '-vvv'
 
@@ -76,12 +75,3 @@ SDDC_DEPLOY_VALIDATE = []
 SDDC_DEPLOY_RUN = []
 SDDC_CONFIGURE_VALIDATE = []
 SDDC_CONFIGURE_RUN = []
-
-# Full path to playbook that gets list of NICs from a hypervisor.
-NICS_PLAYBOOK = '%s/get_nics.yml' % ANSWER_FILE_DIR
-# List of hypervisor-related commands, one string per command and its
-# arguments.
-# Example: [ 'echo "Hello World"', 'ls -la', ]
-HVS_INI = '%s/hvs.ini' % ANSWER_FILE_DIR
-HVS_CONFIGURE_VALIDATE = []
-HVS_CONFIGURE_RUN = []
