@@ -16,7 +16,8 @@ from vmosui.utils import getters
 
 LOG = logging.getLogger(__name__)
 
-MIN_NETWORKS = 2
+MIN_COMP_NETWORKS = 1
+MIN_MGMT_NETWORKS = 2
 
 
 def index(request):
@@ -159,16 +160,7 @@ def save_vcenter(request):
             getters.MGMT_VC_PASSWORD: [mgmt_vc_password],
         }
 
-        # Get datacenters.
-        comp_vc_datacenters = getters.get_comp_vc_datacenter(
-            vcenter=comp_vc, username=comp_vc_username,
-            password=comp_vc_password, datacenter='')
-        if not comp_vc_datacenters:
-            errors.append('No compute vCenter datacenters found.')
-        else:
-            options_data[getters.COMP_VC_DATACENTER] = (
-                comp_vc_datacenters.keys())
-
+        # Get management datacenters.
         mgmt_vc_datacenters = getters.get_mgmt_vc_datacenter(
             vcenter=mgmt_vc, username=mgmt_vc_username,
             password=mgmt_vc_password, datacenter='')
@@ -178,18 +170,7 @@ def save_vcenter(request):
             options_data[getters.MGMT_VC_DATACENTER] = (
                 mgmt_vc_datacenters.keys())
 
-        # Get clusters in these datacenters.
-        comp_vc_clusters = None
-        if comp_vc_datacenters:
-            comp_vc_clusters = getters.get_comp_vc_cluster(
-                vcenter=comp_vc, username=comp_vc_username,
-                password=comp_vc_password, datacenter=comp_vc_datacenter,
-                cluster='')
-            if not comp_vc_clusters:
-                errors.append('No compute vCenter clusters found.')
-            else:
-                options_data[getters.COMP_VC_CLUSTER] = comp_vc_clusters.keys()
-
+        # Get clusters in the management datacenters.
         mgmt_vc_clusters = None
         if mgmt_vc_datacenters:
             mgmt_vc_clusters = getters.get_mgmt_vc_cluster(
@@ -200,38 +181,6 @@ def save_vcenter(request):
                 errors.append('No management vCenter clusters found.')
             else:
                 options_data[getters.MGMT_VC_CLUSTER] = mgmt_vc_clusters.keys()
-
-        if comp_vc_clusters:
-            # Get hosts in these clusters.
-            comp_vc_hosts = getters.get_comp_vc_hosts(
-                vcenter=comp_vc, username=comp_vc_username,
-                password=comp_vc_password, datacenter=comp_vc_datacenter,
-                cluster=comp_vc_cluster)
-            if not comp_vc_hosts:
-                errors.append('No compute vCenter hosts found.')
-            else:
-                options_data[getters.COMP_VC_HOSTS] = comp_vc_hosts.keys()
-
-            # Get datastores in these clusters.
-            comp_vc_datastores = getters.get_comp_vc_datastores(
-                vcenter=comp_vc, username=comp_vc_username,
-                password=comp_vc_password, datacenter=comp_vc_datacenter,
-                cluster=comp_vc_cluster)
-            if not comp_vc_datastores: 
-                errors.append('No compute vCenter datastores found.')
-            else:
-                options_data[getters.COMP_VC_DATASTORES] = comp_vc_datastores.keys()
-
-            # Get networks in these clusters.
-            comp_vc_networks = getters.get_comp_vc_networks(
-                vcenter=comp_vc, username=comp_vc_username,
-                password=comp_vc_password, datacenter=comp_vc_datacenter,
-                cluster=comp_vc_cluster)
-            if not comp_vc_networks or len(comp_vc_networks) < MIN_NETWORKS:
-                errors.append('At least %s compute vCenter networks must be '
-                              'available.' % MIN_NETWORKS)
-            else:
-                options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
 
         if mgmt_vc_clusters:
             # Get hosts in these clusters.
@@ -259,11 +208,71 @@ def save_vcenter(request):
                 vcenter=mgmt_vc, username=mgmt_vc_username,
                 password=mgmt_vc_password, datacenter=mgmt_vc_datacenter,
                 cluster=mgmt_vc_cluster)
-            if not mgmt_vc_networks or len(mgmt_vc_networks) < MIN_NETWORKS:
-                errors.append('At least %s management vCenter networks must be '
-                              'available.' % MIN_NETWORKS)
+            if (not mgmt_vc_networks or
+                    len(mgmt_vc_networks) < MIN_MGMT_NETWORKS):
+                errors.append(
+                    'At least %s management vCenter network%s must be '
+                    'available.' % (MIN_MGMT_NETWORKS,
+                                    '' if MIN_MGMT_NETWORKS == 1 else 's'))
             else:
                 options_data[getters.MGMT_VC_NETWORKS] = mgmt_vc_networks.keys()
+
+        # Get compute datacenters.
+        comp_vc_datacenters = getters.get_comp_vc_datacenter(
+            vcenter=comp_vc, username=comp_vc_username,
+            password=comp_vc_password, datacenter='')
+        if not comp_vc_datacenters:
+            errors.append('No compute vCenter datacenters found.')
+        else:
+            options_data[getters.COMP_VC_DATACENTER] = (
+                comp_vc_datacenters.keys())
+
+        # Get clusters in the compute datacenters.
+        comp_vc_clusters = None
+        if comp_vc_datacenters:
+            comp_vc_clusters = getters.get_comp_vc_cluster(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster='')
+            if not comp_vc_clusters:
+                errors.append('No compute vCenter clusters found.')
+            else:
+                options_data[getters.COMP_VC_CLUSTER] = comp_vc_clusters.keys()
+
+        if comp_vc_clusters:
+            # Get hosts in these clusters.
+            comp_vc_hosts = getters.get_comp_vc_hosts(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster=comp_vc_cluster)
+            if not comp_vc_hosts:
+                errors.append('No compute vCenter hosts found.')
+            else:
+                options_data[getters.COMP_VC_HOSTS] = comp_vc_hosts.keys()
+
+            # Get datastores in these clusters.
+            comp_vc_datastores = getters.get_comp_vc_datastores(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster=comp_vc_cluster)
+            if not comp_vc_datastores: 
+                errors.append('No compute vCenter datastores found.')
+            else:
+                options_data[getters.COMP_VC_DATASTORES] = comp_vc_datastores.keys()
+
+            # Get networks in these clusters.
+            comp_vc_networks = getters.get_comp_vc_networks(
+                vcenter=comp_vc, username=comp_vc_username,
+                password=comp_vc_password, datacenter=comp_vc_datacenter,
+                cluster=comp_vc_cluster)
+            if (not comp_vc_networks or
+                    len(comp_vc_networks) < MIN_COMP_NETWORKS):
+                errors.append(
+                    'At least %s compute vCenter network%s must be '
+                    'available.' % (MIN_COMP_NETWORKS,
+                                    '' if MIN_COMP_NETWORKS == 1 else 's'))
+            else:
+                options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
 
         if errors:
             LOG.error('Unable to save vCenter settings: %s' % errors)
