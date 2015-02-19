@@ -137,7 +137,8 @@ def _get_sections(container_name=None, group_name=None):
                                     attr['options'] = attr_options 
 
                                     # Use first option as default.
-                                    attr['default'] = opt_names[0]
+                                    attr['default'] = (opt_names[0]
+                                                       if opt_names else '')
                                     if attr['value'] not in opt_names:
                                         attr['value'] = attr['default']
 

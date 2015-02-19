@@ -16,7 +16,6 @@ from vmosui.utils import getters
 
 LOG = logging.getLogger(__name__)
 
-MIN_COMP_NETWORKS = 1
 MIN_MGMT_NETWORKS = 2
 
 
@@ -265,14 +264,7 @@ def save_vcenter(request):
                 vcenter=comp_vc, username=comp_vc_username,
                 password=comp_vc_password, datacenter=comp_vc_datacenter,
                 cluster=comp_vc_cluster)
-            if (not comp_vc_networks or
-                    len(comp_vc_networks) < MIN_COMP_NETWORKS):
-                errors.append(
-                    'At least %s compute vCenter network%s must be '
-                    'available.' % (MIN_COMP_NETWORKS,
-                                    '' if MIN_COMP_NETWORKS == 1 else 's'))
-            else:
-                options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
+            options_data[getters.COMP_VC_NETWORKS] = comp_vc_networks.keys()
 
         if errors:
             LOG.error('Unable to save vCenter settings: %s' % errors)
