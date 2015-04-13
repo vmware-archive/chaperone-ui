@@ -1,4 +1,4 @@
-<div id="prepare-contents">
+<div id="contents-prepare">
   <div class="form-group-title">Prepare {{ container_name }}: {{ group_name }}</div>
   <div id="{{ container_name|slugify }}_{{ group_name|slugify }}-form">
     <form id="prepare-form" action="{% url 'prepare:save' %}" method="post" enctype="multipart/form-data">
@@ -12,7 +12,7 @@
           {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}{% if attr.readonly %} disabled="disabled"{% endif %}/>&nbsp;{{ attr.name }}</label>
             {% if attr.help %}<div class="form-field-help">{{ attr.help }}</div>{% endif %}
 
-          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show{% if attr.show %}" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}{% if attr.readonly %} disabled="disabled"{% endif %}/>&nbsp;Use <span class="form-field-name">{{ attr.name }}</span></label>
+          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show{% if attr.show %}" data-show="{{ attr.show|join:',' }}{% endif %}" data-section="{{ sname }}" data-field="{{ attr.name }}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}{% if attr.readonly %} disabled="disabled"{% endif %}/>&nbsp;Use {{ attr.name }}</label>
             {% if attr.help %}<div class="form-field-help">{{ attr.help }}</div>{% endif %}
             <div id="file-field-{{ attr.id }}"{% if attr.value != '1' %} class="no-display"{% endif %}>
               {% if attr.current %}<a id="current-{{ attr.id }}" href="{% url 'prepare:download' attr.id %}">current version</a>, or new one:{% endif %}

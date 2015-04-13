@@ -26,10 +26,6 @@ $ cp /opt/vmosui/vmosui/local_settings.py.example /opt/vmosui/vmosui/local_setti
 - *_DIR directories need to be created if not already existing. All these
   directories and files underneath them must be owned by same user and group
   from Apache conf's WSGIDaemonProcess.
-- Fill in *_VALIDATE and *_RUN commands.
-$ vim /opt/vmosui/vmosui/local_settings.py
-  # Example:
-  NSX_CONFIGURE_VALIDATE = 'ansible-playbook -i /var/lib/vmos/tmp/nsxautoconfig/hosts.ini /var/lib/vmos/tmp/nsxautoconfig/nsx.yml -C'
 $ mkdir <ANSWER_FILE_DIR>
 $ chown -R nicira:nicira <ANSWER_FILE_DIR>
 $ mkdir <PREPARE_FILES_DIR>

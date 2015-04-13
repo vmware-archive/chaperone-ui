@@ -45,7 +45,13 @@ def _get_sections(container_name=None, group_name=None):
     #
     # See vmosui/local_settings.py.example for schema.
     base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    containers = _get_contents(base)
+    menus = _get_contents(base)
+    containers = []
+    for menu in menus:
+        for menu_name, menu_containers in menu.items():
+            if menu_name == settings.PREPARE_MENU:
+                containers = menu_containers
+                break
 
     filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
                           settings.ANSWER_FILE_DEFAULT)
@@ -67,19 +73,19 @@ def _get_sections(container_name=None, group_name=None):
     # [{ ... }]
     for container in containers:
         # { 'Container': { ... } }
-        for cname, groups in container.iteritems():
+        for cname, groups in container.items():
             if container_name and cname != container_name:
                 continue
             # [{ ... }]
             for group in groups:
                 # { 'Group': [...] }
-                for gname, sections in group.iteritems():
+                for gname, sections in group.items():
                     if group_name and gname != group_name:
                         continue
                     # [{ ... }]
                     for section in sections:
                         # { 'Section': [...] }
-                        for _, attributes in section.iteritems():
+                        for attributes in section.values():
                             # [{ ... }]
                             for attr in attributes:
                                 attr_id = attr['id']
@@ -180,7 +186,7 @@ def _get_sections(container_name=None, group_name=None):
 
                     # Note which attributes not to display.
                     for section in sections:
-                        for _, attributes in section.iteritems():
+                        for attributes in section.values():
                             for attr in attributes:
                                 attr_id = attr['id']
                                 if (attr_id in hidden_attributes and
@@ -206,18 +212,18 @@ def _get_attributes_by_id(container_name=None, group_name=None):
         # [{ ... }]
         for container in containers_or_sections:
             # { 'Container': { ... } }
-            for _, groups in container.iteritems():
+            for groups in container.values():
                 # [{ ... }]
                 for group in groups:
                     # { 'Group': [...] }
-                    for _, sections in group.iteritems():
+                    for sections in group.values():
                         all_sections.extend(sections)
 
     attributes_by_id = {}
     # [{ ... }]
     for section in all_sections:
         # { 'Section': [...] }
-        for _, attributes in section.iteritems():
+        for attributes in section.values():
             # [{ ... }]
             for attr in attributes:
                 attr_id = attr['id']
@@ -246,7 +252,7 @@ def write_answer_file(request, filename, new_answers=None):
         new_answers = request.REQUEST
 
     answers_data = {}
-    for attr_id, attr in attributes_by_id.iteritems():
+    for attr_id, attr in attributes_by_id.items():
         if new_answers and attr_id in new_answers:
             # Set new value.
             value = new_answers[attr_id]
@@ -296,7 +302,7 @@ def _is_group_complete(sections):
     # Return True if group has all required values set in its sections.
     for section in sections:
         # { 'Section': [...] }
-        for _, attributes in section.iteritems():
+        for attributes in section.values():
             # [{ ... }]
             for attr in attributes:
                 if (not attr.get('input') in OPTIONAL_INPUT_TYPES and
@@ -323,12 +329,12 @@ def get_group_status(request):
         # [{ ... }]
         for container in containers_or_sections:
             # { 'Container': { ... } }
-            for cname, groups in container.iteritems():
+            for cname, groups in container.items():
                 data[cname] = {}
                 # [{ ... }]
                 for group in groups:
                     # { 'Group': [...] }
-                    for gname, sections in group.iteritems():
+                    for gname, sections in group.items():
                         is_complete = _is_group_complete(sections)
                         data[cname][gname] = { 'complete': is_complete }
     # Return status for all groups.

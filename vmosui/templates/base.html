@@ -30,12 +30,14 @@
           <img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware"><br/>
           SDDC
         </div>
-        <div id="prepare" class="leftnav-btn">Prepare</div>
-        {% include "prepare/_menu.html" %}
-        <div id="deploy" class="leftnav-btn">Deploy</div>
-        {% include "deploy/_menu.html" %}
-        <div id="configure" class="leftnav-btn">Configure</div>
-        {% include "configure/_menu.html" %}
+        {% for menu in menus %}{% for menu_name, menu_list in menu.items %}
+          <div id="{{ menu_name|slugify }}" class="leftnav-btn">{{ menu_name }}</div>
+          {% if menu_name == settings.PREPARE_MENU %}
+            {% include "prepare/_menu.html" with containers=menu_list %}
+          {% else %}
+            {% include "execute/_menu.html" with groups=menu_list %}
+          {% endif %}
+        {% endfor %}{% endfor %}
       </div>
       <div id="rightside">
         <div class="header">

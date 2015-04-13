@@ -24,7 +24,7 @@ def index(request):
     filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
     with open(filename, 'r') as fp:
         fcntl.flock(fp, fcntl.LOCK_SH)
-        containers = yaml.load(fp)
+        menus = yaml.load(fp)
         fcntl.flock(fp, fcntl.LOCK_UN)
 
     vcenter_form = VCenterForm()
@@ -35,7 +35,7 @@ def index(request):
             break
 
     return render(request, 'vmosui/index.html', {
-        'containers': containers,
+        'menus': menus,
         'vcenter_form': vcenter_form,
         'missing_values': missing_values,
     })
@@ -287,22 +287,29 @@ def save_vcenter(request):
                 fcntl.flock(bp, fcntl.LOCK_SH)
                 file_contents = bp.read()
                 fcntl.flock(bp, fcntl.LOCK_UN)
-            containers = yaml.load(file_contents)
+            menus = yaml.load(file_contents)
+
+            containers = []
+            for menu in menus:
+                for menu_name, menu_containers in menu.items():
+                    if menu_name == settings.PREPARE_MENU:
+                        containers = menu_containers
+                        break
 
             new_answers = {}
             values_cache = {}
             # [{ ... }]
             for container in containers:
                 # { 'Container': { ... } }
-                for cname, groups in container.iteritems():
+                for groups in container.values():
                     # [{ ... }]
                     for group in groups:
                         # { 'Group': [...] }
-                        for gname, sections in group.iteritems():
+                        for sections in group.values():
                             # [{ ... }]
                             for section in sections:
                                 # { 'Section': [...] }
-                                for _, attributes in section.iteritems():
+                                for attributes in section.values():
                                     # [{ ... }]
                                     for attr in attributes:
                                         attr_id = attr['id']

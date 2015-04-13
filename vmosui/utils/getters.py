@@ -198,7 +198,7 @@ def _get_clusters(content=None, vcenter_field=None, username_field=None,
 
     datacenters = _get_datacenters(content=content, datacenter=datacenter)
     clusters_by_name = {}
-    for dc_name, dc in datacenters.iteritems():
+    for dc_name, dc in datacenters.items():
         if datacenter and dc_name != datacenter: 
             continue
         clusterview = content.viewManager.CreateContainerView(
@@ -266,7 +266,7 @@ def _get_hosts(vcenter_field=None, username_field=None, password_field=None,
     clusters = _get_clusters(content=content, datacenter=datacenter,
                              cluster=cluster)
     hosts_by_name = {}
-    for cl_name, cl in clusters.iteritems():
+    for cl_name, cl in clusters.items():
         if cluster and cl_name != cluster:
             continue
         hostsview = content.viewManager.CreateContainerView(

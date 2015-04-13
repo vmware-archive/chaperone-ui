@@ -1,0 +1,10 @@
+<div class="form-group-title">{{ menu_name }}: {{ group_name }}</div>
+<pre id="execute-output-{{ menu_name|slugify }}_{{ group_name|slugify }}" class="command-output">{{ log_contents }}</pre>
+<form id="execute-form" action="/execute/run" method="post">
+  {% csrf_token %}
+  <input type="hidden" name="mname" value="{{ menu_name }}"/>
+  <input type="hidden" name="gname" value="{{ group_name }}"/>
+  {% for act in actions %}{% if act.input == 'checkbox' %}<span class="submit-options"><label><input type="checkbox" name="{{ act.id }}" value="1"/>&nbsp;{{ act.name|default:act.id }}</label></span>
+    {% else %}<button type="submit" class="btn btn-primary execute-btn" name="aid" value="{{ act.id }}" data-mgid="{{ menu_name|slugify }}_{{ group_name|slugify }}">{{ act.name|default:act.id }}</button>
+  {% endif %}{% endfor %}
+</form>

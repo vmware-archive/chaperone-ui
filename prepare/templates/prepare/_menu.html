@@ -1,11 +1,10 @@
 <div id="prepare-menu" class="menu no-display">
   {% for container in containers %}{% for cname, groups in container.items %}<div id="{{ cname|slugify }}" class="expand-collapse-container">
-    <div class="collapsible"></div>
-    <span class="container-name">{{ cname }}</span>
+    <div class="collapsible"></div> {{ cname }}
   </div>
   <div id="groups-{{ cname|slugify }}" class="expand-collapse-groups">
-    {% for group in groups %}{% for gname, _ in group.items %}<div id="{{ cname|slugify }}_{{ gname|slugify }}" class="clickable">
-      <span id="status-{{ cname|slugify}}_{{ gname|slugify }}" class="group-status"></span><img id="loading-{{ cname|slugify }}_{{ gname|slugify }}" src="{{ STATIC_URL }}vmosui/img/loading-sm.gif" class="loading-sm no-display">&nbsp;<span class="group-name">{{ gname }}</span>
+    {% for group in groups %}{% for gname, _ in group.items %}<div id="{{ cname|slugify }}_{{ gname|slugify }}" class="clickable" data-menu="{{ menu_name }}" data-container="{{ cname }}" data-group="{{ gname }}">
+      <span id="status-{{ cname|slugify}}_{{ gname|slugify }}" class="group-status"></span><img id="loading-{{ cname|slugify }}_{{ gname|slugify }}" src="{{ STATIC_URL }}vmosui/img/loading-sm.gif" class="loading-sm no-display">&nbsp;{{ gname }}
     </div>{% endfor %}{% endfor %}
   </div>{% endfor %}{% endfor %}
 </div>

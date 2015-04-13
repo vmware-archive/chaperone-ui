@@ -60,9 +60,8 @@ vmosui.utils = {
     $form.find('input.file-checkbox:checked').each(function(index) {
       if (!$('#current-' + this.id).length && !$('#file-' + this.id).val()) {
         var $input = $(this);
-        var section = $input.closest('div.form-section')
-                        .find('div.form-section-title').text();
-        var field = $input.parent().find('span.form-field-name').text();
+        var section = $input.attr('data-section');
+        var field = $input.attr('data-field');
         message += 'File missing for ' + section + ': ' + field + '.<br/>';
         $input.closest('div.form-field').addClass(errorClass);
       }
@@ -81,13 +80,6 @@ vmosui.utils = {
       }
     });
     return values;
-  },
-
-  getNavCname: function(div) {
-    /* Get clickable nav item's container name. */
-    return $(div).closest('div.expand-collapse-groups')
-             .prev('div.expand-collapse-container')
-             .find('span.container-name').text();
   },
 
   loadGroup: function(containerName, groupName) {
@@ -161,7 +153,7 @@ vmosui.utils = {
     });
   },
 
-  openLeftnavContainer: function(btnId) {
+  openLeftnavMenu: function(btnId) {
     var $button = $('#' + btnId);
     if ($button.hasClass('active-btn')) {
       /* Already on this. */
@@ -187,9 +179,9 @@ vmosui.utils = {
         url: '/prepare/status',
         success: function(data) {
           $('#prepare-menu div.clickable').each(function(index) {
-            var containerName = vmosui.utils.getNavCname(this);
             var $div = $(this);
-            var groupName = $div.find('span.group-name').text();
+            var containerName = $div.attr('data-container');
+            var groupName = $div.attr('data-group');
             var cgid = this.id;
 
             if (data[containerName][groupName].complete) {
@@ -224,8 +216,8 @@ vmosui.utils = {
 
     if ($div.parents('#prepare-menu').length) {
       /* Show form to set the group's answers. */
-      var containerName = vmosui.utils.getNavCname($div[0]);
-      var groupName = $div.find('span.group-name').text();
+      var containerName = $div.attr('data-container');
+      var groupName = $div.attr('data-group');
       vmosui.utils.loadGroup(containerName, groupName);
     }
 
@@ -236,17 +228,18 @@ vmosui.utils = {
         /* Nothing to do. */
         return;
       }
+      var menuName = $div.attr('data-menu');
+      var groupName = $div.attr('data-group');
 
       /* Fill in the page contents based on the action given. */
       $('#loading').show();
-      var id = itemId;
       /* Add parent div first, so other functions know what page this is. */
-      $('#contents').html('<div id="' + id +'-contents"></div>');
+      $('#contents').html('<div id="contents-' + itemId +'"></div>');
       $.ajax({
         url: action,
+        data: { mname: menuName, gname: groupName },
         success: function(response) {
-          $('#' + id + '-contents').html(response);
-          $('#contents div.form-group-title').append(' ' + $div.text());
+          $('#contents-' + itemId).html(response);
         },
         error: function(jqxhr, status, error) {
           vmosui.utils.ajaxError(jqxhr, status, error);
@@ -256,23 +249,11 @@ vmosui.utils = {
           $('#loading').hide();
         }
       });
-    }
 
-    if ($div.hasClass('btn-command')) {
-      /* Update log viewers periodically. */
-      var idArr = itemId.split('-');
-      var commandType = idArr[0];
-      var thingType = idArr[1];
-
-      if (commandType == 'configure') {
-        setTimeout(function() {
-          vmosui.utils.updateConfigureLogView(thingType);
-        }, 2000);
-      } else {
-        setTimeout(function() {
-          vmosui.utils.updateDeployLogView(thingType);
-        }, 2000);
-      }
+      /* Update log viewer periodically. */
+      setTimeout(function() {
+        vmosui.utils.updateLogView(itemId, menuName, groupName);
+      }, 2000);
     }
   },
 
@@ -334,20 +315,21 @@ vmosui.utils = {
     });
   },
 
-  updateConfigureLogView: function(configureType) {
+  updateLogView: function(itemId, menuName, groupName) {
     $.ajax({
-      url: '/configure/tail/' + configureType,
+      url: '/execute/tail',
+      data: { mname: menuName, gname: groupName },
       success: function(response) {
         /* Show recent output and scroll to the bottom. */
-        var $output = $('#configure-' + configureType + '-output');
+        var $output = $('#execute-output-' + itemId);
         if (response && $output.length && response != $output.text()) {
           $output.text(response).scrollTop($output[0].scrollHeight);
         }
 
         /* Schedule another update, if we're still on the page. */
-        if ($('#configure-' + configureType + '-contents').length) {
+        if ($('#contents-' + itemId).length) {
           setTimeout(function() {
-            vmosui.utils.updateConfigureLogView(configureType);
+            vmosui.utils.updateLogView(itemId, menuName, groupName);
           }, 2000);
         }
       },
@@ -356,29 +338,6 @@ vmosui.utils = {
       }
     });
   },
-
-  updateDeployLogView: function(deployType) {
-    $.ajax({
-      url: '/deploy/tail/' + deployType,
-      success: function(response) {
-        /* Show recent output and scroll to the bottom. */
-        var $output = $('#deploy-' + deployType + '-output');
-        if (response && $output.length && response != $output.text()) {
-          $output.text(response).scrollTop($output[0].scrollHeight);
-        }
-
-        /* Schedule another update, if we're still on the page. */
-        if ($('#deploy-' + deployType + '-contents').length) {
-          setTimeout(function() {
-            vmosui.utils.updateDeployLogView(deployType);
-          }, 2000);
-        }
-      },
-      error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
-      }
-    });
-  }
 };
 
 vmosui.addInitFunction(function() {
@@ -493,7 +452,7 @@ vmosui.addInitFunction(function() {
         if (!activeButton || !$('#' + activeButton).length) {
           activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
         }
-        vmosui.utils.openLeftnavContainer(activeButton);
+        vmosui.utils.openLeftnavMenu(activeButton);
 
         /* Remove modal. */
         $('#modal-vcenter').remove();
@@ -627,69 +586,20 @@ vmosui.addInitFunction(function() {
     return false;
   });
 
-  /* Start deployment. */
-  $(document).on('click', '#deploy-validate, #deploy-run', function(event) {
-    var values = vmosui.utils.getFormValues($('#deploy-form')[0]);
+  /* Execute commands. */
+  $(document).on('click', '#execute-form button.execute-btn', function(event) {
+    var values = vmosui.utils.getFormValues($('#execute-form')[0]);
     if (!values) {
         return false;
     }
+    var $button = $(this);
+    values.append(this.name, $button.val());
 
-    var action = 'validate';
-    if (this.id == 'deploy-run') {
-        action = 'run';
-    }
-    values.append('action', action);
-
-    var deployType = $('#deploy-form input[name="dtype"]').val();
-    var message = 'Starting to ' + action + '...\n';
-    $('#deploy-' + deployType + '-output').text(message);
-
+    var message = 'Starting ' + $button.text().toLowerCase() + '...\n';
+    var mgid = $button.attr('data-mgid');
+    $('#execute-output-' + mgid).text(message);
     $.ajax({
-      url: '/deploy/run/' + deployType,
-      type: 'POST',
-      data: values,
-      error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
-      },
-      /* Need these for sending FormData. */
-      processData: false,
-      contentType: false
-    });
-
-    /* Prevent normal form submit action. */
-    return false;
-  });
-
-  /* Start configuration. */
-  $(document).on('click', '#configure-validate, #configure-run',
-                 function(event) {
-    var values = vmosui.utils.getFormValues($('#configure-form')[0]);
-    if (!values) {
-        return false;
-    }
-
-    var action = 'validate';
-    if (this.id == 'configure-run') {
-        action = 'run';
-    }
-    values.append('action', action);
-
-    var configureType = $('#configure-form input[name="ctype"]').val();
-    /* Create area for output, if it doesn't exist. */
-    if (!$('#configure-' + configureType + '-output').length) {
-      var pre = '<pre id="configure-' + configureType +
-                '-output" class="command-output"></pre>';
-      $('#configure-' + configureType + '-contents').append(pre);
-
-      /* Scroll to the output so user sees it exists. */
-      $('html').scrollTop($('#configure-' + configureType +
-                            '-output').offset().top);
-    }
-    var message = 'Starting to ' + action + '...\n';
-    $('#configure-' + configureType + '-output').text(message);
-
-    $.ajax({
-      url: '/configure/run/' + configureType,
+      url: '/execute/run',
       type: 'POST',
       data: values,
       error: function(jqxhr, status, error) {
@@ -706,7 +616,7 @@ vmosui.addInitFunction(function() {
 
   /* Change active leftnav button. */
   $('#leftnav div.leftnav-btn').click(function(event) {
-    vmosui.utils.openLeftnavContainer(this.id);
+    vmosui.utils.openLeftnavMenu(this.id);
   });
 
   $('#leftnav div.clickable').click(function(event) {

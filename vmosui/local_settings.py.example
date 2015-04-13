@@ -19,59 +19,54 @@ LOGIN_URL = '/login'
 
 ANSWER_FILE_DIR = '/var/lib/vmos/'
 # ANSWER_FILE_BASE schema:
-# - <container_name>
+# - <PREPARE_MENU>
+#     - <container_name>
+#         - <group_name>
+#             - <section_name>
+#                 - id: <attribute_id>
+#                   (name: <attribute_name> - defaults to <attribute_id>)
+#                   (default: <default_value> - defaults to '')
+#                   (input: checkbox|file|dropdown - defaults to text box)
+#                   (show: <attr_id_1>,<attr_id_2>,<attr_id_3>)
+#                   (optional: 1)
+#                   (help: <help_text>)
+#                   (options: (comp_vc|comp_vc_username|comp_vc_password|
+#                              comp_vc_datacenter|comp_vc_cluster|comp_vc_hosts|
+#                              comp_vc_datastores|comp_vc_networks|
+#                              mgmt_vc|mgmt_vc_username|mgmt_vc_password|
+#                              mgmt_vc_datacenter|mgmt_vc_cluster|mgmt_vc_hosts|
+#                              mgmt_vc_datastores_mgmt_vc_networks)
+#                        OR
+#                        - id: <dropdown_option_id>
+#                          (name: <dropdown_option_name> - defaults to
+#                           <dropdown_option_id>)
+#                          (show: <attr_id_1>,<attr_id_2>,<attr_id_3>))
+# - <menu_name>
 #     - <group_name>
-#         - <section_name>
-#             - id: <attribute_id>
-#               (name: <attribute_name>)
-#               (default: <default_value)
-#               (input: checkbox|file|dropdown)
-#               (show: <attr_id1>,<attr_id2>,<attr_id3>)
-#               (optional: 1)
-#               (readonly: 1)
-#               (help: <help_text>)
-#               (options: (comp_vc|comp_vc_username|comp_vc_password|
-#                          comp_vc_datacenters|comp_vc_clusters|comp_vc_hosts|
-#                          comp_vc_datastores|comp_vc_networks|
-#                          mgmt_vc|mgmt_vc_username|mgmt_vc_password|
-#                          mgmt_vc_datacenters|mgmt_vc_clusters|mgmt_vc_hosts|
-#                          mgmt_vc_datastores_mgmt_vc_networks)
-#                OR
-#                    - id: <dropdown_option_id>
-#                      (name: <dropdown_option_name>)
-#                      (show: <attr_id1>,<attr_id2>,<attr_id3>))
+#         - id: <action_id>
+#           (name: <action_name> - defaults to <action_id>)
+#           (input: checkbox - defaults to button)
+#           (commands:
+#                - <command_1>
+#                - <command_2>
+#                - <command_3>
+#            OR
+#            argument: <argument_value> - passed in to all commands in this
+#            action)
 #
 # Keep all list items in the order that they should appear in when displayed.
-# Each container and group is a heading in the nav menu for the "Prepare" step.
-# Keys for the answer file are stored in the "id" attribute of the sections.
-# Each section is displayed as a part of the form for its group.
+# Each container and group is a heading in the nav menu for the prepare step.
+# Keys for the answer file are stored in the "id" attribute of the sections, so
+# each prepare id must be unique. Sections are displayed in the group's form.
+# Similarly, non-prepare menu action ids must be unique within a group.
 ANSWER_FILE_BASE = 'base.yml'
 ANSWER_FILE_DEFAULT = 'answerfile.yml'
 
 VCENTER_SETTINGS = '%s/vcenter.yml' % ANSWER_FILE_DIR
+INPUT_OPTIONS = '%s/vcenter_options.yml' % ANSWER_FILE_DIR
 
+# Name of the list in ANSWER_FILE_BASE that contains answer file attributes.
+PREPARE_MENU = 'Prepare'
 PREPARE_FILES_DIR = '/var/lib/vmos/prepare/'
-INPUT_OPTIONS = '%s/inputoptions.yml' % ANSWER_FILE_DIR
 
 VMOS_LOG_DIR = '/var/log/vmos/'
-
-NSX_DEPLOY_LOG = 'nsx-deploy.log'
-NSX_CONFIGURE_LOG = 'nsx-configure.log'
-SDDC_DEPLOY_LOG = 'sddc-deploy.log'
-SDDC_CONFIGURE_LOG = 'sddc-configure.log'
-
-DEBUG_OPTION = '-vvv'
-
-# List of NSX commands, one string per command and its arguments.
-# Example: [ 'echo "Hello World"', 'ls -la', ]
-NSX_DEPLOY_VALIDATE = []
-NSX_DEPLOY_RUN = []
-NSX_CONFIGURE_VALIDATE = []
-NSX_CONFIGURE_RUN = []
-
-# List of SDDC commands, one string per command and its arguments.
-# Example: [ 'echo "Hello World"', 'ls -la', ]
-SDDC_DEPLOY_VALIDATE = []
-SDDC_DEPLOY_RUN = []
-SDDC_CONFIGURE_VALIDATE = []
-SDDC_CONFIGURE_RUN = []

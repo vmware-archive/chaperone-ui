@@ -34,8 +34,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'vmosui',
     'prepare',
-    'deploy',
-    'configure',
+    'execute',
 )
 
 MIDDLEWARE_CLASSES = (

@@ -1,9 +1,0 @@
-<div class="form-group-title">Deploy</div>
-<pre id="deploy-{{ deploy_type }}-output" class="command-output">{{ log_contents }}</pre>
-<form id="deploy-form" action="/deploy/run/{{ deploy_type }}" method="get">
-  {% csrf_token %}
-  <input type="hidden" name="dtype" value="{{ deploy_type }}"/>
-  <button id="deploy-validate" type="submit" class="btn btn-primary">Validate</button>
-  <button id="deploy-run" type="submit" class="btn btn-primary">Run</button>
-  <span class="submit-options"><label><input type="checkbox" name="debug" value="1"/> Debug</label></span>
-</form>

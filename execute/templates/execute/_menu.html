@@ -1,0 +1,3 @@
+<div id="{{ menu_name|slugify }}-menu" class="menu no-display">
+  {% for group in groups %}{% for group_name in group.keys %}<div id="{{ menu_name|slugify }}_{{ group_name|slugify }}" class="clickable actionable" data-action="{% url 'execute:index' %}" data-menu="{{ menu_name }}" data-group="{{ group_name }}">{{ group_name }}</div>{% endfor %}{% endfor %}
+</div>

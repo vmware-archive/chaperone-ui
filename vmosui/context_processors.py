@@ -1,3 +1,6 @@
+from django.conf import settings
+
+
 def Vmosui(request):
     """ VMOS UI context processor.
 
@@ -5,5 +8,6 @@ def Vmosui(request):
     """
     context = {
         'user': request.user,
+        'settings': settings,
     }
     return context
