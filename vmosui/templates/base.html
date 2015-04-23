@@ -31,7 +31,7 @@
           SDDC
         </div>
         {% for menu in menus %}{% for menu_name, menu_list in menu.items %}
-          <div id="{{ menu_name|slugify }}" class="leftnav-btn">{{ menu_name }}</div>
+          <div id="{{ menu_name|slugify }}" class="{% if menu_name == settings.PREPARE_MENU %}prepare-btn {% endif %}leftnav-btn">{{ menu_name }}</div>
           {% if menu_name == settings.PREPARE_MENU %}
             {% include "prepare/_menu.html" with containers=menu_list %}
           {% else %}

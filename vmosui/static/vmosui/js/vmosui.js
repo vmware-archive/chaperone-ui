@@ -172,13 +172,13 @@ vmosui.utils = {
     $button.addClass('active-btn');
     $('#' + btnId + '-menu').slideDown();
 
-    if (btnId == 'prepare' &&
-            !$('#prepare-menu span.group-status').first().html().length) {
+    if ($button.hasClass('prepare-btn') &&
+        !$('#' + btnId + '-menu span.group-status').first().html().length) {
       /* Show status of each group, indicating if there are missing values. */
       $.ajax({
         url: '/prepare/status',
         success: function(data) {
-          $('#prepare-menu div.clickable').each(function(index) {
+          $('#' + btnId + '-menu div.clickable').each(function(index) {
             var $div = $(this);
             var containerName = $div.attr('data-container');
             var groupName = $div.attr('data-group');
@@ -214,7 +214,7 @@ vmosui.utils = {
                      .attr('id');
     $.cookie(buttonId + 'Item', $div.attr('id'));
 
-    if ($div.parents('#prepare-menu').length) {
+    if ($div.parents('.prepare-menu').length) {
       /* Show form to set the group's answers. */
       var containerName = $div.attr('data-container');
       var groupName = $div.attr('data-group');
@@ -475,7 +475,7 @@ vmosui.addInitFunction(function() {
   });
 
   /* Allow user to expand or collapse each contianer in the nav. */
-  $('#prepare-menu div.expand-collapse-container').click(function(event) {
+  $('.expand-collapse-container').click(function(event) {
     var cid = this.id;
     $container = $(this);
     var $knob = $container.find('div.collapsible');

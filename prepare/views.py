@@ -292,6 +292,7 @@ def get_group(request):
                              group_name=group_name)
 
     return render(request, 'prepare/_group.html', {
+        'menu_name': settings.PREPARE_MENU,
         'container_name': container_name,
         'group_name': group_name,
         'sections': sections,

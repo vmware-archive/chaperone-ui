@@ -1,5 +1,5 @@
 <div id="contents-prepare">
-  <div class="form-group-title">Prepare {{ container_name }}: {{ group_name }}</div>
+  <div class="form-group-title">{{ menu_name }}: {{ container_name }} / {{ group_name }}</div>
   <div id="{{ container_name|slugify }}_{{ group_name|slugify }}-form">
     <form id="prepare-form" action="{% url 'prepare:save' %}" method="post" enctype="multipart/form-data">
       {% csrf_token %}

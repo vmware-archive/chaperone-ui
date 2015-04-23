@@ -1,4 +1,4 @@
-<div id="prepare-menu" class="menu no-display">
+<div id="{{ menu_name|slugify }}-menu" class="prepare-menu menu no-display">
   {% for container in containers %}{% for cname, groups in container.items %}<div id="{{ cname|slugify }}" class="expand-collapse-container">
     <div class="collapsible"></div> {{ cname }}
   </div>
