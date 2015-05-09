@@ -5,7 +5,7 @@ import yaml
 from django import forms
 from django.conf import settings
 
-from vmosui.utils import getters
+from supervio.utils import getters
 
 
 class DynamicChoiceField(forms.ChoiceField): 

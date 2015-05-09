@@ -1,4 +1,4 @@
-vmosui.utils = {
+supervio.utils = {
   ajaxError: function(jqxhr, status, error) {
     /* Return error message. */
     var message = '';
@@ -37,7 +37,7 @@ vmosui.utils = {
     }
     var answer = confirm('Save changes?');
     if (answer == true) {
-      vmosui.utils.saveGroup($form[0], false);
+      supervio.utils.saveGroup($form[0], false);
     }
   },
 
@@ -84,7 +84,7 @@ vmosui.utils = {
 
   loadGroup: function(containerName, groupName) {
     /* Return form for group. */
-    vmosui.utils.clearMessages();
+    supervio.utils.clearMessages();
     $('#contents').empty();
     $('#loading').show();
     $.ajax({
@@ -94,7 +94,7 @@ vmosui.utils = {
         $('#contents').html(response);
       },
       error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
+        supervio.utils.ajaxError(jqxhr, status, error);
       },
       complete: function() {
         $('#loading').hide();
@@ -142,7 +142,7 @@ vmosui.utils = {
         }
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
+        var message = supervio.utils.ajaxError(jqxhr, status, error);
         $('#vcenter-errors').text(message);
       },
       complete: function(jqxhr, status, error) {
@@ -159,8 +159,8 @@ vmosui.utils = {
       /* Already on this. */
       return;
     }
-    vmosui.utils.confirmSave();
-    vmosui.utils.clearMessages();
+    supervio.utils.confirmSave();
+    supervio.utils.clearMessages();
 
     /* De-activate previously active button. */
     var prevId = $('#leftnav div.leftnav-btn.active-btn').attr('id');
@@ -200,12 +200,12 @@ vmosui.utils = {
     if (!itemId || !$('#' + itemId).length) {
       itemId = $('#' + btnId + '-menu div.clickable').first().attr('id');
     }
-    vmosui.utils.openLeftnavItem(itemId);
+    supervio.utils.openLeftnavItem(itemId);
   },
 
   openLeftnavItem: function(itemId) {
     /* Note which item was last viewed. */
-    vmosui.utils.clearMessages();
+    supervio.utils.clearMessages();
     var $div = $('#' + itemId);
     var activeClass = 'active-item';
     $('#leftnav div.clickable.' + activeClass).removeClass(activeClass);
@@ -218,7 +218,7 @@ vmosui.utils = {
       /* Show form to set the group's answers. */
       var containerName = $div.attr('data-container');
       var groupName = $div.attr('data-group');
-      vmosui.utils.loadGroup(containerName, groupName);
+      supervio.utils.loadGroup(containerName, groupName);
     }
 
     if ($div.hasClass('actionable')) {
@@ -242,7 +242,7 @@ vmosui.utils = {
           $('#contents-' + itemId).html(response);
         },
         error: function(jqxhr, status, error) {
-          vmosui.utils.ajaxError(jqxhr, status, error);
+          supervio.utils.ajaxError(jqxhr, status, error);
           $('#contents').empty();
         },
         complete: function(){
@@ -252,7 +252,7 @@ vmosui.utils = {
 
       /* Update log viewer periodically. */
       setTimeout(function() {
-        vmosui.utils.updateLogView(itemId, menuName, groupName);
+        supervio.utils.updateLogView(itemId, menuName, groupName);
       }, 2000);
     }
   },
@@ -262,14 +262,14 @@ vmosui.utils = {
     var action = $form.attr('action');
     var containerName = $('#prepare-form input[name="cname"]').val();
     var groupName = $('#prepare-form input[name="gname"]').val();
-    var values = vmosui.utils.getFormValues(form);
+    var values = supervio.utils.getFormValues(form);
     if (!values) {
         return false;
     }
-    var cgid = vmosui.utils.getFormCgid();
+    var cgid = supervio.utils.getFormCgid();
 
     /* Send the data. */
-    vmosui.utils.clearMessages();
+    supervio.utils.clearMessages();
     $('#prepare-save').button('loading');
     $('#status-' + cgid).hide();
     $('#loading-' + cgid).show();
@@ -302,7 +302,7 @@ vmosui.utils = {
         }
       },
       error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
+        supervio.utils.ajaxError(jqxhr, status, error);
       },
       complete: function(jqxhr, status, error) {
         $('#loading-' + cgid).hide();
@@ -329,18 +329,18 @@ vmosui.utils = {
         /* Schedule another update, if we're still on the page. */
         if ($('#contents-' + itemId).length) {
           setTimeout(function() {
-            vmosui.utils.updateLogView(itemId, menuName, groupName);
+            supervio.utils.updateLogView(itemId, menuName, groupName);
           }, 2000);
         }
       },
       error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
+        supervio.utils.ajaxError(jqxhr, status, error);
       }
     });
   },
 };
 
-vmosui.addInitFunction(function() {
+supervio.addInitFunction(function() {
   /* Populate vCenter input field's choices. */
   $('#vcenter-form button.connect-btn').click(function(event) {
     var $button = $(this);
@@ -370,7 +370,7 @@ vmosui.addInitFunction(function() {
       var $target = $('#id_' + targetId);
       $target.empty();
     }
-    vmosui.utils.loadVCenterOptions(this, $field[0], values);
+    supervio.utils.loadVCenterOptions(this, $field[0], values);
   });
 
   /* Populate vCenter target input field's choices. */
@@ -398,7 +398,7 @@ vmosui.addInitFunction(function() {
     /* Clear out target input field's choices. */
     var $target = $('#id_' + targetId);
     $target.empty();
-    vmosui.utils.loadVCenterOptions(this, $target[0], values);
+    supervio.utils.loadVCenterOptions(this, $target[0], values);
   });
 
   /* Reset vCenter target input fields. */
@@ -418,7 +418,7 @@ vmosui.addInitFunction(function() {
   $('#vcenter-form').submit(function(event) {
     var $form = $(this);
     var action = $form.attr('action');
-    var values = vmosui.utils.getFormValues(this);
+    var values = supervio.utils.getFormValues(this);
     if (!values) {
         return false;
     }
@@ -452,14 +452,14 @@ vmosui.addInitFunction(function() {
         if (!activeButton || !$('#' + activeButton).length) {
           activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
         }
-        vmosui.utils.openLeftnavMenu(activeButton);
+        supervio.utils.openLeftnavMenu(activeButton);
 
         /* Remove modal. */
         $('#modal-vcenter').remove();
         $('#backdrop-vcenter').remove();
       },
       error: function(jqxhr, status, error) {
-        var message = vmosui.utils.ajaxError(jqxhr, status, error);
+        var message = supervio.utils.ajaxError(jqxhr, status, error);
         $('#vcenter-errors').text(message);
       },
       complete: function(jqxhr, status, error) {
@@ -574,21 +574,21 @@ vmosui.addInitFunction(function() {
      * Reload entire contents versus only the input value, because the
      * display of shown/hidden fields also needs to be reset.
      */
-    var cgid = vmosui.utils.getFormCgid();
-    vmosui.utils.openLeftnavItem(cgid);
+    var cgid = supervio.utils.getFormCgid();
+    supervio.utils.openLeftnavItem(cgid);
     return false;
   });
 
   /* Submit form to save group's answers. */
   $(document).on('submit', '#prepare-form', function(event) {
-    vmosui.utils.saveGroup(this, true);
+    supervio.utils.saveGroup(this, true);
     /* Prevent normal form submit action. */
     return false;
   });
 
   /* Execute commands. */
   $(document).on('click', '#execute-form button.execute-btn', function(event) {
-    var values = vmosui.utils.getFormValues($('#execute-form')[0]);
+    var values = supervio.utils.getFormValues($('#execute-form')[0]);
     if (!values) {
         return false;
     }
@@ -603,7 +603,7 @@ vmosui.addInitFunction(function() {
       type: 'POST',
       data: values,
       error: function(jqxhr, status, error) {
-        vmosui.utils.ajaxError(jqxhr, status, error);
+        supervio.utils.ajaxError(jqxhr, status, error);
       },
       /* Need these for sending FormData. */
       processData: false,
@@ -616,12 +616,12 @@ vmosui.addInitFunction(function() {
 
   /* Change active leftnav button. */
   $('#leftnav div.leftnav-btn').click(function(event) {
-    vmosui.utils.openLeftnavMenu(this.id);
+    supervio.utils.openLeftnavMenu(this.id);
   });
 
   $('#leftnav div.clickable').click(function(event) {
-    vmosui.utils.confirmSave();
-    vmosui.utils.openLeftnavItem(this.id);
+    supervio.utils.confirmSave();
+    supervio.utils.openLeftnavItem(this.id);
   });
 
   /* Warnings to user when leaving the page. */
@@ -632,4 +632,4 @@ vmosui.addInitFunction(function() {
   });
 });
 
-$(document).ready(vmosui.init);
+$(document).ready(supervio.init);

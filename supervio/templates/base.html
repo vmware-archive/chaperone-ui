@@ -11,11 +11,11 @@
     {% comment %} Load CSS sheets before JavaScript {% endcomment %}
     {% block css %}
       <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" rel="stylesheet">
-      <link href="{{ STATIC_URL }}vmosui/css/vmosui.css" rel="stylesheet">
+      <link href="{{ STATIC_URL }}supervio/css/supervio.css" rel="stylesheet">
     {% endblock %}
 
-    <link rel="shortcut icon" href="{{ STATIC_URL }}vmosui/img/favicon.ico">
-    <script src="{{ STATIC_URL }}vmosui/js/base.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="shortcut icon" href="{{ STATIC_URL }}supervio/img/favicon.ico">
+    <script src="{{ STATIC_URL }}supervio/js/base.js" type="text/javascript" charset="utf-8"></script>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -27,8 +27,8 @@
     {% block content %}
       <div id="leftnav">
         <div class="logo">
-          <img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware"><br/>
-          SDDC
+          <img src="{{ STATIC_URL }}supervio/img/vmw_white.png" alt="VMware"><br/>
+          SuperVIO
         </div>
         {% for menu in menus %}{% for menu_name, menu_list in menu.items %}
           <div id="{{ menu_name|slugify }}" class="{% if menu_name == settings.PREPARE_MENU %}prepare-btn {% endif %}leftnav-btn">{{ menu_name }}</div>
@@ -60,7 +60,7 @@
             <div id="success-message" class="text-success">{{ success_message }}</div>
             <div id="error-message" class="text-error">{{ error_message }}</div>
           </div>
-          <div id="loading" class="no-display"><img src="{{ STATIC_URL }}vmosui/img/loading.gif" alt="Loading..."></div>
+          <div id="loading" class="no-display"><img src="{{ STATIC_URL }}supervio/img/loading.gif" alt="Loading..."></div>
           <div id="contents"></div>
         </div>
       </div>
@@ -68,10 +68,10 @@
 
     {% comment %} Placed at the end of the document so the pages load faster {% endcomment %}
     {% block js %}
-      <script src="{{ STATIC_URL }}vmosui/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-      <script src="{{ STATIC_URL }}vmosui/js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}supervio/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}supervio/js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
       <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
-      <script src="{{ STATIC_URL }}vmosui/js/vmosui.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}supervio/js/supervio.js" type="text/javascript" charset="utf-8"></script>
     {% endblock %}
 
     <div id="backdrop-vcenter" class="modal-backdrop" data-backdrop="static" data-keyboard="false"></div>

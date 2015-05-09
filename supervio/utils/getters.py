@@ -34,9 +34,6 @@ MGMT_VC_PASSWORD = 'mgmt_vc_password'
 MGMT_VC_USERNAME = 'mgmt_vc_username'
 MGMT_VC = 'mgmt_vc'
 
-VCENTER_PORT = 443
-
-
 def _get_vcenter_data():
     filename = settings.VCENTER_SETTINGS
     if not os.path.exists(filename):
@@ -60,7 +57,7 @@ def vcenter_connection(vcenter, username, password):
     try:
         service_instance = connect.SmartConnect(host=vcenter, user=username,
                                                 pwd=password,
-                                                port=VCENTER_PORT)
+                                                port=settings.VCENTER_PORT)
     except vim.fault.InvalidLogin as e:
         LOG.error('Could not connect to %s: %s' % (vcenter, e.msg))
         return None

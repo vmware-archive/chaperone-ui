@@ -1,8 +1,8 @@
 from django.conf import settings
 
 
-def Vmosui(request):
-    """ VMOS UI context processor.
+def SuperVIO(request):
+    """ SuperVIO UI context processor.
 
     Adds data needed by all templates to the context.
     """

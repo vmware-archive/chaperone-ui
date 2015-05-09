@@ -83,7 +83,7 @@ a:hover {
   top: 0;
   bottom: 0;
   background-color: #006990;
-  background-image: url('/static/vmosui/img/bg_lb.png');
+  background-image: url('/static/supervio/img/bg_lb.png');
   background-repeat: no-repeat;
   background-position: left 100%;
   background-size: 100%;
@@ -224,7 +224,7 @@ a:hover {
   font-size: 20px;
 }
 
-#vmosui-login {
+#supervio-login {
   background-color: #EEEEEE;
   text-align: center;
   padding-top: 40px;
@@ -336,7 +336,7 @@ input[type="file"].no-display {
   height: 320px;
   background-color: #006990;
   border-radius: 14px;
-  background-image: url('/static/vmosui/img/bg_rt.png');
+  background-image: url('/static/supervio/img/bg_rt.png');
   background-repeat: no-repeat;
   background-position: right 0;
 }

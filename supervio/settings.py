@@ -1,5 +1,5 @@
 """
-Django settings for vmosui project.
+Django settings for supervio project.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.6/topics/settings/
@@ -19,7 +19,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 LOCAL_PATH = os.path.dirname(os.path.abspath(__file__))
 
 # SECURITY WARNING: keep the secret key used in production secret!
-from vmosui.utils import secret_key
+from supervio.utils import secret_key
 SECRET_KEY = secret_key.generate_or_read_from_file(os.path.join(
     LOCAL_PATH, '.secret_key_store'))
 
@@ -32,7 +32,7 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'vmosui',
+    'supervio',
     'prepare',
     'execute',
 )
@@ -46,9 +46,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'vmosui.urls'
+ROOT_URLCONF = 'supervio.urls'
 
-WSGI_APPLICATION = 'vmosui.wsgi.application'
+WSGI_APPLICATION = 'supervio.wsgi.application'
 
 
 # Internationalization
@@ -73,6 +73,6 @@ STATIC_URL = '/static/'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': '/opt/vmosui/vmosui.db',
+        'NAME': '/opt/supervio/supervio.db',
     }
 }

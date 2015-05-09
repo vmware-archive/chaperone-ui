@@ -1,13 +1,13 @@
 /*
- * This is the base Vmosui JavaScript object. There is only ever one of
- * these loaded (referenced as vmosui with a lower-case t) which happens
+ * This is the base SuperVIO JavaScript object. There is only ever one of
+ * these loaded (referenced as supervio with a lower-case t) which happens
  * immediately after the definition below.
  *
- * Scripts that are dependent on functionality defined in the Vmosui object
+ * Scripts that are dependent on functionality defined in the SuperVIO object
  * must be included after this script in templates/base.html.
  */
-var Vmosui = function () {
-  var vmosui = {},
+var SuperVIO = function () {
+  var supervio = {},
   initFunctions = [];
 
   /*
@@ -16,12 +16,12 @@ var Vmosui = function () {
    * handlers or any other initialization functions which should preceed user
    * interaction but rely on DOM readiness.
    */
-  vmosui.addInitFunction = function (fn) {
+  supervio.addInitFunction = function (fn) {
     initFunctions.push(fn);
   };
 
   /* Call all initialization functions and clear the queue. */
-  vmosui.init = function () {
+  supervio.init = function () {
     for (var i = 0; i < initFunctions.length; i += 1) {
       initFunctions[i]();
     }
@@ -30,8 +30,8 @@ var Vmosui = function () {
     initFunctions = [];
   };
 
-  return vmosui;
+  return supervio;
 };
 
-/* Create the one and only vmosui object. */
-var vmosui = new Vmosui();
+/* Create the one and only supervio object. */
+var supervio = new SuperVIO();

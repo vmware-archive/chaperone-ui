@@ -16,27 +16,27 @@ $ sudo pip install pyvmomi
 
 Install app.
 $ cd /opt
-$ git clone http://nsxgitlab.nicira.eng.vmware.com/nsbu-sas/the-ui.git vmosui
-$ mkdir /opt/vmosui/.blackhole
+$ git clone http://nsxgitlab.nicira.eng.vmware.com/nsbu-sas/the-ui.git supervio
+$ mkdir /opt/supervio/.blackhole
 # Same user and group as in Apache conf's WSGIDaemonProcess
-$ sudo chown -R nicira:nicira /opt/vmosui/
+$ sudo chown -R nicira:nicira /opt/supervio/
 
-Create /opt/vmosui/vmosui/local_settings.py.
-$ cp /opt/vmosui/vmosui/local_settings.py.example /opt/vmosui/vmosui/local_settings.py
+Create /opt/supervio/supervio/local_settings.py.
+$ cp /opt/supervio/supervio/local_settings.py.example /opt/supervio/supervio/local_settings.py
 - *_DIR directories need to be created if not already existing. All these
   directories and files underneath them must be owned by same user and group
   from Apache conf's WSGIDaemonProcess.
 $ mkdir <ANSWER_FILE_DIR>
 $ chown -R nicira:nicira <ANSWER_FILE_DIR>
 $ mkdir <PREPARE_FILES_DIR>
-$ mkdir <VMOS_LOG_DIR>
-$ chown -R nicira:nicira <VMOS_LOG_DIR>
+$ mkdir <SUPERVIO_LOG_DIR>
+$ chown -R nicira:nicira <SUPERVIO_LOG_DIR>
 - Make sure ANSWER_FILE_BASE is in its appropriate location.
 
 Create Django database and tables.
 $ sudo apt-get install sqlite3
   (sqlite3)
-$ touch /opt/vmosui/vmosui.db
+$ touch /opt/supervio/supervio.db
 $ python manage.py syncdb --noinput
 
 Install Apache and mod_wsgi.
@@ -47,35 +47,35 @@ $ sudo apt-get install apache2
 $ sudo apt-get install libapache2-mod-wsgi
   (libapache2-mod-wsgi)
 $ cd /etc/apache2/sites-available/
-$ sudo vim vmosui 
+$ sudo vim supervio 
   <VirtualHost *:80>
       #ServerName www.example.com
       #ServerAlias example.com
       #ServerAdmin webmaster@example.com
 
-      DocumentRoot /opt/vmosui/.blackhole/
-      Alias /static/ /opt/vmosui/vmosui/static/
+      DocumentRoot /opt/supervio/.blackhole/
+      Alias /static/ /opt/supervio/supervio/static/
 
       <Directory />
           Options FollowSymLinks
           AllowOverride None
       </Directory>
 
-      <Directory /opt/vmosui/>
+      <Directory /opt/supervio/>
           Options Indexes FollowSymLinks MultiViews
           AllowOverride None
           Order allow,deny
           Allow from all
       </Directory>
 
-      WSGIDaemonProcess vmosui user=nicira group=nicira processes=2 threads=15 display-name=%{GROUP}
-      WSGIProcessGroup vmosui
-      WSGIScriptAlias / /opt/vmosui/vmosui/wsgi/wsgi.py
+      WSGIDaemonProcess supervio user=nicira group=nicira processes=2 threads=15 display-name=%{GROUP}
+      WSGIProcessGroup supervio
+      WSGIScriptAlias / /opt/supervio/supervio/wsgi/wsgi.py
 
-      ErrorLog /var/log/apache2/vmosui_error.log
+      ErrorLog /var/log/apache2/supervio_error.log
       LogLevel info
-      CustomLog /var/log/apache2/vmosui_access.log combined
+      CustomLog /var/log/apache2/supervio_access.log combined
   </VirtualHost>
 $ sudo a2dissite default
-$ sudo a2ensite vmosui
+$ sudo a2ensite supervio
 $ sudo service apache2 restart

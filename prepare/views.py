@@ -10,7 +10,7 @@ from django.core.servers.basehttp import FileWrapper
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from vmosui.utils import getters
+from supervio.utils import getters
 
 
 LOG = logging.getLogger(__name__)
@@ -43,7 +43,7 @@ def _get_sections(container_name=None, group_name=None):
     # metadata for all attributes, or only the section for the given group in
     # the given container.
     #
-    # See vmosui/local_settings.py.example for schema.
+    # See supervio/local_settings.py.example for schema.
     base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
     menus = _get_contents(base)
     containers = []
@@ -201,7 +201,7 @@ def _get_attributes_by_id(container_name=None, group_name=None):
     # Return all attribute metadata, keyed by attribute id, optionally for only
     # the given group in the given container.
     #
-    # See vmosui/local_settings.py.example for schema.
+    # See supervio/local_settings.py.example for schema.
     containers_or_sections = _get_sections(container_name=container_name,
                                            group_name=group_name)
     if group_name:

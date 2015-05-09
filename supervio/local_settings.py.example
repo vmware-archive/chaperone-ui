@@ -8,16 +8,16 @@ DEBUG = False
 TEMPLATE_DEBUG = False
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-    'vmosui.context_processors.Vmosui',
+    'supervio.context_processors.SuperVIO',
 )
 
-ALLOWED_HOSTS = ['vmos']
+ALLOWED_HOSTS = ['supervio']
 
-AUTHENTICATION_BACKENDS = ('vmosui.auth.PamBackend',)
+AUTHENTICATION_BACKENDS = ('supervio.auth.PamBackend',)
 
 LOGIN_URL = '/login'
 
-ANSWER_FILE_DIR = '/var/lib/vmos/'
+ANSWER_FILE_DIR = '/opt/supervio/answers'
 # ANSWER_FILE_BASE schema:
 # - <PREPARE_MENU>
 #     - <container_name>
@@ -62,11 +62,12 @@ ANSWER_FILE_DIR = '/var/lib/vmos/'
 ANSWER_FILE_BASE = 'base.yml'
 ANSWER_FILE_DEFAULT = 'answerfile.yml'
 
+VCENTER_PORT = 443
 VCENTER_SETTINGS = '%s/vcenter.yml' % ANSWER_FILE_DIR
 INPUT_OPTIONS = '%s/vcenter_options.yml' % ANSWER_FILE_DIR
 
 # Name of the list in ANSWER_FILE_BASE that contains answer file attributes.
 PREPARE_MENU = 'Prepare'
-PREPARE_FILES_DIR = '/var/lib/vmos/prepare/'
+PREPARE_FILES_DIR = '/opt/supervio/prepare/'
 
-VMOS_LOG_DIR = '/var/log/vmos/'
+SUPERVIO_LOG_DIR = '/var/log/supervio/'

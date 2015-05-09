@@ -11,11 +11,11 @@
     {% comment %} Load CSS sheets before JavaScript {% endcomment %}
     {% block css %}
       <link href="{{ STATIC_URL }}bootstrap/css/bootstrap.min.css" rel="stylesheet">
-      <link href="{{ STATIC_URL }}vmosui/css/vmosui.css" rel="stylesheet">
+      <link href="{{ STATIC_URL }}supervio/css/supervio.css" rel="stylesheet">
     {% endblock %}
 
-    <link rel="shortcut icon" href="{{ STATIC_URL }}vmosui/img/favicon.ico">
-    <script src="{{ STATIC_URL }}vmosui/js/base.js" type="text/javascript" charset="utf-8"></script>
+    <link rel="shortcut icon" href="{{ STATIC_URL }}supervio/img/favicon.ico">
+    <script src="{{ STATIC_URL }}supervio/js/base.js" type="text/javascript" charset="utf-8"></script>
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
@@ -23,7 +23,7 @@
     <![endif]-->
   </head>
 
-  <body id="vmosui-login">
+  <body id="supervio-login">
     {% block content %}
       <div id="messages">
         <div id="success-message" class="text-success">{{ success_message }}</div>
@@ -34,8 +34,8 @@
         <input type="hidden" name="next" value="{{ next_url }}"/>
         <div class="form-section">
           <div class="logo">
-            <img src="{{ STATIC_URL }}vmosui/img/vmw_white.png" alt="VMware"><br/>
-            SDDC
+            <img src="{{ STATIC_URL }}supervio/img/vmw_white.png" alt="VMware"><br/>
+            SuperVIO
           </div>
           <div class="form-field">
             <!--[if lt IE 10]>Username:<![endif]--><input type="text" name="username" class="form-control" value="{{ username }}" placeholder="Username" autofocus="autofocus"/>
@@ -52,10 +52,10 @@
 
     {% comment %} Placed at the end of the document so the pages load faster {% endcomment %}
     {% block js %}
-      <script src="{{ STATIC_URL }}vmosui/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
-      <script src="{{ STATIC_URL }}vmosui/js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}supervio/js/jquery.min.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}supervio/js/jquery.cookie.js" type="text/javascript" charset="utf-8"></script>
       <script src="{{ STATIC_URL }}bootstrap/js/bootstrap.min.js" type="text/javascript" charset="utf-8"></script>
-      <script src="{{ STATIC_URL }}vmosui/js/vmosui.js" type="text/javascript" charset="utf-8"></script>
+      <script src="{{ STATIC_URL }}supervio/js/supervio.js" type="text/javascript" charset="utf-8"></script>
     {% endblock %}
   </body>
 </html>
