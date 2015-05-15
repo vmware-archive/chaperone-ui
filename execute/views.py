@@ -72,29 +72,37 @@ def run_commands(request):
     action_id = request.REQUEST.get('aid')
     actions = _get_actions(menu_name, group_name)
 
+    LOG.debug('Preparing to run command from %s/%s/%s' % (menu_name, group_name, action_id))
+
     commands = []
     arguments = []
     for act in actions:
         act_id = act['id']
+        LOG.debug('... checking act_id (%s) == action_id (%s)' % (act_id, action_id))
         if act_id == action_id:
+            LOG.debug('... found act_id (%s) == action_id (%s)' % (act_id, action_id))
             commands = act.get('commands', [])
         arg = act.get('argument')
         if arg and request.REQUEST.get(act_id) == '1':
+            LOG.debug('... appending arg: %s' % arg)
             arguments.append(arg)
 
     logname = _get_logname(menu_name, group_name)
     with open(logname, 'w+') as lp:
         num_cmds = len(commands)
+        LOG.debug('... num_cmds = %d' % num_cmds)
         for i in range(0, num_cmds):
             cmd = commands[i]
             if arguments:
                 cmd = '%s %s' % (cmd, ' '.join(arguments))
 
+            LOG.debug('... cmd: %s' % cmd)
+
             # Set Python output to be unbuffered so any output is returned
             # immediately.
             env = os.environ
             env['PYTHONUNBUFFERED'] = '1'
-            LOG.info('Running "%s"' % cmd)
+            LOG.debug('Running "%s"' % cmd)
             proc = subprocess.Popen(cmd.split(), stdout=lp, stderr=lp, env=env)
             # Wait for each process to finish except for the last one, in case
             # later commands have dependencies on earlier ones.
