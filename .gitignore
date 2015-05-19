@@ -7,3 +7,6 @@
 *.db
 .secret_key_store
 local_settings.py
+supervio/.blackhole
+# Python virtualenv
+env
