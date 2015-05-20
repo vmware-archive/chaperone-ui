@@ -107,5 +107,13 @@ LOGGING = {
             'handlers': ['file'],
             'level': 'DEBUG',
         },
+        'execute': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
+        'prepare': {
+            'handlers': ['file'],
+            'level': 'DEBUG',
+        },
     }
 }
