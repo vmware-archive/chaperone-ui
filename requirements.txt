@@ -1,5 +1,0 @@
-Django
-requests
-six
-pyvmomi
-lockfile
