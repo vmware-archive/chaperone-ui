@@ -3,3 +3,20 @@
 {% block title %}{% trans "VMware SuperVIO" %}{% endblock %}
 
 {% block page_id %}supervio-index{% endblock %}
+
+{% block content %}
+<h1>Welcome to SuperVIO</h1>
+<p>There's not a lot of content here yet, but it's coming soon.</p>
+<p>Here is a general flow of what to do:</p>
+<ol>
+  <li>Install the SDDC Basis for VIO
+    <ul>
+      <li>Provision ESXi Hosts via AutoDeploy</li>
+      <li>Deploy and Configure vCenter Server</li>
+    </ul>
+  </li>
+  <li>Select the "User:" menu on the upper right and go to vCenter Settings</li>
+  <li>Deploy and Configure VIO</li>
+  <li>Deploy OpenStack</li>
+</ol>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% block title %}{% trans "VMware SuperVIO" %}{% endblock %}
+
+{% block page_id %}supervio-vcenter{% endblock %}
+
+{% block content %}
+    <div id="backdrop-vcenter" class="modal-backdrop" data-backdrop="static" data-keyboard="false"></div>
+    <div id="modal-vcenter" class="modal show" tabindex="-1" role="dialog" aria-labelledby="modal-vcenter" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">vCenter Settings</h4>
+            <div id="vcenter-errors" class="text-error"></div>
+          </div>
+          <form id="vcenter-form" action="{% url 'savevc' %}" method="post" role="form">
+            <div class="modal-body">
+              {% csrf_token %}
+              <div class="modal-section right-border">
+                {% for field in vcenter_form %}<div id="{{ field.html_name }}" class="form-field">
+                  {% if '_datacenter' in field.html_name %}<button type="button" class="btn btn-sm {% if field.field.initial %}btn-secondary{% else %}btn-primary{% endif %} connect-btn" data-loading-text="Connecting...">Get Datacenters</button>{% endif %}
+                  {% if '_datacenter' in field.html_name or '_cluster' in field.html_name %}<div class="{% if field.field.initial %}display{% else %}no-display{% endif %}">{% endif %}
+                    <div id="error-{{ field.html_name }}"></div>
+                    {{ field.label_tag }}
+                    {{ field }}
+                    {% if field.field.widget.input_type == 'password' %}<label>
+                      <input class="form-control checkbox password-checkbox toggle-show" type="checkbox"/>&nbsp;Show password
+                    </label><br/>{% endif %}
+                    {% if '_datacenter' in field.html_name or '_cluster' in field.html_name %}</div>{% endif %}
+                  </div>
+                {% if forloop.counter == 5 %}</div>
+                <div class="modal-section left-border">{% endif %}
+              {% endfor %}</div>
+            </div>
+            <div class="modal-footer">
+              <button id="vcenter-save" type="submit" class="btn btn-primary{% if missing_values %} no-display {% endif %}" data-loading-text="Saving...">Continue</button>
+              <a href="{% url 'logout' %}"><button type="button" class="btn btn-secondary">Log Out</button></a>
+            </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+{% endblock %}

@@ -27,17 +27,8 @@ def index(request):
         menus = yaml.load(fp)
         fcntl.flock(fp, fcntl.LOCK_UN)
 
-    vcenter_form = VCenterForm()
-    missing_values = False
-    for field in vcenter_form:
-        if not field.field.initial:
-            missing_values = True
-            break
-
     return render(request, 'supervio/index.html', {
-        'menus': menus,
-        'vcenter_form': vcenter_form,
-        'missing_values': missing_values,
+        'menus': menus
     })
 
 
@@ -107,6 +98,28 @@ def list_options(request):
     else:
         data['errors'] = ['Invalid username or password.']
     return HttpResponse(json.dumps(data), content_type='application/json')
+
+
+def vcenter_settings(request):
+    """Main page, where the magic happens."""
+    filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    with open(filename, 'r') as fp:
+        fcntl.flock(fp, fcntl.LOCK_SH)
+        menus = yaml.load(fp)
+        fcntl.flock(fp, fcntl.LOCK_UN)
+
+    vcenter_form = VCenterForm()
+    missing_values = False
+    for field in vcenter_form:
+        if not field.field.initial:
+            missing_values = True
+            break
+
+    return render(request, 'supervio/vcenter.html', {
+        'menus': menus,
+        'vcenter_form': vcenter_form,
+        'missing_values': missing_values,
+    })
 
 
 def save_vcenter(request):

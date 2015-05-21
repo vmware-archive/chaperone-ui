@@ -15,6 +15,7 @@ urlpatterns = patterns('',
     url(r'^logout$', views.logout, name='logout'),
     url(r'^options$', login_required(views.list_options), name='options'),
     url(r'^savevc$', login_required_ajax(views.save_vcenter), name='savevc'),
+    url(r'^vcenter$', login_required(views.vcenter_settings), name='vcenter'),
     url(r'^prepare/', include('prepare.urls', namespace='prepare')),
     url(r'^execute/', include('execute.urls', namespace='execute')),
 )
