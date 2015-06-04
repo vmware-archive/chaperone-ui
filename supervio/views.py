@@ -129,10 +129,13 @@ def vcenter_settings(request):
 
 def save_vcenter(request):
     """Save entered vCenter settings."""
-    form = VCenterForm(request.POST)
+    try:
+        form = VCenterForm(request.POST)
+    except:
+		form = None
     data = {}
 
-    if form.is_valid():
+    if form and form.is_valid():
         errors = []
 
         comp_vc = str(form.cleaned_data[getters.COMP_VC])
@@ -351,6 +354,10 @@ def save_vcenter(request):
             write_answer_file(request, answers_filename,
                               new_answers=new_answers)
     else:
-        LOG.error('Unable to save vCenter settings: %s' % form.errors)
-        data['field_errors'] = form.errors
+        if form is not None:
+            LOG.error('Unable to save vCenter settings: %s' % form.errors)
+            data['field_errors'] = form.errors
+        else:
+            LOG.error('Unable to save vCenter settings: no vCenter form exists!')
+            data['field_errors'] = 'No form was created'
     return HttpResponse(json.dumps(data), content_type='application/json')

@@ -29,19 +29,28 @@ def _initialize_values(form_fields, vcenter_data, vcenter_field,
     # Need this to make value appear in text box.
     form_fields[password_field].widget.render_value = True
 
-    datacenter = vcenter_data.get(datacenter_field, '')
-    form_fields[datacenter_field].initial = datacenter
+    try:
+        datacenter = vcenter_data.get(datacenter_field, '')
+        form_fields[datacenter_field].initial = datacenter
 
-    cluster = vcenter_data.get(cluster_field, '')
-    form_fields[cluster_field].initial = cluster
+        cluster = vcenter_data.get(cluster_field, '')
+        form_fields[cluster_field].initial = cluster
+    except Exception, msg:
+        LOG.warn("Exception caught: %s" % msg)
+        datacenter = ''
+        cluster = ''
 
     if all([vcenter, username, password]):
         # Get datacenters in the vCenter.
         fn_name = 'get_%s' % datacenter_field
         fn = getattr(getters, fn_name)
         # Pass in blank datacenter to get all options.
-        datacenters = fn(vcenter=vcenter, username=username, password=password,
-                         datacenter='')
+        try:
+            datacenters = fn(vcenter=vcenter, username=username, password=password,
+                             datacenter='')
+        except Exception, msg:
+            LOG.warn("Exception caught: %s" % msg)
+            datacenters = None
         datacenter_choices = [('', '-- select --')]
         if datacenters is not None:
             opt_names = datacenters.keys()
