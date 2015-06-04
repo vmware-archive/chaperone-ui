@@ -108,7 +108,12 @@ def vcenter_settings(request):
         menus = yaml.load(fp)
         fcntl.flock(fp, fcntl.LOCK_UN)
 
-    vcenter_form = VCenterForm()
+    try:
+        vcenter_form = VCenterForm()
+    except Exception, msg:
+        LOG.warn("Exception ocured attempting to connect with vCenter: %s" % msg)
+        vcenter_form = []
+
     missing_values = False
     for field in vcenter_form:
         if not field.field.initial:
