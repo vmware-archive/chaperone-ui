@@ -1,4 +1,5 @@
 import fcntl
+import logging
 import os
 import yaml
 
@@ -7,6 +8,7 @@ from django.conf import settings
 
 from supervio.utils import getters
 
+LOG = logging.getLogger(__name__)
 
 class DynamicChoiceField(forms.ChoiceField): 
     # Avoid error about choice not being valid when field's options are
@@ -29,16 +31,11 @@ def _initialize_values(form_fields, vcenter_data, vcenter_field,
     # Need this to make value appear in text box.
     form_fields[password_field].widget.render_value = True
 
-    try:
-        datacenter = vcenter_data.get(datacenter_field, '')
-        form_fields[datacenter_field].initial = datacenter
+    datacenter = vcenter_data.get(datacenter_field, '')
+    form_fields[datacenter_field].initial = datacenter
 
-        cluster = vcenter_data.get(cluster_field, '')
-        form_fields[cluster_field].initial = cluster
-    except Exception, msg:
-        LOG.warn("Exception caught: %s" % msg)
-        datacenter = ''
-        cluster = ''
+    cluster = vcenter_data.get(cluster_field, '')
+    form_fields[cluster_field].initial = cluster
 
     if all([vcenter, username, password]):
         # Get datacenters in the vCenter.
