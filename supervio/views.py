@@ -79,7 +79,7 @@ def list_options(request):
 
     kwargs = {
         'vcenter': request.REQUEST.get('vcenter'),
-        'username': request.REQUEST.get('username'), 
+        'username': request.REQUEST.get('username'),
         'password': request.REQUEST.get('password')
     }
     datacenter = request.REQUEST.get('datacenter')
@@ -275,7 +275,7 @@ def save_vcenter(request):
                 vcenter=comp_vc, username=comp_vc_username,
                 password=comp_vc_password, datacenter=comp_vc_datacenter,
                 cluster=comp_vc_cluster)
-            if not comp_vc_datastores: 
+            if not comp_vc_datastores:
                 errors.append('No compute vCenter datastores found.')
             else:
                 options_data[getters.COMP_VC_DATASTORES] = comp_vc_datastores.keys()

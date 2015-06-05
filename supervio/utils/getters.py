@@ -196,12 +196,12 @@ def _get_clusters(content=None, vcenter_field=None, username_field=None,
     datacenters = _get_datacenters(content=content, datacenter=datacenter)
     clusters_by_name = {}
     for dc_name, dc in datacenters.items():
-        if datacenter and dc_name != datacenter: 
+        if datacenter and dc_name != datacenter:
             continue
         clusterview = content.viewManager.CreateContainerView(
             dc, [vim.ClusterComputeResource], True)
         clusters = clusterview.view
-        clusterview.Destroy() 
+        clusterview.Destroy()
 
         for cl in clusters:
             if cluster and cl.name != cluster:
@@ -312,7 +312,7 @@ def _get_datastores(vcenter_field=None, username_field=None,
     for host in hosts.values():
         for datastore in host.datastore:
             datastores_by_name[datastore.name] = datastore
-    return datastores_by_name 
+    return datastores_by_name
 
 
 def get_comp_vc_datastores(vcenter=None, username=None, password=None,

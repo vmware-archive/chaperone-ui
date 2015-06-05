@@ -140,7 +140,7 @@ def _get_sections(container_name=None, group_name=None):
                                     for name in opt_names:
                                         option = { 'id': name }
                                         attr_options.append(option)
-                                    attr['options'] = attr_options 
+                                    attr['options'] = attr_options
 
                                     # Use first option as default.
                                     attr['default'] = (opt_names[0]
@@ -348,7 +348,7 @@ def save_group(request):
                           settings.ANSWER_FILE_DEFAULT)
     errors = write_answer_file(request, filename)
     # Get updated values, e.g., current versions of files.
-    group = get_group(request).content 
+    group = get_group(request).content
     data = {
         'errors': errors,
         'group': group,

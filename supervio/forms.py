@@ -10,10 +10,10 @@ from supervio.utils import getters
 
 LOG = logging.getLogger(__name__)
 
-class DynamicChoiceField(forms.ChoiceField): 
+class DynamicChoiceField(forms.ChoiceField):
     # Avoid error about choice not being valid when field's options are
     # dynamically populated.
-    def clean(self, value): 
+    def clean(self, value):
         return value
 
 
