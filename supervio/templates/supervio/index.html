@@ -5,18 +5,18 @@
 {% block page_id %}supervio-index{% endblock %}
 
 {% block content %}
-<h1>Welcome to SuperVIO</h1>
-<p>There's not a lot of content here yet, but it's coming soon.</p>
-<p>Here is a general flow of what to do:</p>
-<ol>
-  <li>Install the SDDC Basis for VIO
-    <ul>
-      <li>Provision ESXi Hosts via AutoDeploy</li>
-      <li>Deploy and Configure vCenter Server</li>
-    </ul>
-  </li>
-  <li>Select the "User:" menu on the upper right and go to vCenter Settings</li>
-  <li>Deploy and Configure VIO</li>
-  <li>Deploy OpenStack</li>
-</ol>
+<div class="row">
+	<div class="col-sm-4">
+		<img src="{{ STATIC_URL }}supervio/img/howmany.png" width="300px;" height="500px;" alt="How Big"/>
+		<br/><center><button type="button" class="btn btn-primary">Hosts</button></button></center>
+	</div>
+	<div class="col-sm-4">
+		 <img src="{{ STATIC_URL }}supervio/img/howgood.png" width="300px;" height="500px;"  alt="How Safe"/>
+		<br/><center><button type="button" class="btn btn-primary">Resilience</button></button></center>
+	</div>
+    <div class="col-sm-4">
+		<img src="{{ STATIC_URL }}supervio/img/howbig.png" width="300px;" height="500px;"  alt="How Many"/>
+		<br/><center><button type="button" class="btn btn-primary">Clouds</button></button></center>
+	</div>
+</div>
 {% endblock %}
