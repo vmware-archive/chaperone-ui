@@ -28,7 +28,8 @@ def index(request):
         fcntl.flock(fp, fcntl.LOCK_UN)
 
     return render(request, 'supervio/index.html', {
-        'menus': menus
+        'menus': menus,
+        'application_full_name': settings.APP_FULLNAME,
     })
 
 
@@ -59,6 +60,8 @@ def login(request):
         'error_message': error_message,
         'next_url': request.GET.get('next', '/'),
         'username': username,
+        'application_full_name': settings.APP_FULLNAME,
+        'application_short_name': settings.APP_SHORTNAME,
     })
 
 
@@ -124,6 +127,7 @@ def vcenter_settings(request):
         'menus': menus,
         'vcenter_form': vcenter_form,
         'missing_values': missing_values,
+        'application_full_name': settings.APP_FULLNAME,
     })
 
 

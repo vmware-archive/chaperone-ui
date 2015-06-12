@@ -28,7 +28,7 @@
       <div id="leftnav">
         <div class="logo">
           <img src="{{ STATIC_URL }}supervio/img/vmw_white.png" alt="VMware"><br/>
-          SuperVIO
+          {{ application_name }}
         </div>
         {% for menu in menus %}{% for menu_name, menu_list in menu.items %}
           <div id="{{ menu_name|slugify }}" class="{% if menu_name == settings.PREPARE_MENU %}prepare-btn {% endif %}leftnav-btn">{{ menu_name }}</div>
