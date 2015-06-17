@@ -88,101 +88,16 @@ def _get_sections(container_name=None, group_name=None):
                         for attributes in section.values():
                             # [{ ... }]
                             for attr in attributes:
-                                attr_id = attr['id']
-                                # Default name to id.
-                                if not attr.get('name'):
-                                    attr['name'] = attr_id
-
-                                if attr_id in saved_answers:
-                                    # Used saved value if it exists.
-                                    value = saved_answers[attr_id]
-                                else:
-                                    value = attr.get('default')
-                                attr['value'] = value or ''
-
-                                # Note if there's currently a version
-                                # of the file saved.
-                                if attr.get('input') == 'file':
-                                    current_filename = '%s/%s' % (
-                                        settings.PREPARE_FILES_DIR, attr_id)
-                                    if os.path.exists(current_filename):
-                                        attr['current'] = '1';
-
-                                attr_show = attr.get('show')
-                                if attr_show:
-                                    ids = [a.strip()
-                                           for a in attr_show.split(',')]
-                                    attr['show'] = ids
-                                    # Get attributes that need to be hidden.
-                                    if not _has_value(attr):
-                                        hidden_attributes.extend(ids)
-
-                                attr_options = attr.get('options', [])
-                                if not isinstance(attr_options, list):
-                                    field_name = attr_options
-                                    # Make options a list now.
-                                    attr_options = []
-                                    if field_name in opt_cache:
-                                        opt_names = opt_cache[field_name]
-                                    else:
-                                        # Get options dynamically.
-                                        fn_name = 'get_%s' % field_name
-                                        fn = getattr(getters, fn_name)
-                                        options = fn()
-                                        if options:
-                                            opt_names = options.keys()
-                                            opt_names.sort()
-                                        else:
-                                            opt_names = ['']
-                                        opt_cache[field_name] = opt_names
-
-                                    # Options for dropdown menu.
-                                    for name in opt_names:
-                                        option = { 'id': name }
-                                        attr_options.append(option)
-                                    attr['options'] = attr_options
-
-                                    # Use first option as default.
-                                    attr['default'] = (opt_names[0]
-                                                       if opt_names else '')
-                                    if attr['value'] not in opt_names:
-                                        attr['value'] = attr['default']
-
-                                if attr.get('input') == 'dropdown':
-                                    # Set default option.
-                                    default_option = { 'id': '' }
-                                    if not attr_options:
-                                        attr['options'] = default_option
-                                    elif attr.get('optional'):
-                                        attr_options.insert(0, default_option)
-
-                                # Populate options metadata.
-                                hidden_opt_attrs = []
-                                for option in attr_options:
-                                    option_id = option['id']
-                                    if not option.get('name'):
-                                        option['name'] = option_id
-
-                                    option_show = option.get('show')
-                                    if option_show:
-                                        attr['show'] = '1'
-                                        ids = [o.strip()
-                                               for o in option_show.split(',')]
-                                        option['show'] = ids
-                                        hidden_opt_attrs.extend(ids)
-                                        # Get attributes that need to be hidden.
-                                        if attr.get('value') == option_id:
-                                            shown_opt_attrs.extend(ids)
-                                        else:
-                                            hidden_attributes.extend(ids)
-
-                                # Need to know which fields to hide when
-                                # selected option changes.
-                                if hidden_opt_attrs:
-                                    for option in attr_options:
-                                        ids = [o for o in hidden_opt_attrs if o
-                                               not in option.get('show', [])]
-                                        option['hide'] = ids
+				subsection = None
+				input_type = attr.get('input')
+				if input_type and input_type.lower() == 'multiform':
+			            new_hidden_attributes, new_shown_opt_attrs, new_attributes = _get_multiform(attr,saved_answers)	
+				    attributes.extend(new_attributes)
+				else:
+			            new_hidden_attributes, new_shown_opt_attrs, new_attr = _get_form(attr,saved_answers)	
+				    attr=new_attr
+				hidden_attributes.extend(new_hidden_attributes)
+				shown_opt_attrs.extend(new_shown_opt_attrs)
 
                     # Note which attributes not to display.
                     for section in sections:
@@ -196,6 +111,124 @@ def _get_sections(container_name=None, group_name=None):
                         return sections
     return containers
 
+def _get_form( attr, saved_answers, attr_id=None):
+  	hidden_attributes = []
+  	shown_opt_attrs = []
+	if not attr_id:
+	    attr_id = attr['id']
+	else:
+	    attr['id'] = attr_id
+  # Default name to id.
+	if not attr.get('name'):
+	    attr['name'] = attr_id
+
+	if attr_id in saved_answers:
+	    # Used saved value if it exists.
+	    value = saved_answers[attr_id]
+	else:
+	    value = attr.get('default')
+	attr['value'] = value or ''
+
+	# Note if there's currently a version
+	# of the file saved.
+	if attr.get('input') == 'file':
+	    current_filename = '%s/%s' % (
+		settings.PREPARE_FILES_DIR, attr_id)
+	    if os.path.exists(current_filename):
+		attr['current'] = '1';
+
+	attr_show = attr.get('show')
+	if attr_show:
+	    ids = [a.strip()
+		   for a in attr_show.split(',')]
+	    attr['show'] = ids
+	    # Get attributes that need to be hidden.
+	    if not _has_value(attr):
+		hidden_attributes.extend(ids)
+
+	attr_options = attr.get('options', [])
+	if not isinstance(attr_options, list):
+	    field_name = attr_options
+	    # Make options a list now.
+	    attr_options = []
+	    if field_name in opt_cache:
+		opt_names = opt_cache[field_name]
+	    else:
+		# Get options dynamically.
+		fn_name = 'get_%s' % field_name
+		fn = getattr(getters, fn_name)
+		options = fn()
+		if options:
+		    opt_names = options.keys()
+		    opt_names.sort()
+		else:
+		    opt_names = ['']
+		opt_cache[field_name] = opt_names
+
+	    # Options for dropdown menu.
+	    for name in opt_names:
+		option = { 'id': name }
+		attr_options.append(option)
+	    attr['options'] = attr_options
+
+	    # Use first option as default.
+	    attr['default'] = (opt_names[0]
+			       if opt_names else '')
+	    if attr['value'] not in opt_names:
+		attr['value'] = attr['default']
+
+	if attr.get('input') == 'dropdown':
+	    # Set default option.
+	    default_option = { 'id': '' }
+	    if not attr_options:
+		attr['options'] = default_option
+	    elif attr.get('optional'):
+		attr_options.insert(0, default_option)
+
+	# Populate options metadata.
+	hidden_opt_attrs = []
+	for option in attr_options:
+	    option_id = option['id']
+	    if not option.get('name'):
+		option['name'] = option_id
+
+	    option_show = option.get('show')
+	    if option_show:
+		attr['show'] = '1'
+		ids = [o.strip()
+		       for o in option_show.split(',')]
+		option['show'] = ids
+		hidden_opt_attrs.extend(ids)
+		# Get attributes that need to be hidden.
+		if attr.get('value') == option_id:
+		    shown_opt_attrs.extend(ids)
+		else:
+		    hidden_attributes.extend(ids)
+
+	# Need to know which fields to hide when
+	# selected option changes.
+	if hidden_opt_attrs:
+	    for option in attr_options:
+		ids = [o for o in hidden_opt_attrs if o
+		       not in option.get('show', [])]
+		option['hide'] = ids
+	
+	return hidden_attributes, shown_opt_attrs, attr 
+  
+
+def _get_multiform(attr, answers):
+  subsection = []
+  hidden_attributes = []
+  shown_opt_attrs = []
+  items = attr['items']
+  for n in range(int(attr['min_items'])):
+    for item in items:
+      item_id = "%s[%d]" % (item['id'], n) 
+      new_ha, new_soa, new_item = _get_form(item, answers, item_id)
+      hidden_attributes.extend(new_ha)
+      shown_opt_attrs.extend(new_soa)
+      subsection.append(new_item)
+  return hidden_attributes, shown_opt_attrs, subsection
 
 def _get_attributes_by_id(container_name=None, group_name=None):
     # Return all attribute metadata, keyed by attribute id, optionally for only
