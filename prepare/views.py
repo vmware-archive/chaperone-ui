@@ -204,7 +204,6 @@ def _get_form( attr, saved_answers, attr_id=None):
 		    shown_opt_attrs.extend(ids)
 		else:
 		    hidden_attributes.extend(ids)
-
 	# Need to know which fields to hide when
 	# selected option changes.
 	if hidden_opt_attrs:
@@ -212,18 +211,17 @@ def _get_form( attr, saved_answers, attr_id=None):
 		ids = [o for o in hidden_opt_attrs if o
 		       not in option.get('show', [])]
 		option['hide'] = ids
-	
-	return hidden_attributes, shown_opt_attrs, attr 
-  
+	return hidden_attributes, shown_opt_attrs, attr
 
+from copy import deepcopy
 def _get_multiform(attr, answers):
   subsection = []
   hidden_attributes = []
   shown_opt_attrs = []
-  items = attr['items']
   for n in range(int(attr['min_items'])):
+    items = deepcopy(attr['items'])
     for item in items:
-      item_id = "%s[%d]" % (item['id'], n) 
+      item_id = "%s_%d" % (item['id'], n)
       new_ha, new_soa, new_item = _get_form(item, answers, item_id)
       hidden_attributes.extend(new_ha)
       shown_opt_attrs.extend(new_soa)
