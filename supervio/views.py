@@ -16,7 +16,7 @@ from supervio.utils import getters
 
 LOG = logging.getLogger(__name__)
 
-MIN_MGMT_NETWORKS = 2
+MIN_MGMT_NETWORKS = 1
 
 
 def index(request):

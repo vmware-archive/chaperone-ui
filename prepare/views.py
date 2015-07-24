@@ -12,8 +12,10 @@ from django.shortcuts import render
 
 from supervio.utils import getters
 
-
 LOG = logging.getLogger(__name__)
+
+# Global option cache
+g_options_cache = {}
 
 # Input types that are not required to have a value set.
 OPTIONAL_INPUT_TYPES = ('checkbox', 'file')
@@ -62,12 +64,12 @@ def _get_sections(container_name=None, group_name=None):
     shown_opt_attrs = []
 
     # Cache option values already retrieved in this request.
-    opt_cache = {}
+    g_options_cache = {}
     opt_filename = settings.INPUT_OPTIONS
     if os.path.exists(opt_filename):
         with open(opt_filename, 'r') as op:
             fcntl.flock(op, fcntl.LOCK_SH)
-            opt_cache = yaml.load(op)
+            g_options_cache = yaml.load(op)
             fcntl.flock(op, fcntl.LOCK_UN)
 
     # [{ ... }]
@@ -109,6 +111,7 @@ def _get_sections(container_name=None, group_name=None):
                                     attr['hide'] = '1'
                     if group_name:
                         return sections
+
     return containers
 
 def _get_form( attr, saved_answers, attr_id=None):
@@ -151,8 +154,8 @@ def _get_form( attr, saved_answers, attr_id=None):
 	    field_name = attr_options
 	    # Make options a list now.
 	    attr_options = []
-	    if field_name in opt_cache:
-		opt_names = opt_cache[field_name]
+	    if field_name in g_options_cache:
+		opt_names = g_options_cache[field_name]
 	    else:
 		# Get options dynamically.
 		fn_name = 'get_%s' % field_name
@@ -163,7 +166,7 @@ def _get_form( attr, saved_answers, attr_id=None):
 		    opt_names.sort()
 		else:
 		    opt_names = ['']
-		opt_cache[field_name] = opt_names
+		g_options_cache[field_name] = opt_names
 
 	    # Options for dropdown menu.
 	    for name in opt_names:
