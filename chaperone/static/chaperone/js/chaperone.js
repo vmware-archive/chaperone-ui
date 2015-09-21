@@ -13,7 +13,7 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 */ 
-supervio.utils = {
+chaperone.utils = {
   ajaxError: function(jqxhr, status, error) {
     /* Return error message. */
     var message = '';
@@ -52,7 +52,7 @@ supervio.utils = {
     }
     var answer = confirm('Save changes?');
     if (answer == true) {
-      supervio.utils.saveGroup($form[0], false);
+      chaperone.utils.saveGroup($form[0], false);
     }
   },
 
@@ -99,7 +99,7 @@ supervio.utils = {
 
   loadGroup: function(containerName, groupName) {
     /* Return form for group. */
-    supervio.utils.clearMessages();
+    chaperone.utils.clearMessages();
     $('#contents').empty();
     $('#loading').show();
     $.ajax({
@@ -109,7 +109,7 @@ supervio.utils = {
         $('#contents').html(response);
       },
       error: function(jqxhr, status, error) {
-        supervio.utils.ajaxError(jqxhr, status, error);
+        chaperone.utils.ajaxError(jqxhr, status, error);
       },
       complete: function() {
         $('#loading').hide();
@@ -157,7 +157,7 @@ supervio.utils = {
         }
       },
       error: function(jqxhr, status, error) {
-        var message = supervio.utils.ajaxError(jqxhr, status, error);
+        var message = chaperone.utils.ajaxError(jqxhr, status, error);
         $('#vcenter-errors').text(message);
       },
       complete: function(jqxhr, status, error) {
@@ -174,8 +174,8 @@ supervio.utils = {
       /* Already on this. */
       return;
     }
-    supervio.utils.confirmSave();
-    supervio.utils.clearMessages();
+    chaperone.utils.confirmSave();
+    chaperone.utils.clearMessages();
 
     /* De-activate previously active button. */
     var prevId = $('#leftnav div.leftnav-btn.active-btn').attr('id');
@@ -215,12 +215,12 @@ supervio.utils = {
     if (!itemId || !$('#' + itemId).length) {
       itemId = $('#' + btnId + '-menu div.clickable').first().attr('id');
     }
-    supervio.utils.openLeftnavItem(itemId);
+    chaperone.utils.openLeftnavItem(itemId);
   },
 
   openLeftnavItem: function(itemId) {
     /* Note which item was last viewed. */
-    supervio.utils.clearMessages();
+    chaperone.utils.clearMessages();
     var $div = $('#' + itemId);
     var activeClass = 'active-item';
     $('#leftnav div.clickable.' + activeClass).removeClass(activeClass);
@@ -233,7 +233,7 @@ supervio.utils = {
       /* Show form to set the group's answers. */
       var containerName = $div.attr('data-container');
       var groupName = $div.attr('data-group');
-      supervio.utils.loadGroup(containerName, groupName);
+      chaperone.utils.loadGroup(containerName, groupName);
     }
 
     if ($div.hasClass('actionable')) {
@@ -257,7 +257,7 @@ supervio.utils = {
           $('#contents-' + itemId).html(response);
         },
         error: function(jqxhr, status, error) {
-          supervio.utils.ajaxError(jqxhr, status, error);
+          chaperone.utils.ajaxError(jqxhr, status, error);
           $('#contents').empty();
         },
         complete: function(){
@@ -267,7 +267,7 @@ supervio.utils = {
 
       /* Update log viewer periodically. */
       setTimeout(function() {
-        supervio.utils.updateLogView(itemId, menuName, groupName);
+        chaperone.utils.updateLogView(itemId, menuName, groupName);
       }, 2000);
     }
   },
@@ -277,14 +277,14 @@ supervio.utils = {
     var action = $form.attr('action');
     var containerName = $('#prepare-form input[name="cname"]').val();
     var groupName = $('#prepare-form input[name="gname"]').val();
-    var values = supervio.utils.getFormValues(form);
+    var values = chaperone.utils.getFormValues(form);
     if (!values) {
         return false;
     }
-    var cgid = supervio.utils.getFormCgid();
+    var cgid = chaperone.utils.getFormCgid();
 
     /* Send the data. */
-    supervio.utils.clearMessages();
+    chaperone.utils.clearMessages();
     $('#prepare-save').button('loading');
     $('#status-' + cgid).hide();
     $('#loading-' + cgid).show();
@@ -317,7 +317,7 @@ supervio.utils = {
         }
       },
       error: function(jqxhr, status, error) {
-        supervio.utils.ajaxError(jqxhr, status, error);
+        chaperone.utils.ajaxError(jqxhr, status, error);
       },
       complete: function(jqxhr, status, error) {
         $('#loading-' + cgid).hide();
@@ -344,18 +344,18 @@ supervio.utils = {
         /* Schedule another update, if we're still on the page. */
         if ($('#contents-' + itemId).length) {
           setTimeout(function() {
-            supervio.utils.updateLogView(itemId, menuName, groupName);
+            chaperone.utils.updateLogView(itemId, menuName, groupName);
           }, 2000);
         }
       },
       error: function(jqxhr, status, error) {
-        supervio.utils.ajaxError(jqxhr, status, error);
+        chaperone.utils.ajaxError(jqxhr, status, error);
       }
     });
   },
 };
 
-supervio.addInitFunction(function() {
+chaperone.addInitFunction(function() {
   /* Populate vCenter input field's choices. */
   $('#vcenter-form button.connect-btn').click(function(event) {
     var $button = $(this);
@@ -385,7 +385,7 @@ supervio.addInitFunction(function() {
       var $target = $('#id_' + targetId);
       $target.empty();
     }
-    supervio.utils.loadVCenterOptions(this, $field[0], values);
+    chaperone.utils.loadVCenterOptions(this, $field[0], values);
   });
 
   /* Populate vCenter target input field's choices. */
@@ -413,7 +413,7 @@ supervio.addInitFunction(function() {
     /* Clear out target input field's choices. */
     var $target = $('#id_' + targetId);
     $target.empty();
-    supervio.utils.loadVCenterOptions(this, $target[0], values);
+    chaperone.utils.loadVCenterOptions(this, $target[0], values);
   });
 
   /* Reset vCenter target input fields. */
@@ -433,7 +433,7 @@ supervio.addInitFunction(function() {
   $('#vcenter-form').submit(function(event) {
     var $form = $(this);
     var action = $form.attr('action');
-    var values = supervio.utils.getFormValues(this);
+    var values = chaperone.utils.getFormValues(this);
     if (!values) {
         return false;
     }
@@ -467,14 +467,14 @@ supervio.addInitFunction(function() {
         if (!activeButton || !$('#' + activeButton).length) {
           activeButton = $('#leftnav div.leftnav-btn').first().attr('id');
         }
-        supervio.utils.openLeftnavMenu(activeButton);
+        chaperone.utils.openLeftnavMenu(activeButton);
 
         /* Remove modal. */
         $('#modal-vcenter').remove();
         $('#backdrop-vcenter').remove();
       },
       error: function(jqxhr, status, error) {
-        var message = supervio.utils.ajaxError(jqxhr, status, error);
+        var message = chaperone.utils.ajaxError(jqxhr, status, error);
         $('#vcenter-errors').text(message);
       },
       complete: function(jqxhr, status, error) {
@@ -589,21 +589,21 @@ supervio.addInitFunction(function() {
      * Reload entire contents versus only the input value, because the
      * display of shown/hidden fields also needs to be reset.
      */
-    var cgid = supervio.utils.getFormCgid();
-    supervio.utils.openLeftnavItem(cgid);
+    var cgid = chaperone.utils.getFormCgid();
+    chaperone.utils.openLeftnavItem(cgid);
     return false;
   });
 
   /* Submit form to save group's answers. */
   $(document).on('submit', '#prepare-form', function(event) {
-    supervio.utils.saveGroup(this, true);
+    chaperone.utils.saveGroup(this, true);
     /* Prevent normal form submit action. */
     return false;
   });
 
   /* Execute commands. */
   $(document).on('click', '#execute-form button.execute-btn', function(event) {
-    var values = supervio.utils.getFormValues($('#execute-form')[0]);
+    var values = chaperone.utils.getFormValues($('#execute-form')[0]);
     if (!values) {
         return false;
     }
@@ -618,7 +618,7 @@ supervio.addInitFunction(function() {
       type: 'POST',
       data: values,
       error: function(jqxhr, status, error) {
-        supervio.utils.ajaxError(jqxhr, status, error);
+        chaperone.utils.ajaxError(jqxhr, status, error);
       },
       /* Need these for sending FormData. */
       processData: false,
@@ -631,12 +631,12 @@ supervio.addInitFunction(function() {
 
   /* Change active leftnav button. */
   $('#leftnav div.leftnav-btn').click(function(event) {
-    supervio.utils.openLeftnavMenu(this.id);
+    chaperone.utils.openLeftnavMenu(this.id);
   });
 
   $('#leftnav div.clickable').click(function(event) {
-    supervio.utils.confirmSave();
-    supervio.utils.openLeftnavItem(this.id);
+    chaperone.utils.confirmSave();
+    chaperone.utils.openLeftnavItem(this.id);
   });
 
   /* Warnings to user when leaving the page. */
@@ -647,4 +647,4 @@ supervio.addInitFunction(function() {
   });
 });
 
-$(document).ready(supervio.init);
+$(document).ready(chaperone.init);

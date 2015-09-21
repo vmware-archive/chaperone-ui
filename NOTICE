@@ -17,29 +17,29 @@ COPYRIGHT AND LICENSE
  
 THIRD PARTY NOTICES:
 
-   supervio/utils/pam.py
+   chaperone/utils/pam.py
 
       (c) 2007 Chris AtLee <chris@atlee.ca>
       Licensed under the MIT license:
       http://www.opensource.org/licenses/mit-license.php
 
 
-   supervio/utils/secret_key.py
+   chaperone/utils/secret_key.py
 
       Copyright 2012 Nebula, Inc.
 
-   supervio/static/bootstrap/*
+   chaperone/static/bootstrap/*
 
       Copyright 2011-2014 Twitter, Inc.
       Licensed under MIT (https://github.com/twbs/bootstrap/blob/master/LICENSE)
 
-   supervio/static/supervio/js/jquery.min.js
-   supervio/static/supervio/js/jquery.js
+   chaperone/static/chaperone/js/jquery.min.js
+   chaperone/static/chaperone/js/jquery.js
 
       (c) 2005, 2014 jQuery Foundation, Inc.
       http://jquery.org/license
 
-   supervio/static/supervio/js/jquery.cookie.js
+   chaperone/static/chaperone/js/jquery.cookie.js
 
       Copyright 2013 Klaus Hartl
       Released under the MIT license

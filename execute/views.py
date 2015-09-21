@@ -30,13 +30,13 @@ LOG = logging.getLogger(__name__)
 
 
 def _get_logname(menu_name, group_name):
-    return '%s/%s_%s.log' % (settings.SUPERVIO_LOG_DIR, slugify(menu_name),
+    return '%s/%s_%s.log' % (settings.CHAPERONE_LOG_DIR, slugify(menu_name),
                              slugify(group_name))
 
 
 def _get_actions(menu_name, group_name):
     # Return action metadata for the given group. See
-    # supervio/local_settings.py.example for schema.
+    # chaperone/local_settings.py.example for schema.
     filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
     with open(filename, 'r') as fp:
         fcntl.flock(fp, fcntl.LOCK_SH)

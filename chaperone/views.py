@@ -25,8 +25,8 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 
 from prepare.views import write_answer_file
-from supervio.forms import VCenterForm
-from supervio.utils import getters
+from chaperone.forms import VCenterForm
+from chaperone.utils import getters
 
 
 LOG = logging.getLogger(__name__)
@@ -42,7 +42,7 @@ def index(request):
         menus = yaml.load(fp)
         fcntl.flock(fp, fcntl.LOCK_UN)
 
-    return render(request, 'supervio/index.html', {
+    return render(request, 'chaperone/index.html', {
         'menus': menus,
         'application_full_name': settings.APP_FULLNAME,
     })
@@ -71,7 +71,7 @@ def login(request):
             LOG.info('User %s made failed login attempt' % username)
             error_message = 'Invalid username or password.'
 
-    return render(request, 'supervio/login.html', {
+    return render(request, 'chaperone/login.html', {
         'error_message': error_message,
         'next_url': request.GET.get('next', '/'),
         'username': username,
@@ -138,7 +138,7 @@ def vcenter_settings(request):
             missing_values = True
             break
 
-    return render(request, 'supervio/vcenter.html', {
+    return render(request, 'chaperone/vcenter.html', {
         'menus': menus,
         'vcenter_form': vcenter_form,
         'missing_values': missing_values,

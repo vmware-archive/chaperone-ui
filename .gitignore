@@ -22,6 +22,6 @@
 *.db
 .secret_key_store
 local_settings.py
-supervio/.blackhole
+chaperone/.blackhole
 # Python virtualenv
 env

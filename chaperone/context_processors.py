@@ -13,20 +13,16 @@
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
 #
+from django.conf import settings
 
-"""
-This file exposes the WSGI callable as a module-level variable named ``application``.
 
-For more information on this file, see:
-https://docs.djangoproject.com/en/1.6/howto/deployment/wsgi/
-"""
+def Chaperone(request):
+    """ Chaperone UI context processor.
 
-import os
-import sys
-from django.core.wsgi import get_wsgi_application
-
-# Add this file path to sys.path in order to import settings
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "supervio.local_settings")
-
-application = get_wsgi_application()
+    Adds data needed by all templates to the context.
+    """
+    context = {
+        'user': request.user,
+        'settings': settings,
+    }
+    return context

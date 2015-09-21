@@ -1,18 +1,18 @@
-SuperVIO UI
-===========
-This repository provides for the Django based SuperVIO UI. It is based
+Chaperone UI
+============
+This repository provides for the Django based Chaperone UI. It is based
 on the code originally targeted at VSOM, but has been adapted for use
-in SuperVIO.
+in Chaperone.
 
 # Getting Started
-If you intend to use this code outside the context of SuperVIO, you
+If you intend to use this code outside the context of Chaperone, you
 can read the INSTALL document for some historically useful information.
 
 # The Right Way
-A much easier way to wprk with this code is via the SuperVIO Ansible
+A much easier way to wprk with this code is via the Chaperone Ansible
 Playbooks project (and related modules and roles). That is
-within the ansible-playbooks-supervio project, which has a complete
-README.md file for setting up SuperVIO for both use and development.
+within the ansible-playbooks-chaperone project, which has a complete
+README.md file for setting up Chaperone for both use and development.
 
 # License and Copyright
  

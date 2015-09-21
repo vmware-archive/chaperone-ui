@@ -15,15 +15,15 @@
 */ 
 
 /*
- * This is the base SuperVIO JavaScript object. There is only ever one of
- * these loaded (referenced as supervio with a lower-case t) which happens
+ * This is the base Chaperone JavaScript object. There is only ever one of
+ * these loaded (referenced as chaperone with a lower-case t) which happens
  * immediately after the definition below.
  *
- * Scripts that are dependent on functionality defined in the SuperVIO object
+ * Scripts that are dependent on functionality defined in the Chaperone object
  * must be included after this script in templates/base.html.
  */
-var SuperVIO = function () {
-  var supervio = {},
+var Chaperone = function () {
+  var chaperone = {},
   initFunctions = [];
 
   /*
@@ -32,12 +32,12 @@ var SuperVIO = function () {
    * handlers or any other initialization functions which should preceed user
    * interaction but rely on DOM readiness.
    */
-  supervio.addInitFunction = function (fn) {
+  chaperone.addInitFunction = function (fn) {
     initFunctions.push(fn);
   };
 
   /* Call all initialization functions and clear the queue. */
-  supervio.init = function () {
+  chaperone.init = function () {
     for (var i = 0; i < initFunctions.length; i += 1) {
       initFunctions[i]();
     }
@@ -46,8 +46,8 @@ var SuperVIO = function () {
     initFunctions = [];
   };
 
-  return supervio;
+  return chaperone;
 };
 
-/* Create the one and only supervio object. */
-var supervio = new SuperVIO();
+/* Create the one and only chaperone object. */
+var chaperone = new Chaperone();

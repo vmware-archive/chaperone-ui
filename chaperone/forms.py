@@ -21,7 +21,7 @@ import yaml
 from django import forms
 from django.conf import settings
 
-from supervio.utils import getters
+from chaperone.utils import getters
 
 LOG = logging.getLogger(__name__)
 

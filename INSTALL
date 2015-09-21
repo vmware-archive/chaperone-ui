@@ -16,27 +16,27 @@ $ sudo pip install pyvmomi
 
 Install app.
 $ cd /opt
-$ git clone http://nsxgitlab.nicira.eng.vmware.com/nsbu-sas/the-ui.git supervio
-$ mkdir /opt/supervio/.blackhole
+$ git clone http://nsxgitlab.nicira.eng.vmware.com/nsbu-sas/the-ui.git chaperone
+$ mkdir /opt/chaperone/.blackhole
 # Same user and group as in Apache conf's WSGIDaemonProcess
-$ sudo chown -R nicira:nicira /opt/supervio/
+$ sudo chown -R nicira:nicira /opt/chaperone/
 
-Create /opt/supervio/supervio/local_settings.py.
-$ cp /opt/supervio/supervio/local_settings.py.example /opt/supervio/supervio/local_settings.py
+Create /opt/chaperone/chaperone/local_settings.py.
+$ cp /opt/chaperone/chaperone/local_settings.py.example /opt/chaperone/chaperone/local_settings.py
 - *_DIR directories need to be created if not already existing. All these
   directories and files underneath them must be owned by same user and group
   from Apache conf's WSGIDaemonProcess.
 $ mkdir <ANSWER_FILE_DIR>
 $ chown -R nicira:nicira <ANSWER_FILE_DIR>
 $ mkdir <PREPARE_FILES_DIR>
-$ mkdir <SUPERVIO_LOG_DIR>
-$ chown -R nicira:nicira <SUPERVIO_LOG_DIR>
+$ mkdir <CHAPERONE_LOG_DIR>
+$ chown -R nicira:nicira <CHAPERONE_LOG_DIR>
 - Make sure ANSWER_FILE_BASE is in its appropriate location.
 
 Create Django database and tables.
 $ sudo apt-get install sqlite3
   (sqlite3)
-$ touch /opt/supervio/supervio.db
+$ touch /opt/chaperone/chaperone.db
 $ python manage.py syncdb --noinput
 
 Install Apache and mod_wsgi.
@@ -47,37 +47,37 @@ $ sudo apt-get install apache2
 $ sudo apt-get install libapache2-mod-wsgi
   (libapache2-mod-wsgi)
 $ cd /etc/apache2/sites-available/
-$ sudo vim supervio 
+$ sudo vim chaperone 
   <VirtualHost *:80>
       #ServerName www.example.com
       #ServerAlias example.com
       #ServerAdmin webmaster@example.com
 
-      DocumentRoot /opt/supervio/.blackhole/
-      Alias /static/ /opt/supervio/supervio/static/
+      DocumentRoot /opt/chaperone/.blackhole/
+      Alias /static/ /opt/chaperone/chaperone/static/
 
       <Directory />
           Options FollowSymLinks
           AllowOverride None
       </Directory>
 
-      <Directory /opt/supervio/>
+      <Directory /opt/chaperone/>
           Options Indexes FollowSymLinks MultiViews
           AllowOverride None
           Order allow,deny
           Allow from all
       </Directory>
 
-      WSGIDaemonProcess supervio user=nicira group=nicira processes=2 threads=15 display-name=%{GROUP}
-      WSGIProcessGroup supervio
-      WSGIScriptAlias / /opt/supervio/supervio/wsgi/wsgi.py
+      WSGIDaemonProcess chaperone user=nicira group=nicira processes=2 threads=15 display-name=%{GROUP}
+      WSGIProcessGroup chaperone
+      WSGIScriptAlias / /opt/chaperone/chaperone/wsgi/wsgi.py
 
-      ErrorLog /var/log/apache2/supervio_error.log
+      ErrorLog /var/log/apache2/chaperone_error.log
       LogLevel info
-      CustomLog /var/log/apache2/supervio_access.log combined
+      CustomLog /var/log/apache2/chaperone_access.log combined
   </VirtualHost>
 $ sudo a2dissite default
-$ sudo a2ensite supervio
+$ sudo a2ensite chaperone
 $ sudo service apache2 restart
 
 Licence and Copyright Notice

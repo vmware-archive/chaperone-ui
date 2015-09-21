@@ -17,7 +17,7 @@ from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 
 from prepare import views
-from supervio.decorators import login_required_ajax
+from chaperone.decorators import login_required_ajax
 
 
 urlpatterns = patterns('',

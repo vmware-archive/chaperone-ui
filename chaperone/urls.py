@@ -17,8 +17,8 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.decorators import login_required
 
-from supervio import views
-from supervio.decorators import login_required_ajax
+from chaperone import views
+from chaperone.decorators import login_required_ajax
 
 
 admin.autodiscover()
