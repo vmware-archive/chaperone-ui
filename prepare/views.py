@@ -174,6 +174,7 @@ def _get_form( attr, saved_answers, attr_id=None):
 	    else:
 		# Get options dynamically.
 		fn_name = 'get_%s' % field_name
+		LOG.debug('Calling on %s to obtain options.' % fn_name)
 		fn = getattr(getters, fn_name)
 		options = fn()
 		if options:
