@@ -56,11 +56,11 @@ def load(fname, inhibit_constructor=False):
 
     return content
 
-def dump(fname, content, default_flow_style=False):
+def dump(fname, content):
     """ save object as yaml to a file."""
     LOG.debug("YAML dumping content: %s\n" % str(content))
     with open(fname, 'w+') as fp:
         fcntl.flock(fp, fcntl.LOCK_EX)
-        fp.write(yaml.dump(content, default_flow_style))
+        fp.write(yaml.dump(content))
         fcntl.flock(fp, fcntl.LOCK_UN)
         LOG.debug('YAML content file %s written' % fname)

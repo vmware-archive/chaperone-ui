@@ -270,7 +270,7 @@ def write_answer_file(request, filename, new_answers=None):
     if os.path.exists(filename):
         # Make a backup copy.
         backup_filename = '%s.bak' % filename
-        yaml.dump(backup_filename, saved_answers, default_flow_style=False)
+        yaml.dump(backup_filename, saved_answers)
         LOG.debug('Backup file %s written' % backup_filename)
 
     attributes_by_id = _get_attributes_by_id()
@@ -303,7 +303,7 @@ def write_answer_file(request, filename, new_answers=None):
         answers_data[attr_id] = str(value)
 
     LOG.debug('Dumping values: %s' % str(answers_data))
-    yaml.dump(filename, answers_data, default_flow_style=False)
+    yaml.dump(filename, answers_data)
     LOG.info('File %s written' % filename)
     return errors
 

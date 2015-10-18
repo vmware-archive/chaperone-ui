@@ -175,7 +175,7 @@ def save_vcenter(request):
         }
 
         # Save vCenter settings to file.
-        yaml.dump(settings.VCENTER_SETTINGS, vcenter_data, default_flow_style=False)
+        yaml.dump(settings.VCENTER_SETTINGS, vcenter_data)
 
         options_data = {
             getters.COMP_VC: [comp_vc],
@@ -299,7 +299,7 @@ def save_vcenter(request):
         else:
             # Save vCenter field options to file.
             options_filename = settings.INPUT_OPTIONS
-            yaml.dump(options_filename, options_data, default_flow_style=False)
+            yaml.dump(options_filename, options_data)
 
             # Rewrite the answer file, to update with new vCenter values and
             # check if previously saved values for dynamically populated fields
