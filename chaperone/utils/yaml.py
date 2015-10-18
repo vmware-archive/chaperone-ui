@@ -61,6 +61,6 @@ def dump(fname, content):
     LOG.debug("YAML dumping content: %s\n" % str(content))
     with open(fname, 'w+') as fp:
         fcntl.flock(fp, fcntl.LOCK_EX)
-        fp.write(yaml.dump(content))
+        fp.write(yaml.dump(content, default_flow_style=False))
         fcntl.flock(fp, fcntl.LOCK_UN)
         LOG.debug('YAML content file %s written' % fname)
