@@ -18,13 +18,13 @@ import logging
 import os
 import subprocess
 import time
-import yaml
 
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.defaultfilters import slugify
 
+from chaperone.utils import yaml
 
 LOG = logging.getLogger(__name__)
 
@@ -38,10 +38,7 @@ def _get_actions(menu_name, group_name):
     # Return action metadata for the given group. See
     # chaperone/local_settings.py.example for schema.
     filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    with open(filename, 'r') as fp:
-        fcntl.flock(fp, fcntl.LOCK_SH)
-        menus = yaml.load(fp)
-        fcntl.flock(fp, fcntl.LOCK_UN)
+    menus = yaml.load(filename)
 
     # [{ ... }]
     for menu in menus:

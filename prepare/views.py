@@ -18,7 +18,6 @@ import json
 import logging
 import mimetypes
 import os
-import yaml
 
 from django.conf import settings
 from django.core.servers.basehttp import FileWrapper
@@ -26,26 +25,13 @@ from django.http import HttpResponse
 from django.shortcuts import render
 
 from chaperone.utils import getters
+from chaperone.utils import yaml
 
 LOG = logging.getLogger(__name__)
 
 # Input types that are not required to have a value set.
 OPTIONAL_INPUT_TYPES = ('checkbox', 'file')
 
-
-def _get_contents(filename):
-    # Return data structure parsed from the given YAML file.
-    content = {}
-    try:
-        with open(filename, 'r') as fp:
-            fcntl.flock(fp, fcntl.LOCK_SH)
-            file_contents = fp.read()
-            fcntl.flock(fp, fcntl.LOCK_UN)
-        content = yaml.load(file_contents)
-    except IOError, err:
-        LOG.debug("Cannot load YAML content from %s because: %s" % (filename, os.strerror(err.errno)))
-
-    return content
 
 def _has_value(attribute):
     # Return True if attribute has its value set.
@@ -63,8 +49,8 @@ def _get_sections(container_name=None, group_name=None):
     # the given container.
     #
     # See chaperone/local_settings.py.example for schema.
-    base = '%s/%s' % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    menus = _get_contents(base)
+    base = os.path.join(settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    menus = yaml.load(base)
     containers = []
     for menu in menus:
         for menu_name, menu_containers in menu.items():
@@ -72,14 +58,13 @@ def _get_sections(container_name=None, group_name=None):
                 containers = menu_containers
                 break
 
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
-                          settings.ANSWER_FILE_DEFAULT)
-    saved_answers = _get_contents(filename)
+    filename = os.path.join(settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_DEFAULT)
+    saved_answers = yaml.load(filename)
     hidden_attributes = []
     shown_opt_attrs = []
 
     # Cache option values already retrieved in this request.
-    opt_cache = _get_contents(settings.INPUT_OPTIONS)
+    opt_cache = yaml.load(settings.INPUT_OPTIONS)
 
     # [{ ... }]
     for container in containers:
@@ -281,18 +266,12 @@ def _get_attributes_by_id(container_name=None, group_name=None):
 def write_answer_file(request, filename, new_answers=None):
     """Write out answer file, replacing old values with new ones, if given."""
     errors = []
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
-                          settings.ANSWER_FILE_DEFAULT)
-    saved_answers = {}
+    saved_answers = yaml.load(filename)
     if os.path.exists(filename):
-        saved_answers = _get_contents(filename)
         # Make a backup copy.
         backup_filename = '%s.bak' % filename
-        with open(backup_filename, 'w+') as bp:
-            fcntl.flock(bp, fcntl.LOCK_EX)
-            bp.write(yaml.dump(saved_answers, default_flow_style=False))
-            fcntl.flock(bp, fcntl.LOCK_UN)
-            LOG.debug('Backup file %s written' % backup_filename)
+        yaml.dump(backup_filename, saved_answers, default_flow_style=False)
+        LOG.debug('Backup file %s written' % backup_filename)
 
     attributes_by_id = _get_attributes_by_id()
     if not new_answers:
@@ -308,7 +287,7 @@ def write_answer_file(request, filename, new_answers=None):
             # Check if there is a new file to save.
             if attr.get('input') == 'file' and value == '1':
                 src = request.FILES.get('file-%s' % attr_id)
-                dst_filename = '%s/%s' % (settings.PREPARE_FILES_DIR, attr_id)
+                dst_filename = os.path.join(settings.PREPARE_FILES_DIR, attr_id)
                 if src:
                     with open(dst_filename, 'wb+') as dp:
                         for chunk in src.chunks():
@@ -323,10 +302,8 @@ def write_answer_file(request, filename, new_answers=None):
             LOG.debug('Saving old value %s: %s' % (attr_id, value))
         answers_data[attr_id] = str(value)
 
-    with open(filename, 'w+') as fp:
-        fcntl.flock(fp, fcntl.LOCK_EX)
-        fp.write(yaml.dump(answers_data, default_flow_style=False))
-        fcntl.flock(fp, fcntl.LOCK_UN)
+    LOG.debug('Dumping values: %s' % str(answers_data))
+    yaml.dump(filename, answers_data, default_flow_style=False)
     LOG.info('File %s written' % filename)
     return errors
 
@@ -391,8 +368,7 @@ def get_group_status(request):
 
 def save_group(request):
     """Save new answers for the group."""
-    filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
-                          settings.ANSWER_FILE_DEFAULT)
+    filename = os.path.join(settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_DEFAULT)
     errors = write_answer_file(request, filename)
     # Get updated values, e.g., current versions of files.
     group = get_group(request).content

@@ -17,7 +17,6 @@ import fcntl
 import json
 import logging
 import os
-import yaml
 
 from django.conf import settings
 from django.contrib import auth
@@ -26,8 +25,7 @@ from django.shortcuts import render, redirect
 
 from prepare.views import write_answer_file
 from chaperone.forms import VCenterForm
-from chaperone.utils import getters
-
+from chaperone.utils import getters, yaml
 
 LOG = logging.getLogger(__name__)
 
@@ -36,11 +34,8 @@ MIN_MGMT_NETWORKS = 1
 
 def index(request):
     """Main page, where the magic happens."""
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    with open(filename, 'r') as fp:
-        fcntl.flock(fp, fcntl.LOCK_SH)
-        menus = yaml.load(fp)
-        fcntl.flock(fp, fcntl.LOCK_UN)
+    filename = os.path.join(settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    menus = yaml.load(filename)
 
     return render(request, 'chaperone/index.html', {
         'menus': menus,
@@ -120,11 +115,8 @@ def list_options(request):
 
 def vcenter_settings(request):
     """Main page, where the magic happens."""
-    filename = "%s/%s" % (settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
-    with open(filename, 'r') as fp:
-        fcntl.flock(fp, fcntl.LOCK_SH)
-        menus = yaml.load(fp)
-        fcntl.flock(fp, fcntl.LOCK_UN)
+    filename = os.path.join(settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+    menus = yaml.load(filename)
 
     try:
         vcenter_form = VCenterForm()
@@ -183,12 +175,7 @@ def save_vcenter(request):
         }
 
         # Save vCenter settings to file.
-        filename = settings.VCENTER_SETTINGS
-        with open(filename, 'w+') as fp:
-            fcntl.flock(fp, fcntl.LOCK_EX)
-            fp.write(yaml.dump(vcenter_data, default_flow_style=False))
-            fcntl.flock(fp, fcntl.LOCK_UN)
-            LOG.debug('vCenter data file %s written' % filename)
+        yaml.dump(settings.VCENTER_SETTINGS, vcenter_data, default_flow_style=False)
 
         options_data = {
             getters.COMP_VC: [comp_vc],
@@ -312,22 +299,13 @@ def save_vcenter(request):
         else:
             # Save vCenter field options to file.
             options_filename = settings.INPUT_OPTIONS
-            with open(options_filename, 'w+') as op:
-                fcntl.flock(op, fcntl.LOCK_EX)
-                op.write(yaml.dump(options_data, default_flow_style=False))
-                fcntl.flock(op, fcntl.LOCK_UN)
-                LOG.debug('vCenter options written to %s' % options_filename)
+            yaml.dump(options_filename, options_data, default_flow_style=False)
 
             # Rewrite the answer file, to update with new vCenter values and
             # check if previously saved values for dynamically populated fields
             # are no longer valid.
-            base_filename = '%s/%s' % (settings.ANSWER_FILE_DIR,
-                                       settings.ANSWER_FILE_BASE)
-            with open(base_filename, 'r') as bp:
-                fcntl.flock(bp, fcntl.LOCK_SH)
-                file_contents = bp.read()
-                fcntl.flock(bp, fcntl.LOCK_UN)
-            menus = yaml.load(file_contents)
+            base_filename = os.path.join(settings.ANSWER_FILE_DIR, settings.ANSWER_FILE_BASE)
+            menus = yaml.load(base_filename)
 
             containers = []
             for menu in menus:
