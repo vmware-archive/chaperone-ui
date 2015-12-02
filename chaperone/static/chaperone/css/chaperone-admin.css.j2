@@ -1,0 +1,592 @@
+/*
+   Copyright 2015 VMware, Inc.
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+*/
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Helvetica Neue", sans-serif;
+  height: 100%;
+  overflow: auto;
+  color: #333333;
+  /* Get rid of space between child inline-block divs */
+  /* NOTE: Need to reset font-size for all direct child elements */
+  font-size: 0;
+}
+
+label {
+  font-weight: normal;
+}
+
+a,
+a:focus,
+a:active {
+  color: #003D79;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #003D79;
+  text-decoration: underline;
+}
+
+/* Navigation */
+
+.header {
+  background-color: #CC0000;
+  text-align: right;
+  color: #FFFFFF;
+}
+
+.header-btn {
+  /* .dropdown-menu width */
+  width: 160px;
+  background-color: #CC0000;
+  padding: 10px 0 15px 20px;
+  margin-top: 0;
+  border-radius: 0;
+  text-align: left;
+}
+.open .header-btn,
+.header-btn:hover {
+  background-color: #663300;
+  color: #FFFFFF;
+  border-left: 1px solid #CCCCCC;
+}
+
+.header .dropdown-menu {
+  /* .header height */
+  top: 45px;
+  left: initial;
+  right: 0;
+  background-color: #E6ECF2;
+  border-radius: 0;
+}
+.header .dropdown-menu li {
+  padding: 3px 20px 6px 20px;
+}
+
+.header-link a,
+.header-link a:focus,
+.header-link a:active {
+  text-decoration: none;
+}
+.header-link a:hover {
+  text-decoration: underline;
+}
+
+#leftnav {
+  float: left;
+  width: 220px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  background-color: #CC0000;
+  background-image: url('/static/chaperone/img/bg_lb.png');
+  background-repeat: no-repeat;
+  background-position: left 100%;
+  background-size: 100%;
+  overflow: auto;
+  /* Reset font-size from body font-size: 0 */
+  font-size: 14px;
+}
+
+.leftnav-btn {
+  padding: 10px 20px;
+  color: #FFFFFF;
+  cursor: pointer;
+  cursor: hand;
+}
+.leftnav-btn:hover {
+  background-color: #663300;
+  color: #FFFFFF;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 9px;
+}
+.leftnav-btn.active-btn {
+  background-color: #663300;
+  color: #FFFFFF;
+  cursor: default;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 9px;
+}
+
+.logo {
+  font-size: 24px;
+  margin-top: 26px;
+  margin-bottom: 10px;
+  color: #FFFFFF;
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.logo img {
+  width: 150px;
+  height: auto;
+}
+
+#login-form .logo {
+  color: #FFFFFF;
+  text-align: left;
+  margin-top: 40px;
+  /* Vertically align with .form-field */
+  margin-left: 80px;
+}
+#login-form .logo img {
+  width: 250px;
+}
+
+.menu {
+  background-color: #E6ECF2;
+}
+
+.expand-collapse-container {
+  cursor: pointer;
+  cursor: hand;
+  font-style: italic;
+  padding: 4px 20px;
+}
+
+.clickable {
+  cursor: pointer;
+  cursor: hand;
+  text-decoration: none;
+  padding: 8px 20px;
+}
+.clickable:hover {
+  background-color: #FFFFFF;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 7px;
+}
+.clickable.active-item {
+  background-color: #FFFFFF;
+  font-weight: bold;
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 7px;
+}
+.expand-collapse-groups .clickable {
+  padding: 3px 20px 6px 33px;
+}
+.expand-collapse-groups .clickable:hover,
+.expand-collapse-groups .clickable.active-item {
+  border-top: 1px solid #CCCCCC;
+  /* make room for border-top */
+  padding-top: 2px;
+}
+
+.collapsible {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  border-top: 4px solid #717074;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+.expandable {
+  display: inline-block;
+  vertical-align: middle;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 4px solid #717074;
+  margin-right: 5px;
+}
+
+/* Contents */
+
+.loading-sm {
+  height: 14px;
+  width: 14px;
+  vertical-align: text-top;
+  margin-left: -5px;
+}
+
+#rightside {
+  background-color: #FFFFFF;
+  /* Reset font-size from body font-size: 0 */
+  font-size: 14px;
+  /* #leftnav width */
+  margin-left: 220px;
+}
+
+#main {
+  padding: 28px 30px;
+}
+
+#messages {
+  font-size: 20px;
+}
+
+#chaperone-login {
+  background-color: #EEEEEE;
+  text-align: center;
+  padding-top: 40px;
+}
+
+.command-output {
+  max-height: 600px;
+  background-color: #EEEEEE;
+  border: none;
+  border-radius: 0;
+}
+
+.no-display {
+  display: none;
+}
+input[type="file"].no-display {
+  display:none;
+}
+
+.modal-backdrop {
+  opacity: 0.5;
+  filter: alpha(opacity=50);
+}
+
+.modal {
+  /* Reset font-size from body font-size: 0 */
+  font-size: 14px;
+}
+
+.modal-dialog {
+  /* At least 2 * (.modal-section .form-field width) + .modal-body padding */
+  width: 620px;
+}
+
+.modal-body {
+  background-color: #EEEEEE;
+}
+
+.modal-footer {
+  margin-top: 0;
+}
+
+.modal-section {
+  display: inline-block;
+  vertical-align: top;
+}
+.modal-section .form-field {
+  width: 260px;
+}
+.modal-section .connect-btn {
+  margin-top: -5px;
+  margin-bottom: 10px;
+}
+
+.right-border {
+  border-right: 1px solid #CCCCCC;
+}
+
+.left-border {
+  border-left: 1px solid #CCCCCC;
+  /* Eliminate space between inline-block divs */
+  margin-left: -5px;
+}
+
+/* Forms */
+
+.form-group-title {
+  font-size: 28px;
+  margin-bottom: 10px;
+  text-align: text-top;
+}
+
+.form-section-title {
+  margin-bottom: 10px;
+  background-color: #717074;
+  color: #FFFFFF;
+  padding: 10px 15px;
+}
+
+.form-control {
+  border-radius: 0;
+  box-shadow: none;
+}
+.form-section {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: #EEEEEE;
+}
+
+.form-section .checkbox {
+  font-weight: normal;
+}
+.form-section .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+         box-sizing: border-box;
+  margin-bottom: 2px;
+}
+.form-section .form-control:focus {
+  z-index: 2;
+}
+
+#login-form .form-section {
+  width: 600px;
+  height: 320px;
+  background-color: #006990;
+  border-radius: 14px;
+  background-image: url('/static/chaperone/img/bg_rt.png');
+  background-repeat: no-repeat;
+  background-position: right 0;
+}
+
+.form-field {
+  margin: 0 15px 10px 15px;
+  width: 210px;
+}
+
+#login-form .form-field {
+  margin-right: 100px;
+  margin-bottom: 10px;
+  margin-left: 100px;
+  color: #FFFFFF;
+  text-align: left;
+  width: auto;
+}
+
+.form-row-section {
+  display: inline-block;
+  vertical-align: top;
+  margin-right: 5px;
+  margin-bottom: 5px;
+  background-color: #EEEEEE;
+  padding: 10px;
+  overflow: auto;
+}
+
+.form-row-buttons {
+  float: left;
+  vertical-align: bottom;
+}
+
+.form-row-fields {
+  /* .form-row-buttons width */
+  margin-left: 80px;
+}
+
+.form-row-field {
+  display: inline-block;
+  vertical-align: top;
+}
+
+.form-control:focus {
+  border-color: #717074;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(113, 112, 116, .6);
+          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 3px rgba(113, 112, 116, .6);
+}
+
+.form-control.checkbox {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+}
+
+.form-group-buttons {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.btn {
+  margin-top: 5px;
+}
+.btn.header-btn {
+  margin-top: 0;
+}
+
+.btn-primary {
+  background-color: #6DB33F;
+  border-color: transparent;
+}
+.btn-primary:hover,
+.btn-primary:focus,
+.btn-primary:active,
+.open .dropdown-toggle.btn-primary {
+  background-color: #387C2C;
+  border-color: transparent;
+}
+.btn-primary.disabled,
+.btn-primary[disabled],
+fieldset[disabled] .btn-primary,
+.btn-primary.disabled:hover,
+.btn-primary[disabled]:hover,
+fieldset[disabled] .btn-primary:hover,
+.btn-primary.disabled:focus,
+.btn-primary[disabled]:focus,
+fieldset[disabled] .btn-primary:focus,
+.btn-primary.disabled:active,
+.btn-primary[disabled]:active,
+fieldset[disabled] .btn-primary:active,
+.btn-primary.disabled.active,
+.btn-primary[disabled].active,
+fieldset[disabled] .btn-primary.active {
+  background-color: #CCCCCC;
+  border-color: #CCCCCC;
+}
+
+.btn-secondary {
+  background-color: #999999;
+  border-color: transparent;
+  color: #FFFFFF;
+}
+.btn-secondary:hover,
+.btn-secondary:focus,
+.btn-secondary:active,
+.open .dropdown-toggle.btn-secondary {
+  background-color: #717074;
+  border-color: transparent;
+  color: #FFFFFF;
+}
+
+.list-btn {
+  vertical-align: baseline;
+  margin-left: 5px;
+}
+
+button a,
+button a:hover,
+button a:focus,
+button a:active {
+  color: #FFFFFF;
+  text-decoration: none;
+}
+
+.submit-options {
+  margin-right: 2px;
+  margin-left: 2px;
+  vertical-align: middle;
+}
+
+/* Text */
+
+.has-success .help-block,
+.has-success .control-label,
+.has-success .radio,
+.has-success .checkbox,
+.has-success .radio-inline,
+.has-success .checkbox-inline {
+  color: #387C2C;
+}
+.has-success .form-control {
+  border-color: #387C2C;
+}
+.has-success .form-control:focus {
+  border-color: #2D6323;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 3px #609656;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 3px #609656;
+}
+.has-success .input-group-addon {
+  color: #387C2C;
+  border-color: #387C2C;
+}
+.has-success .form-control-feedback {
+  color: #387C2C;
+}
+
+.has-warning .help-block,
+.has-warning .control-label,
+.has-warning .radio,
+.has-warning .checkbox,
+.has-warning .radio-inline,
+.has-warning .checkbox-inline {
+  color: #F8981D;
+}
+.has-warning .form-control {
+  border-color: #F8981D;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075);
+}
+.has-warning .form-control:focus {
+  border-color: #C67A17;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 3px #F9AD4A;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 3px #F9AD4A;
+}
+.has-warning .input-group-addon {
+  color: #F8981D;
+  border-color: #F8981D;
+}
+.has-warning .form-control-feedback {
+  color: #F8981D;
+}
+
+.has-error .help-block,
+.has-error .control-label,
+.has-error .radio,
+.has-error .checkbox,
+.has-error .radio-inline,
+.has-error .checkbox-inline,
+.has-error .errorlist {
+  color: #9E3039;
+}
+.has-error .errorlist {
+  margin-bottom: 2px;
+}
+.has-error .form-control {
+  border-color: #9E3039;
+}
+.has-error .form-control:focus {
+  border-color: #7E262E;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 3px #B15961;
+          box-shadow: inset 0 1px 1px rgba(0, 0, 0, .075), 0 0 3px #B15961;
+}
+.has-error .input-group-addon {
+  color: #9E3039;
+  border-color: #9E3039;
+}
+.has-error .form-control-feedback {
+  color: #9E3039;
+}
+
+.text-success {
+  color: #387C2C;
+}
+a.text-success:hover {
+  color: #6DB33F;
+}
+.text-info {
+  color: #003D79;
+}
+a.text-info:hover {
+  color: #006990;
+}
+.text-warning {
+  color: #F8981D;
+}
+a.text-warning:hover {
+  color: #FDB813;
+}
+.text-error {
+  color: #9E3039;
+}
+a.text-error:hover {
+  color: #D9541E;
+}
+
+.form-field-help {
+  font-size: 11px;
+}
