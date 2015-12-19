@@ -9,7 +9,7 @@ If you intend to use this code outside the context of Chaperone, you
 can read the setup.py and local_setup.py files useful information.
 
 ## The Right Way
-A much easier way to wprk with this code is via the Chaperone Ansible
+A much easier way to work with this code is via the Chaperone Ansible
 Playbooks project (and related modules and roles). That is
 within the ansible-playbooks-chaperone project, which has a complete
 README.md file for setting up Chaperone for both use and development.
@@ -52,4 +52,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-
