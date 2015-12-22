@@ -37,6 +37,19 @@ For more information on how to structure the Prepare and Install
 menus, see the [Chaperone templates](https://github.com/vmware/ansible-role-chaperone/tree/master/templates/var/lib/chaperone)
 and also the code that documents the structure [within this project](chaperone/local_settings.py.example).
 
+# Contributing
+
+Committers (those with rights to merge code) will also need credentials to our Gerrit
+server. For the time being, this is an internal process at VMware as all committers
+are currently at VMware.
+
+With that said, the the development team welcomes contributions from the
+community.  If you wish to contribute code, we require that you first sign our
+[Contributor License Agreement](https://vmware.github.io/photon/assets/files/vmware_cla.pdf)
+and return a copy to [osscontributions@vmware.com](mailto:osscontributions@vmware.com)
+before you submit a [Pull Request](https://help.github.com/articles/creating-a-pull-request)
+for review and potential merge into the code base.
+
 # License and Copyright
  
 Copyright 2015 VMware, Inc.
