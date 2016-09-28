@@ -12,7 +12,7 @@
    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
    See the License for the specific language governing permissions and
    limitations under the License.
---> 
+-->
 <div id="contents-prepare">
   <div class="form-group-title">{{ menu_name }}: {{ container_name }} / {{ group_name }}</div>
   <div id="{{ container_name|slugify }}_{{ group_name|slugify }}-form">
@@ -27,10 +27,10 @@
           {% if attr.input == 'checkbox' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox{% if attr.show %} toggle-show" data-show="{{ attr.show|join:',' }}{% endif %}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}{% if attr.readonly %} disabled="disabled"{% endif %}/>&nbsp;{{ attr.name }}</label>
             {% if attr.help %}<div class="form-field-help">{{ attr.help }}</div>{% endif %}
 
-          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show{% if attr.show %}" data-show="{{ attr.show|join:',' }}{% endif %}" data-section="{{ sname }}" data-field="{{ attr.name }}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}{% if attr.readonly %} disabled="disabled"{% endif %}/>&nbsp;Use {{ attr.name }}</label>
+          {% elif attr.input == 'file' %}<label><input id="{{ attr.id }}" type="checkbox" class="form-control checkbox file-checkbox toggle-show{% if attr.show %}" data-show="{{ attr.show|join:',' }}{% endif %}" data-section="{{ sname }}" data-field="{{ attr.name }}" name="{{ attr.id }}" value="1"{% if attr.value == '1' %} checked="checked"{% endif %}{% if attr.readonly %} disabled="disabled"{% endif %}/>&nbsp;Upload {{ attr.name }}</label>
             {% if attr.help %}<div class="form-field-help">{{ attr.help }}</div>{% endif %}
             <div id="file-field-{{ attr.id }}"{% if attr.value != '1' %} class="no-display"{% endif %}>
-              {% if attr.current %}<a id="current-{{ attr.id }}" href="{% url 'prepare:download' attr.id %}">current version</a>, or new one:{% endif %}
+              {% if attr.current %}<a id="current-{{ attr.id }}" href="{% url 'prepare:download' attr.id %}">Replace current version</a>, or upload new one:{% endif %}
               <input id="file-{{ attr.id }}" type="file" class="form-control" name="file-{{ attr.id }}"{% if attr.readonly %} disabled="disabled"{% endif %}/>
             </div>
 
